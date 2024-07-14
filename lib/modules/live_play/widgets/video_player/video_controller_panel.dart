@@ -393,11 +393,13 @@ class BottomActionBar extends StatelessWidget {
               children: [
                 Row(
                   children: <Widget>[
+                    SwitchButton(controller: controller, isLeft: true),
                     SeekToButton(isLeft: true, controller: controller),
                     PlayPauseButton(
                       controller: controller,
                     ),
                     SeekToButton(isLeft: false, controller: controller),
+                    SwitchButton(controller: controller, isLeft: false),
                     TimeSliderButton(controller: controller),
                     const Spacer(),
                     MuteButton(controller: controller),
@@ -449,21 +451,21 @@ class SeekToButton extends StatelessWidget {
 
 class SwitchButton extends StatelessWidget {
   const SwitchButton({super.key, required this.controller, required this.isLeft});
-  final bool isLeft;
-  final VideoController controller;
 
+  final VideoController controller;
+  final bool isLeft;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => controller.togglePlayPause(),
-      child: Obx(() => Container(
-            alignment: Alignment.center,
-            padding: const EdgeInsets.all(12),
-            child: Icon(
-              controller.isPlaying.value ? Icons.pause_rounded : Icons.play_arrow_rounded,
-              color: Colors.white,
-            ),
-          )),
+      onTap: () => isLeft ? controller.livePlayController.playPrevious() : controller.livePlayController.playNext(),
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(12),
+        child: Icon(
+          isLeft ? Icons.fast_rewind_rounded : Icons.fast_forward_rounded,
+          color: Colors.white,
+        ),
+      ),
     );
   }
 }

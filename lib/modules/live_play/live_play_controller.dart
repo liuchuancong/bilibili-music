@@ -2,13 +2,14 @@ import 'package:get/get.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/core/bilibili_site.dart';
 import 'package:bilibilimusic/models/live_video_info.dart';
+import 'package:bilibilimusic/services/settings_service.dart';
 import 'package:bilibilimusic/modules/live_play/widgets/video_player/video_controller.dart';
 
 class LivePlayController extends StateController {
   // 控制唯一子组件
   VideoController? videoController;
   final VideoInfo videoInfo;
-
+  SettingsService settingsService = Get.find<SettingsService>();
   LivePlayController({required this.videoInfo});
 
   var success = false.obs;
@@ -43,6 +44,56 @@ class LivePlayController extends StateController {
       videoInfoData = detail;
       success.value = true;
       videoController = VideoController(videoInfo: videoInfo, videoInfoData: videoInfoData, initPosition: position);
+    }
+  }
+
+  void playNext() async {
+    if (videoController != null && !videoController!.hasDestory.value) {
+      position = 0;
+      videoController!.destory();
+      success.value = false;
+    }
+
+    var nextVideoInfo = settingsService.getNextVideoInfo();
+
+    var detail = await BiliBiliSite().getVideoDetail(nextVideoInfo.aid, nextVideoInfo.cid, nextVideoInfo.bvid);
+    if (detail != null) {
+      videoInfoData = detail;
+      success.value = true;
+      videoController = VideoController(videoInfo: nextVideoInfo, videoInfoData: videoInfoData, initPosition: 0);
+    }
+  }
+
+  void playPrevious() async {
+    if (videoController != null && !videoController!.hasDestory.value) {
+      position = 0;
+      videoController!.destory();
+      success.value = false;
+    }
+
+    var previousVideoInfo = settingsService.getPreviousVideoInfo();
+
+    var detail =
+        await BiliBiliSite().getVideoDetail(previousVideoInfo.aid, previousVideoInfo.cid, previousVideoInfo.bvid);
+    if (detail != null) {
+      videoInfoData = detail;
+      success.value = true;
+      videoController = VideoController(videoInfo: previousVideoInfo, videoInfoData: videoInfoData, initPosition: 0);
+    }
+  }
+
+  void playByVideoInfo(VideoInfo videoInfo) async {
+    if (videoController != null && !videoController!.hasDestory.value) {
+      position = 0;
+      videoController!.destory();
+      success.value = false;
+    }
+    var detail = await BiliBiliSite().getVideoDetail(videoInfo.aid, videoInfo.cid, videoInfo.bvid);
+    if (detail != null) {
+      videoInfoData = detail;
+      success.value = true;
+      settingsService.setCurrentVideo(videoInfo);
+      videoController = VideoController(videoInfo: videoInfo, videoInfoData: videoInfoData, initPosition: 0);
     }
   }
 

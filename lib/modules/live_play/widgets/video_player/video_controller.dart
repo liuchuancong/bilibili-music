@@ -7,6 +7,7 @@ import 'package:screen_brightness/screen_brightness.dart';
 import 'package:bilibilimusic/models/live_video_info.dart';
 import 'package:better_player_plus/better_player_plus.dart';
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
+import 'package:bilibilimusic/modules/live_play/live_play_controller.dart';
 
 class VideoController with ChangeNotifier {
   final VideoInfo videoInfo;
@@ -19,6 +20,8 @@ class VideoController with ChangeNotifier {
   VideoController({required this.videoInfo, required this.videoInfoData, required this.initPosition}) {
     initVideoController();
   }
+
+  LivePlayController livePlayController = Get.find<LivePlayController>();
   // Battery level control
   final batteryLevel = 100.obs;
   final showController = true.obs;
@@ -82,6 +85,9 @@ class VideoController with ChangeNotifier {
       isPlaying.value = false;
     } else if (event.betterPlayerEventType == BetterPlayerEventType.exception) {
       hasError.value = false;
+    } else if (event.betterPlayerEventType == BetterPlayerEventType.finished) {
+      isPlaying.value = false;
+      livePlayController.playNext();
     }
   }
 
@@ -177,7 +183,6 @@ class VideoController with ChangeNotifier {
   destory() async {
     betterPlayerController.removeEventsListener(mobileStateListener);
     betterPlayerController.dispose();
-
     hasDestory.value = true;
   }
 

@@ -6,6 +6,7 @@ import 'package:bilibilimusic/style/theme.dart';
 import 'package:flutter_color/flutter_color.dart';
 import 'package:bilibilimusic/utils/pref_util.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
+import 'package:bilibilimusic/models/live_video_info.dart';
 import 'package:bilibilimusic/services/bilibili_account_service.dart';
 
 class SettingsService extends GetxController {
@@ -80,6 +81,52 @@ class SettingsService extends GetxController {
   // cookie
 
   final bilibiliCookie = (PrefUtil.getString('bilibiliCookie') ?? '').obs;
+
+  // 当前视频播放列表
+  var videoInfos = [].obs;
+  var currentVideoIndex = 0.obs;
+
+  void addVideoInfo(VideoInfo videoInfo) {
+    videoInfos.add(videoInfo);
+  }
+
+  void removeVideoInfo(VideoInfo videoInfo) {
+    videoInfos.remove(videoInfo);
+  }
+
+  void setCurrentVideoIndex(int index) {
+    currentVideoIndex.value = index;
+  }
+
+  void setCurrentVideo(VideoInfo videoInfo) {
+    setCurrentVideoIndex(videoInfos.indexWhere((element) => element == videoInfo));
+  }
+
+  VideoInfo getCurrentVideoInfo() {
+    return videoInfos[currentVideoIndex.value];
+  }
+
+  VideoInfo getNextVideoInfo() {
+    if (currentVideoIndex.value + 1 < videoInfos.length) {
+      setCurrentVideoIndex(currentVideoIndex.value + 1);
+      return videoInfos[currentVideoIndex.value + 1];
+    }
+    setCurrentVideoIndex(0);
+    return videoInfos[0];
+  }
+
+  VideoInfo getPreviousVideoInfo() {
+    if (currentVideoIndex.value - 1 >= 0) {
+      setCurrentVideoIndex(currentVideoIndex.value - 1);
+      return videoInfos[currentVideoIndex.value - 1];
+    }
+    setCurrentVideoIndex(videoInfos.length - 1);
+    return videoInfos[videoInfos.length - 1];
+  }
+
+  bool isCurrentVideoInfo(VideoInfo videoInfo) {
+    return videoInfo == getCurrentVideoInfo();
+  }
 
   bool backup(File file) {
     try {

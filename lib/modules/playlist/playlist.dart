@@ -35,6 +35,7 @@ class PlayListPage extends GetView<PlayListController> {
             VideoInfo videoInfo = controller.list[index];
             return GestureDetector(
               onTap: () {
+                controller.settingsService.setCurrentVideo(videoInfo);
                 AppNavigator.toLiveRoomDetail(videoInfo: videoInfo);
               },
               child: Card(

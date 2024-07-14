@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:bilibilimusic/plugins/http_client.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
@@ -249,7 +248,6 @@ class BiliBiliSite {
       for (var item in result["data"]["accept_quality"]) {
         acceptQuality.add(item);
       }
-      log(result.toString());
       return VideoInfoData(
         url: result["data"]["durl"][0]["url"],
         quality: result["data"]["quality"],
