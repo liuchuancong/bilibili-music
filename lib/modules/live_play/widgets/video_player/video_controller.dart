@@ -15,11 +15,8 @@ class VideoController with ChangeNotifier {
   var initialized = false.obs;
   ScreenBrightness brightnessController = ScreenBrightness();
   late BetterPlayerController betterPlayerController;
-
-  VideoController({
-    required this.videoInfo,
-    required this.videoInfoData,
-  }) {
+  final int initPosition;
+  VideoController({required this.videoInfo, required this.videoInfoData, required this.initPosition}) {
     initVideoController();
   }
   // Battery level control
@@ -28,7 +25,11 @@ class VideoController with ChangeNotifier {
   final hasError = false.obs;
   final isPlaying = false.obs;
   Timer? showControllerTimer;
-
+  final isMuted = false.obs;
+  final hasDestory = false.obs;
+  var duration = 0.obs;
+  var position = 0.obs;
+  var volume = 0.0.obs;
   final isFullscreen = false.obs;
 
   void enableController() {
@@ -67,17 +68,58 @@ class VideoController with ChangeNotifier {
       ),
     );
     betterPlayerController.setupDataSource(dataSource);
-    betterPlayerController.addEventsListener((event) {
-      if (event.betterPlayerEventType == BetterPlayerEventType.initialized) {
-        initialized.value = true;
-      } else if (event.betterPlayerEventType == BetterPlayerEventType.play) {
-        isPlaying.value = true;
-      } else if (event.betterPlayerEventType == BetterPlayerEventType.pause) {
-        isPlaying.value = false;
-      } else if (event.betterPlayerEventType == BetterPlayerEventType.exception) {
-        hasError.value = false;
-      }
-    });
+
+    betterPlayerController.addEventsListener(mobileStateListener);
+  }
+
+  dynamic mobileStateListener(event) {
+    getCurrentPosition();
+    if (event.betterPlayerEventType == BetterPlayerEventType.initialized) {
+      initialized.value = true;
+    } else if (event.betterPlayerEventType == BetterPlayerEventType.play) {
+      isPlaying.value = true;
+    } else if (event.betterPlayerEventType == BetterPlayerEventType.pause) {
+      isPlaying.value = false;
+    } else if (event.betterPlayerEventType == BetterPlayerEventType.exception) {
+      hasError.value = false;
+    }
+  }
+
+  getCurrentPosition() async {
+    if (betterPlayerController.videoPlayerController == null) {
+      return 0;
+    }
+    Duration? videoPosition = await betterPlayerController.videoPlayerController!.position;
+    Duration? videoDuration = betterPlayerController.videoPlayerController!.value.duration;
+    position.value = videoPosition!.inSeconds;
+    duration.value = videoDuration!.inSeconds;
+  }
+
+  String zeroFill(int i) {
+    return i >= 10 ? "$i" : "0$i";
+  }
+
+  String second2HMS(int sec, {bool isEasy = true}) {
+    String hms = "00:00:00";
+    if (!isEasy) hms = "00时00分00秒";
+    if (sec > 0) {
+      int h = sec ~/ 3600;
+      int m = (sec % 3600) ~/ 60;
+      int s = sec % 60;
+      hms = "${zeroFill(h)}:${zeroFill(m)}:${zeroFill(s)}";
+      if (!isEasy) hms = "${zeroFill(h)}时${zeroFill(m)}分${zeroFill(s)}秒";
+    }
+    return hms;
+  }
+
+  Future<void> toggleMute() async {
+    if (isMuted.value) {
+      betterPlayerController.setVolume(volume.value);
+    } else {
+      volume.value = betterPlayerController.videoPlayerController!.value.volume;
+      betterPlayerController.setVolume(0.0);
+    }
+    isMuted.toggle();
   }
 
   void togglePlayPause() {
@@ -89,30 +131,55 @@ class VideoController with ChangeNotifier {
     }
   }
 
+  void skipBack() async {
+    var isPlaying = betterPlayerController.isPlaying();
+    if (isPlaying!) {
+      Duration? videoDuration = await betterPlayerController.videoPlayerController!.position;
+      Duration rewindDuration = Duration(seconds: (videoDuration!.inSeconds - 5));
+      if (rewindDuration < betterPlayerController.videoPlayerController!.value.duration!) {
+        betterPlayerController.seekTo(const Duration(seconds: 0));
+      } else {
+        betterPlayerController.seekTo(rewindDuration);
+      }
+    }
+  }
+
+  void skipForward() async {
+    var isPlaying = betterPlayerController.isPlaying();
+    if (isPlaying!) {
+      Duration? videoDuration = await betterPlayerController.videoPlayerController!.position;
+      Duration forwardDuration = Duration(seconds: (videoDuration!.inSeconds + 5));
+      if (forwardDuration > betterPlayerController.videoPlayerController!.value.duration!) {
+        betterPlayerController.seekTo(const Duration(seconds: 0));
+        betterPlayerController.pause();
+      } else {
+        betterPlayerController.seekTo(forwardDuration);
+      }
+    }
+  }
+
   refreshView() {
     betterPlayerController.retryDataSource();
   }
 
   @override
   void dispose() async {
-    await destory();
+    if (!hasDestory.value) {
+      await destory();
+    }
     super.dispose();
   }
 
   void refresh() {
-    destory();
+    betterPlayerController.retryDataSource();
   }
 
-  void changeLine({bool active = false}) async {
-    // 播放错误 不一定是线路问题 先切换路线解决 后面尝试通知用户切换播放器
-    await destory();
+  destory() async {
+    betterPlayerController.removeEventsListener(mobileStateListener);
+    betterPlayerController.dispose();
+
+    hasDestory.value = true;
   }
-
-  destory() async {}
-
-  void setDataSource(String url) async {}
-
-  exitFullScreen() {}
 
   void toggleFullScreen() {
     if (betterPlayerController.isFullScreen) {
@@ -124,9 +191,10 @@ class VideoController with ChangeNotifier {
     isFullscreen.toggle();
   }
 
-  void toggleWindowFullScreen() {}
-
-  void enterPipMode(BuildContext context) async {}
+  exitFullScreen() {
+    betterPlayerController.exitFullScreen();
+    isFullscreen.value = false;
+  }
 
   // volumn & brightness
   Future<double?> volumn() async {
@@ -138,7 +206,7 @@ class VideoController with ChangeNotifier {
   }
 
   void setVolumn(double value) async {
-    await FlutterVolumeController.setVolume(value);
+    await betterPlayerController.setVolume(value);
   }
 
   void setBrightness(double value) async {
@@ -147,6 +215,3 @@ class VideoController with ChangeNotifier {
     }
   }
 }
-
-
-// use fullscreen with controller provider

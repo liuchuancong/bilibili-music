@@ -63,6 +63,7 @@ dependencies:
   crypto: ^3.0.3
   screen_brightness: ^0.2.2+1
   flutter_volume_controller: ^1.2.7
+  audio_video_progress_bar: ^2.0.3
 dev_dependencies:
   flutter_test:
     sdk: flutter

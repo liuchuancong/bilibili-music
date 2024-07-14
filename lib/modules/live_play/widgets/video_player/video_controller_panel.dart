@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/gestures.dart';
 import 'package:bilibilimusic/common/index.dart';
+import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:bilibilimusic/modules/live_play/widgets/video_player/video_controller.dart';
 
 class VideoControllerPanel extends StatefulWidget {
@@ -19,7 +20,7 @@ class VideoControllerPanel extends StatefulWidget {
 }
 
 class _VideoControllerPanelState extends State<VideoControllerPanel> {
-  static const barHeight = 56.0;
+  static const barHeight = 70.0;
 
   // Video controllers
   VideoController get controller => widget.controller;
@@ -75,45 +76,46 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                   controller.showControllerTimer?.cancel();
                   controller.showController.toggle();
                 },
-                child: Stack(children: [
-                  Container(
-                    color: Colors.transparent,
-                    alignment: Alignment.center,
-                    child: AnimatedOpacity(
-                      opacity: !showVolumn ? 0.8 : 0.0,
-                      duration: const Duration(milliseconds: 300),
-                      child: Card(
-                        color: Colors.black,
-                        child: Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Icon(iconData, color: Colors.white),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 8, right: 4),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: SizedBox(
-                                    width: 100,
-                                    height: 20,
-                                    child: LinearProgressIndicator(
-                                      value: currentVolumn,
-                                      backgroundColor: Colors.white38,
-                                      valueColor: AlwaysStoppedAnimation(
-                                        Theme.of(context).indicatorColor,
+                child: Stack(
+                  children: [
+                    Container(
+                      color: Colors.transparent,
+                      alignment: Alignment.center,
+                      child: AnimatedOpacity(
+                        opacity: !showVolumn ? 0.8 : 0.0,
+                        duration: const Duration(milliseconds: 300),
+                        child: Card(
+                          color: Colors.black,
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Icon(iconData, color: Colors.white),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 8, right: 4),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: SizedBox(
+                                      width: 100,
+                                      height: 20,
+                                      child: LinearProgressIndicator(
+                                        value: currentVolumn,
+                                        backgroundColor: Colors.white38,
+                                        valueColor: AlwaysStoppedAnimation(
+                                          Theme.of(context).indicatorColor,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  GestureDetector(
+                    GestureDetector(
                       onTap: () {
                         controller.enableController();
                       },
@@ -122,15 +124,53 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
                       },
                       child: BrightnessVolumnDargArea(
                         controller: controller,
-                      )),
-                  BottomActionBar(
-                    controller: controller,
-                    barHeight: barHeight,
-                  ),
-                ]),
+                      ),
+                    ),
+                    // PlayGroupButton(
+                    //   controller: controller,
+                    // ),
+                    BottomActionBar(
+                      controller: controller,
+                      barHeight: barHeight,
+                    ),
+                  ],
+                ),
               )),
       ),
     );
+  }
+}
+
+class PlayGroupButton extends StatelessWidget {
+  const PlayGroupButton({super.key, required this.controller});
+
+  final VideoController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() => AnimatedOpacity(
+          opacity: controller.showController.value ? 0.9 : 0.0,
+          duration: const Duration(milliseconds: 300),
+          child: Container(
+            padding: const EdgeInsets.all(8.0),
+            margin: const EdgeInsets.only(bottom: 20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    SeekToButton(isLeft: true, controller: controller),
+                    PlayPauseButton(
+                      controller: controller,
+                    ),
+                    SeekToButton(isLeft: false, controller: controller),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ));
   }
 }
 
@@ -347,22 +387,84 @@ class BottomActionBar extends StatelessWidget {
             alignment: Alignment.centerLeft,
             padding: const EdgeInsets.symmetric(horizontal: 8),
             decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Colors.transparent, Colors.black45],
-              ),
+              color: Colors.black54,
             ),
-            child: Row(
-              children: <Widget>[
-                PlayPauseButton(controller: controller),
-                RefreshButton(controller: controller),
-                const Spacer(),
-                ExpandButton(controller: controller),
+            child: Column(
+              children: [
+                Row(
+                  children: <Widget>[
+                    SeekToButton(isLeft: true, controller: controller),
+                    PlayPauseButton(
+                      controller: controller,
+                    ),
+                    SeekToButton(isLeft: false, controller: controller),
+                    TimeSliderButton(controller: controller),
+                    const Spacer(),
+                    MuteButton(controller: controller),
+                    ExpandButton(controller: controller),
+                  ],
+                ),
+                ProgressBar(
+                  progress: Duration(seconds: controller.position.value),
+                  barHeight: 2,
+                  thumbRadius: 4,
+                  thumbGlowRadius: 8,
+                  progressBarColor: Colors.white,
+                  bufferedBarColor: Colors.white38,
+                  thumbColor: Colors.white,
+                  thumbGlowColor: Colors.white,
+                  total: Duration(seconds: controller.duration.value),
+                  timeLabelTextStyle: const TextStyle(fontSize: 0),
+                  onSeek: (duration) {
+                    controller.betterPlayerController.seekTo(duration);
+                  },
+                ),
               ],
             ),
           ),
         ));
+  }
+}
+
+class SeekToButton extends StatelessWidget {
+  const SeekToButton({super.key, required this.controller, required this.isLeft});
+
+  final VideoController controller;
+  final bool isLeft;
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => isLeft ? controller.skipBack() : controller.skipForward(),
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(12),
+        child: Icon(
+          isLeft ? Icons.replay_5_outlined : Icons.forward_5_outlined,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+}
+
+class SwitchButton extends StatelessWidget {
+  const SwitchButton({super.key, required this.controller, required this.isLeft});
+  final bool isLeft;
+  final VideoController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => controller.togglePlayPause(),
+      child: Obx(() => Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(12),
+            child: Icon(
+              controller.isPlaying.value ? Icons.pause_rounded : Icons.play_arrow_rounded,
+              color: Colors.white,
+            ),
+          )),
+    );
   }
 }
 
@@ -384,6 +486,45 @@ class PlayPauseButton extends StatelessWidget {
             ),
           )),
     );
+  }
+}
+
+class MuteButton extends StatelessWidget {
+  const MuteButton({super.key, required this.controller});
+
+  final VideoController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => controller.toggleMute(),
+      child: Obx(() => Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(12),
+            child: Icon(
+              controller.isMuted.value ? Icons.volume_mute_sharp : Icons.volume_up_rounded,
+              color: Colors.white,
+            ),
+          )),
+    );
+  }
+}
+
+class TimeSliderButton extends StatelessWidget {
+  const TimeSliderButton({super.key, required this.controller});
+
+  final VideoController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() => Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(12),
+          child: Text(
+            '${controller.second2HMS(controller.position.value)} - ${controller.second2HMS(controller.duration.value)}',
+            style: const TextStyle(color: Colors.white),
+          ),
+        ));
   }
 }
 

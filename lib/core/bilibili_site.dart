@@ -203,7 +203,7 @@ class BiliBiliSite {
     return "";
   }
 
-  Future<VideoInfoData?> getVideoDetail(int avid, int cid, String bvid) async {
+  Future<VideoInfoData?> getVideoDetail(int avid, int cid, String bvid, {String qn = '80'}) async {
     cookie = settings.bilibiliCookie.value;
     // var utoken = await getToken(avid, cid);
     var result = await HttpClient.instance.getJson(
@@ -212,7 +212,7 @@ class BiliBiliSite {
         "avid": avid,
         "bvid": bvid,
         "cid": cid,
-        "qn": "80",
+        "qn": qn,
         "type": 'video',
         "otype": "json",
         "format": "mp4",
