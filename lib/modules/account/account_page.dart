@@ -10,14 +10,14 @@ class AccountPage extends GetView<AccountController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("三方认证"),
+        title: const Text("登录"),
       ),
       body: ListView(
         children: [
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
             child: Text(
-              "哔哩哔哩账号需要登录才能看高清晰度的直播，其他平台暂无此限制。",
+              "哔哩哔哩",
               textAlign: TextAlign.center,
             ),
           ),

@@ -1,7 +1,7 @@
 /// 路由路径
 class RoutePath {
   /// 首页
-  static const kInitial = "/home";
+  static const kInitial = "/c";
 
   /// 关注
   static const kFavorite = "/favorite";
@@ -20,6 +20,9 @@ class RoutePath {
 
   /// 播放页面
   static const kLivePlay = "/live_play";
+
+  /// 播放页面
+  static const kPlayList = "/play_list";
 
   /// 搜索
   static const kSearch = "/search";

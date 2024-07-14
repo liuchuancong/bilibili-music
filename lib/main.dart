@@ -7,6 +7,7 @@ import 'package:bilibilimusic/services/settings_service.dart';
 import 'package:bilibilimusic/services/bilibili_account_service.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   PrefUtil.prefs = await SharedPreferences.getInstance();
   // 初始化服务
   initService();

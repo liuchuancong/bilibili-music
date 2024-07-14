@@ -29,7 +29,7 @@ class BiliBiliWebLoginController extends BaseController {
       var cookieStr = cookies.map((e) => "${e.name}=${e.value}").join(";");
       BiliBiliAccountService.instance.setCookie(cookieStr);
       await BiliBiliAccountService.instance.loadUserInfo();
-      Navigator.of(Get.context!).pop(true);
+      Get.back();
     }
   }
 }

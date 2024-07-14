@@ -2,12 +2,22 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:bilibilimusic/plugins/utils.dart';
 import 'package:bilibilimusic/routes/route_path.dart';
+import 'package:bilibilimusic/models/bilibili_video.dart';
+import 'package:bilibilimusic/models/live_video_info.dart';
 
 /// APP页面跳转封装
 /// * 需要参数的页面都应使用此类
 /// * 如不需要参数，可以使用Get.toNamed
 class AppNavigator {
   /// 跳转至分类详
+  /// 跳转至直播间
+  static Future<void> toLiveRoomDetailList({required BilibiliVideo bilibiliVideo}) async {
+    Get.toNamed(RoutePath.kPlayList, arguments: bilibiliVideo);
+  }
+
+  static Future<void> toLiveRoomDetail({required VideoInfo videoInfo}) async {
+    Get.toNamed(RoutePath.kLivePlay, arguments: videoInfo);
+  }
 
   /// 跳转至哔哩哔哩登录
   static Future toBiliBiliLogin() async {

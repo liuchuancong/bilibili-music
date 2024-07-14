@@ -14,7 +14,7 @@ class BiliBiliAccountService extends GetxController {
 
   var cookie = "".obs;
   var uid = 0;
-  var name = "未登录".obs;
+  var name = "未登录,请先登录哔哩哔哩".obs;
   static const String kBilibiliCookie = "bilibiliCookie";
   @override
   void onInit() {
