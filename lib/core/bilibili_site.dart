@@ -1,4 +1,6 @@
+import 'dart:developer';
 import 'package:get/get.dart';
+import 'package:bilibilimusic/core/util.dart';
 import 'package:bilibilimusic/plugins/http_client.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:bilibilimusic/models/live_video_info.dart';
@@ -253,6 +255,69 @@ class BiliBiliSite {
         quality: result["data"]["quality"],
         format: result["data"]["format"],
         size: result["data"]["durl"][0]["size"],
+        time: result["data"]["timelength"].toString(),
+        acceptQuality: acceptQuality,
+      );
+    }
+    return null;
+  }
+
+  Future<VideoInfoData?> getAudioDetail(int avid, int cid, String bvid, {String qn = '80'}) async {
+    cookie = settings.bilibiliCookie.value;
+
+    var sign = await getSignedParams({
+      "bvid": bvid,
+      "cid": cid,
+      "fnval": 16,
+    });
+    log(sign.toString(), name: 'getAudioDetail');
+    var result = await HttpClient.instance.getJson(
+      "http://api.bilibili.com/x/player/wbi/playurl",
+      queryParameters: sign,
+      header: {
+        "cookie": cookie,
+        "authority": "api.bilibili.com",
+        "accept":
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "accept-language": "zh-CN,zh;q=0.9",
+        "cache-control": "no-cache",
+        "dnt": "1",
+        "pragma": "no-cache",
+        "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": '"macOS"',
+        "sec-fetch-dest": "document",
+        "sec-fetch-mode": "navigate",
+        "sec-fetch-site": "none",
+        "sec-fetch-user": "?1",
+        "upgrade-insecure-requests": "1",
+        "user-agent":
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+        "Referer": "https://www.bilibili.com/video/$bvid",
+      },
+    );
+
+    if (result["code"] == 0) {
+      List<int> acceptQuality = [];
+      for (var item in result["data"]["accept_quality"]) {
+        acceptQuality.add(item);
+      }
+      var baseUrl = '';
+      var audio = result["data"]["dash"]["audio"] ?? [];
+      if (audio.isNotEmpty) {
+        for (var item in audio) {
+          if (item["id"].toString() == qn) baseUrl = item["baseUrl"];
+        }
+        if (baseUrl.isEmpty) {
+          baseUrl = audio.last["baseUrl"];
+        }
+      }
+      log(baseUrl, name: 'baseUrl');
+      return VideoInfoData(
+        url: baseUrl,
+        quality: result["data"]["quality"],
+        format: result["data"]["format"],
+        size: 0,
         time: result["data"]["timelength"].toString(),
         acceptQuality: acceptQuality,
       );
