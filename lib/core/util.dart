@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:crypto/crypto.dart';
 import 'package:bilibilimusic/common/index.dart';
@@ -113,58 +114,49 @@ extension AudioQualityEnumsExtension on AudioQualityEnums {
   }
 }
 
+// 对 imgKey 和 subKey 进行字符顺序打乱编码
 String getMixinKey(String orig) {
-  return mixinKeyEncTab.map((i) => orig[i]).join().substring(0, 32);
+  String temp = '';
+  for (int i = 0; i < mixinKeyEncTab.length; i++) {
+    temp += orig.split('')[mixinKeyEncTab[i]];
+  }
+  return temp.substring(0, 32);
 }
 
+// 为请求参数进行 wbi 签名
 Map<String, dynamic> encWbi(Map<String, dynamic> params, String imgKey, String subKey) {
-  String mixinKey = getMixinKey(imgKey + subKey); // 假设 getMixinKey 已经被正确地定义
-  String currTime = (DateTime.now().millisecondsSinceEpoch / 1000).round().toString(); // 获取当前时间戳（秒）
-
-  // 添加 wts 字段
-  params['wts'] = currTime;
-
+  final String mixinKey = getMixinKey(imgKey + subKey);
+  final DateTime now = DateTime.now();
+  final int currTime = (now.millisecondsSinceEpoch / 1000).round();
+  final RegExp chrFilter = RegExp(r"[!\'\(\)*]");
+  final List<String> query = <String>[];
+  final Map<String, dynamic> newParams = Map.from(params)..addAll({"wts": currTime}); // 添加 wts 字段
   // 按照 key 重排参数
-  List<MapEntry<String, dynamic>> entries = params.entries.toList();
-  entries.sort((a, b) => a.key.compareTo(b.key));
-  Map<String, dynamic> sortedParams = Map.fromEntries(entries);
-
-  // 过滤 value 中的 "!'()" 字符
-  Map<String, dynamic> filteredParams = {};
-  sortedParams.forEach((key, value) {
-    String strValue = value.toString();
-    String filteredValue = strValue.replaceAll(RegExp(r"[!'()]"), "");
-    filteredParams[key] = filteredValue;
-  });
-
-  // 序列化参数
-  String query = Uri(queryParameters: filteredParams).query;
-
-  // 计算 w_rid
-  String wbiSign = _computeMd5Hash(query + mixinKey);
-
-  // 添加 w_rid 到参数
-  filteredParams['w_rid'] = wbiSign;
-
-  return filteredParams;
+  final List<String> keys = newParams.keys.toList()..sort();
+  for (String i in keys) {
+    query.add('${Uri.encodeComponent(i)}=${Uri.encodeComponent(newParams[i].toString().replaceAll(chrFilter, ''))}');
+  }
+  final String queryStr = query.join('&');
+  final String wbiSign = md5.convert(utf8.encode(queryStr + mixinKey)).toString(); // 计算 w_rid
+  return {'wts': currTime.toString(), 'w_rid': wbiSign};
 }
 
-// MD5哈希计算辅助函数
-String _computeMd5Hash(String input) {
-  var bytes = utf8.encode(input);
-  var digest = md5.convert(bytes);
-  return digest.toString();
-}
-
-Future<Map<String, String>> getWbiKeys() async {
+Future<Map<String, dynamic>> getWbiKeys() async {
   final SettingsService settings = Get.find<SettingsService>();
+  final DateTime nowDate = DateTime.now();
+  if (settings.webKeys.isNotEmpty &&
+      DateTime.fromMillisecondsSinceEpoch(settings.webKeyTimeStamp.value).day == nowDate.day) {
+    return Map.from(jsonDecode(settings.webKeys.value));
+  }
   headers['cookie'] = settings.bilibiliCookie.value;
   final result = await HttpClient.instance.getJson('https://api.bilibili.com/x/web-interface/nav', header: headers);
   if (result["code"] == 0) {
     final imgUrl = result["data"]["wbi_img"]["img_url"];
     final subUrl = result["data"]["wbi_img"]["sub_url"];
-    final imgKey = imgUrl.split('/').last.split('.').first;
-    final subKey = subUrl.split('/').last.split('.').first;
+    final imgKey = imgUrl.split('/').last.split('.').first.toString();
+    final subKey = subUrl.split('/').last.split('.').first.toString();
+    settings.webKeys.value = jsonEncode({'imgKey': imgKey, 'subKey': subKey});
+    settings.webKeyTimeStamp.value = nowDate.millisecondsSinceEpoch;
     return {'imgKey': imgKey, 'subKey': subKey};
   } else {
     SmartDialog.showToast(result['message']);
@@ -173,6 +165,8 @@ Future<Map<String, String>> getWbiKeys() async {
 }
 
 Future<Map<String, dynamic>> getSignedParams(Map<String, dynamic> params) async {
-  final keys = await getWbiKeys();
-  return encWbi(params, keys['imgKey']!, keys['subKey']!);
+// params 为需要加密的请求参数
+  final Map<String, dynamic> wbiKeys = await getWbiKeys();
+  final Map<String, dynamic> query = params..addAll(encWbi(params, wbiKeys['imgKey'], wbiKeys['subKey']));
+  return query;
 }

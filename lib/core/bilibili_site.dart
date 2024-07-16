@@ -239,8 +239,8 @@ class BiliBiliSite {
         "sec-fetch-site": "none",
         "sec-fetch-user": "?1",
         "upgrade-insecure-requests": "1",
-        "user-agent":
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+        "User-Agent":
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
         "Referer": "https://www.bilibili.com",
       },
     );
@@ -262,7 +262,7 @@ class BiliBiliSite {
     return null;
   }
 
-  Future<VideoInfoData?> getAudioDetail(int avid, int cid, String bvid, {String qn = '80'}) async {
+  Future<VideoInfoData?> getAudioDetail(int avid, int cid, String bvid, {String qn = '32'}) async {
     cookie = settings.bilibiliCookie.value;
 
     var sign = await getSignedParams({
@@ -273,7 +273,19 @@ class BiliBiliSite {
     log(sign.toString(), name: 'getAudioDetail');
     var result = await HttpClient.instance.getJson(
       "http://api.bilibili.com/x/player/wbi/playurl",
-      queryParameters: sign,
+      queryParameters: {
+        "avid": avid,
+        "bvid": bvid,
+        "cid": cid,
+        "qn": qn,
+        "fnval": 4048,
+        "gaia_source": "view-card",
+        "from_client": 'BROWSER',
+        "w_rid": sign["w_rid"],
+        "wts": sign["wts"],
+        "fourk": 1,
+        "web_location": 1550101
+      },
       header: {
         "cookie": cookie,
         "authority": "api.bilibili.com",
@@ -291,9 +303,9 @@ class BiliBiliSite {
         "sec-fetch-site": "none",
         "sec-fetch-user": "?1",
         "upgrade-insecure-requests": "1",
-        "user-agent":
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-        "Referer": "https://www.bilibili.com/video/$bvid",
+        "User-Agent":
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+        "Referer": "https://www.bilibili.com",
       },
     );
 

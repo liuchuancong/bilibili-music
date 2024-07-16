@@ -31,6 +31,14 @@ class SettingsService extends GetxController {
     device.listen((value) {
       PrefUtil.setString('device', value);
     });
+
+    webKeyTimeStamp.listen((value) {
+      PrefUtil.setInt('webKeyTimeStamp', value);
+    });
+
+    webKeys.listen((value) {
+      PrefUtil.setString('webKeys', value);
+    });
   }
 
   // Theme settings
@@ -90,6 +98,10 @@ class SettingsService extends GetxController {
   final device = (PrefUtil.getString('device') ?? 'phone').obs;
 
   final deviceList = ['phone', 'pad', 'pc'].obs;
+
+  final webKeyTimeStamp = (PrefUtil.getInt('webKeyTimeStamp') ?? 0).obs;
+
+  final webKeys = (PrefUtil.getString('webKeys') ?? '').obs;
 
   void changeDevice(String device) {
     this.device.value = device;
