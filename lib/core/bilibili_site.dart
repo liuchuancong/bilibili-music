@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:bilibilimusic/core/util.dart';
 import 'package:bilibilimusic/plugins/http_client.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
-import 'package:bilibilimusic/models/live_video_info.dart';
+import 'package:bilibilimusic/models/live_media_info.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
 
 class BiliBiliSite {
@@ -40,73 +40,17 @@ class BiliBiliSite {
     var queryList = result["data"]["result"] ?? [];
     for (var item in queryList ?? []) {
       var roomItem = BilibiliVideo(
-        type: item["type"],
-        id: item["id"],
-        author: item["author"],
-        mid: item["mid"],
-        typeid: item["typeid"],
-        typename: item["typename"],
-        arcurl: item["arcurl"],
-        aid: item["aid"],
-        bvid: item["bvid"],
-        title: item["title"].replaceAll(RegExp(r"<.*?em.*?>"), ""),
-        description: item["description"],
-        arcrank: item["arcrank"].toString(),
-        pic: item["pic"],
-        play: item["play"],
-        videoReview: item["videoReview"],
-        favorites: item["favorites"],
-        tag: item["tag"],
-        review: item["review"],
-        pubdate: item["pubdate"],
-        senddate: item["senddate"],
-        duration: item["duration"],
-        badgepay: item["badgepay"],
-        hitColumns: item["hitColumns"],
-        viewType: item["viewType"],
-        isPay: item["isPay"],
-        isUnionVideo: item["isUnionVideo"],
-        recTags: item["recTags"],
-        newRecTags: item["newRecTags"],
-        rankScore: item["rankScore"],
-        like: item["like"],
-        upic: item["upic"],
-        corner: item["corner"],
-        cover: item["cover"],
-        desc: item["desc"],
-        url: item["url"],
-        recReason: item["recReason"],
-        danmaku: item["danmaku"],
-        bizData: item["bizData"],
-        isChargeVideo: item["isChargeVideo"],
-        vt: item["vt"],
-        enableVt: item["enableVt"],
-        vtDisplay: item["vtDisplay"],
-        subtitle: item["subtitle"],
-        episodeCountText: item["episodeCountText"],
-        releaseStatus: item["releaseStatus"],
-        isIntervene: item["isIntervene"],
-        area: item["area"],
-        style: item["style"],
-        cateName: item["cateName"],
-        isLiveRoomInline: item["isLiveRoomInline"],
-        liveStatus: item["liveStatus"],
-        liveTime: item["liveTime"],
-        online: item["online"],
-        rankIndex: item["rankIndex"],
-        rankOffset: item["rankOffset"],
-        roomid: item["roomid"],
-        shortId: item["shortId"],
-        spreadId: item["spreadId"],
-        tags: item["tags"],
-        uface: item["uface"],
-        uid: item["uid"],
-        uname: item["uname"],
-        userCover: item["userCover"],
-        parentAreaId: item["parentAreaId"],
-        parentAreaName: item["parentAreaName"],
-        watchedShow: item["watchedShow"],
-        status: item["status"],
+        id: item["id"] ?? 0,
+        title: item["title"].replaceAll(RegExp(r"<.*?em.*?>"), "") ?? "",
+        author: item["author"] ?? "",
+        pic: item["pic"] ?? "",
+        pubdate: item["pubdate"] ?? 0,
+        upic: item["upic"] ?? "",
+        favorites: item["favorites"] ?? 0,
+        bvid: item["bvid"] ?? "",
+        aid: item["aid"] ?? 0,
+        play: item["play"] ?? 0,
+        status: VideoStatus.published,
       );
 
       items.add(roomItem);
@@ -114,10 +58,10 @@ class BiliBiliSite {
     return VideoSaerchResult(hasMore: queryList.length > 0, items: items);
   }
 
-  Future<List<VideoInfo>> getRoomListDetail(String bvid) async {
+  Future<List<LiveMediaInfo>> getRoomListDetail(String bvid) async {
     cookie = settings.bilibiliCookie.value;
 
-    List<VideoInfo> videoList = [];
+    List<LiveMediaInfo> videoList = [];
     var result = await HttpClient.instance.getJson(
       "https://api.bilibili.com/x/web-interface/view",
       queryParameters: {
@@ -142,7 +86,7 @@ class BiliBiliSite {
       var owner = videoDetails["owner"];
       var stat = videoDetails["stat"];
       for (var item in queryList ?? []) {
-        var videoItem = VideoInfo(
+        var videoItem = LiveMediaInfo(
           cid: item["cid"] ?? 0,
           page: item["page"] ?? 0,
           from: item["from"] ?? "",
@@ -168,43 +112,7 @@ class BiliBiliSite {
     return videoList;
   }
 
-  Future<String> getToken(int avid, int cid) async {
-    cookie = settings.bilibiliCookie.value;
-    var result = await HttpClient.instance.getJson(
-      "https://api.bilibili.com/x/player/playurl/token",
-      queryParameters: {
-        "aid": avid,
-        "cid": cid,
-      },
-      header: {
-        "cookie": cookie,
-        "authority": "api.bilibili.com",
-        "accept":
-            "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-        "accept-language": "zh-CN,zh;q=0.9",
-        "cache-control": "no-cache",
-        "dnt": "1",
-        "pragma": "no-cache",
-        "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
-        "sec-ch-ua-mobile": "?0",
-        "sec-ch-ua-platform": '"macOS"',
-        "sec-fetch-dest": "document",
-        "sec-fetch-mode": "navigate",
-        "sec-fetch-site": "none",
-        "sec-fetch-user": "?1",
-        "upgrade-insecure-requests": "1",
-        "user-agent":
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-        "Referer": "https://www.bilibili.com",
-      },
-    );
-    if (result["code"] == 0) {
-      return result["data"]["token"];
-    }
-    return "";
-  }
-
-  Future<VideoInfoData?> getVideoDetail(int avid, int cid, String bvid, {String qn = '80'}) async {
+  Future<LiveMediaInfoData?> getVideoDetail(int avid, int cid, String bvid, {String qn = '80'}) async {
     cookie = settings.bilibiliCookie.value;
     // var utoken = await getToken(avid, cid);
     var result = await HttpClient.instance.getJson(
@@ -250,7 +158,7 @@ class BiliBiliSite {
       for (var item in result["data"]["accept_quality"]) {
         acceptQuality.add(item);
       }
-      return VideoInfoData(
+      return LiveMediaInfoData(
         url: result["data"]["durl"][0]["url"],
         quality: result["data"]["quality"],
         format: result["data"]["format"],
@@ -262,7 +170,7 @@ class BiliBiliSite {
     return null;
   }
 
-  Future<VideoInfoData?> getAudioDetail(int avid, int cid, String bvid, {String qn = '32'}) async {
+  Future<LiveMediaInfoData?> getAudioDetail(int avid, int cid, String bvid, {String qn = '32'}) async {
     cookie = settings.bilibiliCookie.value;
 
     var sign = await getSignedParams({
@@ -325,7 +233,7 @@ class BiliBiliSite {
         }
       }
       log(baseUrl, name: 'baseUrl');
-      return VideoInfoData(
+      return LiveMediaInfoData(
         url: baseUrl,
         quality: result["data"]["quality"],
         format: result["data"]["format"],

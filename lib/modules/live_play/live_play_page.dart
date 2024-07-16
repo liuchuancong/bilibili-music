@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:bilibilimusic/utils/text_util.dart';
 import 'package:bilibilimusic/utils/cache_manager.dart';
-import 'package:bilibilimusic/models/live_video_info.dart';
+import 'package:bilibilimusic/models/live_media_info.dart';
 import 'package:bilibilimusic/models/live_play_quality.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -37,7 +37,7 @@ class LivePlayPage extends GetWidget<LivePlayController> {
               () => ListView.builder(
                 itemCount: settings.videoInfos.length,
                 itemBuilder: (context, index) {
-                  VideoInfo videoInfo = settings.videoInfos[index];
+                  LiveMediaInfo videoInfo = settings.videoInfos[index];
                   return GestureDetector(
                     onTap: () {
                       controller.playByVideoInfo(videoInfo);
@@ -98,7 +98,7 @@ class LivePlayPage extends GetWidget<LivePlayController> {
                 () => ListView.builder(
                   itemCount: settings.videoInfos.length,
                   itemBuilder: (context, index) {
-                    VideoInfo videoInfo = settings.videoInfos[index];
+                    LiveMediaInfo videoInfo = settings.videoInfos[index];
                     return GestureDetector(
                       onTap: () {
                         controller.playByVideoInfo(videoInfo);

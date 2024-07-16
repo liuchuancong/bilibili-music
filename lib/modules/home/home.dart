@@ -5,6 +5,7 @@ import 'package:bilibilimusic/widgets/empty_view.dart';
 import 'package:bilibilimusic/widgets/menu_button.dart';
 import 'package:bilibilimusic/modules/search/search_page.dart';
 import 'package:bilibilimusic/modules/home/home_controller.dart';
+import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class HomePage extends GetView<HomeController> {
@@ -37,10 +38,52 @@ class HomePage extends GetView<HomeController> {
               icon: const Icon(Icons.search))
         ],
       ),
-      body: Expanded(
-        child: TabBarView(
-          controller: controller.tabController,
-          children: const [AlbumGridView(), MuiscGridView()],
+      body: TabBarView(
+        controller: controller.tabController,
+        children: const [AlbumGridView(), MuiscGridView()],
+      ),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.skip_previous),
+                  onPressed: controller.audioController.previous,
+                ),
+                IconButton(
+                  icon: Icon(controller.audioController.audioPlayer.playing ? Icons.pause : Icons.play_arrow),
+                  onPressed: () {
+                    if (controller.audioController.audioPlayer.playing) {
+                      controller.audioController.pause();
+                    } else {
+                      controller.audioController.play();
+                    }
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.skip_next),
+                  onPressed: controller.audioController.next,
+                ),
+              ],
+            ),
+            ProgressBar(
+              progress: controller.audioController.currentMusicPosition.value,
+              barHeight: 5,
+              thumbRadius: 4,
+              thumbGlowRadius: 8,
+              progressBarColor: Colors.white,
+              bufferedBarColor: Colors.white38,
+              thumbColor: Colors.white,
+              thumbGlowColor: Colors.white,
+              total: controller.audioController.currentMusicDuration.value,
+              timeLabelTextStyle: const TextStyle(fontSize: 12.0),
+              onSeek: (duration) {},
+            ),
+          ],
         ),
       ),
     );
@@ -82,14 +125,14 @@ class MuiscGridView extends GetView<HomeController> {
     return LayoutBuilder(builder: (context, constraint) {
       final width = constraint.maxWidth;
       int crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
-      return Obx(() => controller.settingsService.videoAlbum.isNotEmpty
+      return Obx(() => controller.settingsService.musicAlbum.isNotEmpty
           ? MasonryGridView.count(
               padding: const EdgeInsets.all(8),
               physics: const BouncingScrollPhysics(),
               crossAxisCount: crossAxisCount,
-              itemCount: controller.settingsService.videoAlbum.length,
+              itemCount: controller.settingsService.musicAlbum.length,
               itemBuilder: (context, index) {
-                return RoomCard(bilibiliVideo: controller.settingsService.videoAlbum[index]);
+                return RoomCard(bilibiliVideo: controller.settingsService.musicAlbum[index]);
               },
             )
           : const EmptyView(

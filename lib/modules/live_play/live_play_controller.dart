@@ -1,14 +1,14 @@
 import 'package:get/get.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/core/bilibili_site.dart';
-import 'package:bilibilimusic/models/live_video_info.dart';
+import 'package:bilibilimusic/models/live_media_info.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
 import 'package:bilibilimusic/modules/live_play/widgets/video_player/video_controller.dart';
 
 class LivePlayController extends StateController {
   // 控制唯一子组件
   VideoController? videoController;
-  final VideoInfo videoInfo;
+  final LiveMediaInfo videoInfo;
   SettingsService settingsService = Get.find<SettingsService>();
   LivePlayController({required this.videoInfo});
 
@@ -16,7 +16,7 @@ class LivePlayController extends StateController {
   int lastExitTime = 0;
   int position = 0;
 
-  late VideoInfoData videoInfoData;
+  late LiveMediaInfoData videoInfoData;
   @override
   void onInit() {
     onInitPlayer();
@@ -82,7 +82,7 @@ class LivePlayController extends StateController {
     }
   }
 
-  void playByVideoInfo(VideoInfo videoInfo) async {
+  void playByVideoInfo(LiveMediaInfo videoInfo) async {
     if (videoController != null && !videoController!.hasDestory.value) {
       position = 0;
       videoController!.destory();

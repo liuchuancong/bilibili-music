@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:bilibilimusic/style/theme.dart';
 import 'package:flutter_color/flutter_color.dart';
 import 'package:bilibilimusic/utils/pref_util.dart';
+import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
-import 'package:bilibilimusic/models/live_video_info.dart';
+import 'package:bilibilimusic/models/live_media_info.dart';
 import 'package:bilibilimusic/services/bilibili_account_service.dart';
 
 class SettingsService extends GetxController {
@@ -39,6 +41,62 @@ class SettingsService extends GetxController {
     webKeys.listen((value) {
       PrefUtil.setString('webKeys', value);
     });
+
+    enableBackgroundPlay.listen((value) {
+      PrefUtil.setBool('enableBackgroundPlay', value);
+    });
+
+    enableScreenKeepOn.listen((value) {
+      PrefUtil.setBool('enableScreenKeepOn', value);
+    });
+    enableFullScreenDefault.listen((value) {
+      PrefUtil.setBool('enableFullScreenDefault', value);
+    });
+    debounce(autoShutDownTime, (callback) {
+      PrefUtil.setInt('autoShutDownTime', autoShutDownTime.value);
+      if (enableAutoShutDownTime.isTrue) {
+        _stopWatchTimer.onStopTimer();
+        _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.value, add: false);
+        _stopWatchTimer.onStartTimer();
+      } else {
+        _stopWatchTimer.onStopTimer();
+      }
+    }, time: 1.seconds);
+
+    debounce(enableAutoShutDownTime, (callback) {
+      PrefUtil.setBool('enableAutoShutDownTime', enableAutoShutDownTime.value);
+      if (enableAutoShutDownTime.value == true) {
+        _stopWatchTimer.onStopTimer();
+        _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.value, add: false);
+        _stopWatchTimer.onStartTimer();
+      } else {
+        _stopWatchTimer.onStopTimer();
+      }
+    }, time: 1.seconds);
+
+    backupDirectory.listen((String value) {
+      PrefUtil.setString('backupDirectory', value);
+    });
+    onInitShutDown();
+    _stopWatchTimer.fetchEnded.listen((value) {
+      _stopWatchTimer.onStopTimer();
+      FlutterExitApp.exitApp();
+    });
+    enableAutoCheckUpdate.listen((value) {
+      PrefUtil.setBool('enableAutoCheckUpdate', value);
+    });
+
+    historyRooms.listen((rooms) {
+      PrefUtil.setStringList('historyRooms', historyRooms.map<String>((e) => jsonEncode(e.toJson())).toList());
+    });
+
+    currentMusicList.listen((List<LiveMediaInfo> medias) {
+      PrefUtil.setStringList('currentMusicList', medias.map<String>((e) => jsonEncode(e.toJson())).toList());
+    });
+
+    currentMusicIndex.listen((int index) {
+      PrefUtil.setInt('currentMusicIndex', index);
+    });
   }
 
   // Theme settings
@@ -50,6 +108,12 @@ class SettingsService extends GetxController {
   final themeModeName = (PrefUtil.getString('themeMode') ?? "System").obs;
 
   get themeMode => SettingsService.themeModes[themeModeName.value]!;
+  void onInitShutDown() {
+    if (enableAutoShutDownTime.isTrue) {
+      _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.value, add: false);
+      _stopWatchTimer.onStartTimer();
+    }
+  }
 
   void changeThemeMode(String mode) {
     themeModeName.value = mode;
@@ -65,6 +129,7 @@ class SettingsService extends GetxController {
     Get.changeTheme(darkTheme);
   }
 
+  final StopWatchTimer _stopWatchTimer = StopWatchTimer(mode: StopWatchMode.countDown); // Create instance.
   static Map<String, Color> themeColors = {
     "Crimson": const Color.fromARGB(255, 220, 20, 60),
     "Orange": Colors.orange,
@@ -91,6 +156,18 @@ class SettingsService extends GetxController {
 
   final enableAutoCheckUpdate = (PrefUtil.getBool('enableAutoCheckUpdate') ?? true).obs;
 
+  final enableBackgroundPlay = (PrefUtil.getBool('enableBackgroundPlay') ?? false).obs;
+
+  final enableScreenKeepOn = (PrefUtil.getBool('enableScreenKeepOn') ?? true).obs;
+
+  final enableFullScreenDefault = (PrefUtil.getBool('enableFullScreenDefault') ?? false).obs;
+
+  final enableAutoShutDownTime = (PrefUtil.getBool('enableAutoShutDownTime') ?? false).obs;
+
+  final autoShutDownTime = (PrefUtil.getInt('autoShutDownTime') ?? 120).obs;
+
+  final historyRooms =
+      ((PrefUtil.getStringList('historyRooms') ?? []).map((e) => BilibiliVideo.fromJson(jsonDecode(e))).toList()).obs;
   // cookie
 
   final bilibiliCookie = (PrefUtil.getString('bilibiliCookie') ?? '').obs;
@@ -103,28 +180,31 @@ class SettingsService extends GetxController {
 
   final webKeys = (PrefUtil.getString('webKeys') ?? '').obs;
 
-  void changeDevice(String device) {
-    this.device.value = device;
-    PrefUtil.setString('device', device);
+  final preferResolution = (PrefUtil.getString('preferResolution') ?? resolutions[0]).obs;
+
+  static const List<String> resolutions = ['原画', '蓝光8M', '蓝光4M', '超清', '流畅'];
+
+  void changePreferResolution(String name) {
+    if (resolutions.indexWhere((e) => e == name) != -1) {
+      preferResolution.value = name;
+      PrefUtil.setString('preferResolution', name);
+    }
+  }
+
+  void changeDevice(String dv) {
+    device.value = dv;
+    PrefUtil.setString('device', dv);
   }
 
   // 当前视频播放列表
   var videoInfos = [].obs;
   var currentVideoIndex = 0.obs;
 
-  void addVideoInfo(VideoInfo videoInfo) {
-    videoInfos.add(videoInfo);
-  }
-
-  void removeVideoInfo(VideoInfo videoInfo) {
-    videoInfos.remove(videoInfo);
-  }
-
   void setCurrentVideoIndex(int index) {
     currentVideoIndex.value = index;
   }
 
-  void setCurrentVideo(VideoInfo videoInfo) {
+  void setCurrentVideo(LiveMediaInfo videoInfo) {
     setCurrentVideoIndex(videoInfos.indexWhere((element) => element == videoInfo));
   }
 
@@ -145,25 +225,26 @@ class SettingsService extends GetxController {
     }
   }
 
-  void toggleCollectVideo(BilibiliVideo video) {
+  void toggleCollectVideo(BilibiliVideo video, List<LiveMediaInfo> medias) {
     if (!isExistVideoAlbum(video)) {
+      video.medias = medias;
       videoAlbum.add(video);
       PrefUtil.setStringList('videoAlbum', videoAlbum.map((e) => jsonEncode(e.toJson())).toList());
     } else {
-      videoAlbum.remove(video);
+      videoAlbum.removeWhere((element) => element.id == video.id);
       PrefUtil.setStringList('videoAlbum', videoAlbum.map((e) => jsonEncode(e.toJson())).toList());
     }
   }
 
   bool isExistVideoAlbum(BilibiliVideo video) {
-    return videoAlbum.contains(video);
+    return videoAlbum.any((element) => element.id == video.id);
   }
 
-  VideoInfo getCurrentVideoInfo() {
+  LiveMediaInfo getCurrentVideoInfo() {
     return videoInfos[currentVideoIndex.value];
   }
 
-  VideoInfo getNextVideoInfo() {
+  LiveMediaInfo getNextVideoInfo() {
     if (currentVideoIndex.value + 1 < videoInfos.length) {
       setCurrentVideoIndex(currentVideoIndex.value + 1);
       return videoInfos[currentVideoIndex.value + 1];
@@ -172,7 +253,7 @@ class SettingsService extends GetxController {
     return videoInfos[0];
   }
 
-  VideoInfo getPreviousVideoInfo() {
+  LiveMediaInfo getPreviousVideoInfo() {
     if (currentVideoIndex.value - 1 >= 0) {
       setCurrentVideoIndex(currentVideoIndex.value - 1);
       return videoInfos[currentVideoIndex.value - 1];
@@ -181,9 +262,59 @@ class SettingsService extends GetxController {
     return videoInfos[videoInfos.length - 1];
   }
 
-  bool isCurrentVideoInfo(VideoInfo videoInfo) {
+  bool isCurrentVideoInfo(LiveMediaInfo videoInfo) {
     return videoInfo == getCurrentVideoInfo();
   }
+
+  // 音乐相关
+  final musicAlbum =
+      ((PrefUtil.getStringList('musicAlbum') ?? []).map((e) => BilibiliVideo.fromJson(jsonDecode(e))).toList()).obs;
+
+  void addMusicAlbum(BilibiliVideo video, List<LiveMediaInfo> medias) {
+    if (!musicAlbum.any((element) => element.id == video.id)) {
+      video.medias = medias;
+      musicAlbum.add(video);
+    }
+    PrefUtil.setStringList('musicAlbum', musicAlbum.map((e) => jsonEncode(e.toJson())).toList());
+  }
+
+  void toggleCollectMusic(BilibiliVideo video, List<LiveMediaInfo> medias) {
+    if (!musicAlbum.any((element) => element.id == video.id)) {
+      video.medias = medias;
+      musicAlbum.add(video);
+    } else {
+      musicAlbum.removeWhere((element) => element.id == video.id);
+    }
+    PrefUtil.setStringList('musicAlbum', musicAlbum.map((e) => jsonEncode(e.toJson())).toList());
+  }
+
+  bool isExistMusicAlbum(BilibiliVideo video) {
+    return musicAlbum.any((element) => element.id == video.id);
+  }
+
+  void removeMusicAlbum(BilibiliVideo video) {
+    if (musicAlbum.any((element) => element.id == video.id)) {
+      musicAlbum.removeWhere((element) => element.id == video.id);
+      PrefUtil.setStringList('musicAlbum', musicAlbum.map((e) => jsonEncode(e.toJson())).toList());
+    }
+  }
+
+  bool isInMusicAlbum(BilibiliVideo video) {
+    return musicAlbum.any((element) => element.id == video.id);
+  }
+
+  setCurreentMusicList(List<LiveMediaInfo> medias) {
+    currentMusicList.value = medias;
+    currentMusicIndex.value = 0;
+    PrefUtil.setStringList('currentMusicList', currentMusicList.map((e) => jsonEncode(e.toJson())).toList());
+    PrefUtil.setInt('currentMusicIndex', 0);
+  }
+
+  // 当前播放音乐list相关
+  final currentMusicList =
+      ((PrefUtil.getStringList('currentMusicList') ?? []).map((e) => LiveMediaInfo.fromJson(jsonDecode(e))).toList())
+          .obs;
+  final currentMusicIndex = (PrefUtil.getInt('currentMusicIndex') ?? 0).obs;
 
   bool backup(File file) {
     try {
@@ -213,30 +344,56 @@ class SettingsService extends GetxController {
     }
   }
 
+  void changeShutDownConfig(int minutes, bool isAutoShutDown) {
+    autoShutDownTime.value = minutes;
+    enableAutoShutDownTime.value = isAutoShutDown;
+    PrefUtil.setInt('autoShutDownTime', minutes);
+    PrefUtil.setBool('enableAutoShutDownTime', isAutoShutDown);
+    onInitShutDown();
+  }
+
   void fromJson(Map<String, dynamic> json) {
     themeModeName.value = json['themeMode'] ?? "System";
-    enableAutoCheckUpdate.value = json['enableAutoCheckUpdate'] ?? true;
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
     themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
+    enableBackgroundPlay.value = json['enableBackgroundPlay'] ?? false;
+    enableScreenKeepOn.value = json['enableScreenKeepOn'] ?? true;
+    enableAutoCheckUpdate.value = json['enableAutoCheckUpdate'] ?? true;
+    enableFullScreenDefault.value = json['enableFullScreenDefault'] ?? false;
+    autoShutDownTime.value = json['autoShutDownTime'] ?? 120;
+    enableAutoShutDownTime.value = json['enableAutoShutDownTime'] ?? false;
+    preferResolution.value = json['preferResolution'] ?? resolutions[0];
+    videoAlbum.value = (json['videoAlbum'] ?? []).map((e) => BilibiliVideo.fromJson(jsonDecode(e))).toList();
+    historyRooms.value = (json['historyRooms'] ?? []).map((e) => BilibiliVideo.fromJson(jsonDecode(e))).toList();
+    device.value = json['device'] ?? 'phone';
+    webKeyTimeStamp.value = json['webKeyTimeStamp'] ?? 0;
+    webKeys.value = json['webKeys'] ?? '';
+
     changeThemeMode(themeModeName.value);
     changeThemeColorSwitch(themeColorSwitch.value);
+    changePreferResolution(preferResolution.value);
+    changeShutDownConfig(autoShutDownTime.value, enableAutoShutDownTime.value);
     setBilibiliCookit(bilibiliCookie.value);
   }
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
+    json['videoAlbum'] = videoAlbum.map<String>((e) => jsonEncode(e.toJson())).toList();
+    json['historyRooms'] = historyRooms.map<String>((e) => jsonEncode(e.toJson())).toList();
     json['themeMode'] = themeModeName.value;
+    json['autoShutDownTime'] = autoShutDownTime.value;
+    json['enableAutoShutDownTime'] = enableAutoShutDownTime.value;
+    json['enableBackgroundPlay'] = enableBackgroundPlay.value;
+    json['enableScreenKeepOn'] = enableScreenKeepOn.value;
+    json['enableAutoCheckUpdate'] = enableAutoCheckUpdate.value;
+    json['enableFullScreenDefault'] = enableFullScreenDefault.value;
+    json['preferResolution'] = preferResolution.value;
     json['bilibiliCookie'] = bilibiliCookie.value;
     json['themeColorSwitch'] = themeColorSwitch.value;
-    return json;
-  }
+    json['device'] = device.value;
+    json['webKeyTimeStamp'] = webKeyTimeStamp.value;
+    json['webKeys'] = webKeys.value;
 
-  defaultConfig() {
-    Map<String, dynamic> json = {
-      "themeMode": "Light",
-      "themeColor": "Chrome",
-      'bilibiliCookie': '',
-    };
     return json;
   }
 }

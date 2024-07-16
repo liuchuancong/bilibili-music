@@ -3,6 +3,7 @@ import 'package:bilibilimusic/style/theme.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/routes/app_pages.dart';
 import 'package:bilibilimusic/routes/route_path.dart';
+import 'package:bilibilimusic/services/audio_service.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
 import 'package:bilibilimusic/services/bilibili_account_service.dart';
 
@@ -18,6 +19,7 @@ void main() async {
 void initService() {
   Get.put(SettingsService());
   Get.put(BiliBiliAccountService());
+  Get.put(AudioController());
 }
 
 void initRefresh() {

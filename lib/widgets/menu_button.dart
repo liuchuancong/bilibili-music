@@ -40,12 +40,10 @@ class MenuButton extends GetView<SettingsService> {
   const MenuButton({super.key});
 
   final menuRoutes = const [
+    RoutePath.kSettingsAccount,
     RoutePath.kSettings,
     RoutePath.kAbout,
-    RoutePath.kContact,
     RoutePath.kHistory,
-    RoutePath.kSignIn,
-    RoutePath.kSettingsAccount,
   ];
 
   @override
@@ -59,23 +57,39 @@ class MenuButton extends GetView<SettingsService> {
       position: PopupMenuPosition.under,
       icon: const Icon(Icons.menu_rounded),
       onSelected: (int index) {
-        if (index == 4) {
-          if (controller.bilibiliCookie.isEmpty) {
-            Get.toNamed(RoutePath.kMine);
-          } else {
-            Get.toNamed(RoutePath.kSignIn);
-          }
-        } else {
-          Get.toNamed(menuRoutes[index]);
-        }
+        Get.toNamed(menuRoutes[index]);
       },
       itemBuilder: (context) => [
         const PopupMenuItem(
-          value: 5,
+          value: 0,
           padding: EdgeInsets.symmetric(horizontal: 12),
           child: MenuListTile(
-            leading: Icon(Icons.assignment_ind_sharp),
-            text: '三方认证',
+            leading: Icon(Icons.account_circle),
+            text: "我的账户",
+          ),
+        ),
+        const PopupMenuItem(
+          value: 1,
+          padding: EdgeInsets.symmetric(horizontal: 12),
+          child: MenuListTile(
+            leading: Icon(Icons.settings_rounded),
+            text: "设置",
+          ),
+        ),
+        const PopupMenuItem(
+          value: 2,
+          padding: EdgeInsets.symmetric(horizontal: 12),
+          child: MenuListTile(
+            leading: Icon(Icons.info_rounded),
+            text: "关于",
+          ),
+        ),
+        const PopupMenuItem(
+          value: 3,
+          padding: EdgeInsets.symmetric(horizontal: 12),
+          child: MenuListTile(
+            leading: Icon(Icons.history),
+            text: "历史记录",
           ),
         ),
       ],

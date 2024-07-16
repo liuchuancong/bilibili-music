@@ -1,4 +1,4 @@
-class VideoInfo {
+class LiveMediaInfo {
   final int aid;
   final int videos;
   final int pubdate;
@@ -17,7 +17,7 @@ class VideoInfo {
   final String face;
   final String name;
   final String bvid;
-  VideoInfo({
+  LiveMediaInfo({
     required this.aid,
     required this.videos,
     required this.pubdate,
@@ -38,8 +38,8 @@ class VideoInfo {
     required this.bvid,
   });
 
-  factory VideoInfo.fromJson(Map<String, dynamic> json) {
-    return VideoInfo(
+  factory LiveMediaInfo.fromJson(Map<String, dynamic> json) {
+    return LiveMediaInfo(
       cid: json['cid'],
       aid: json['aid'],
       videos: json['videos'],
@@ -60,9 +60,32 @@ class VideoInfo {
       bvid: json['bvid'] ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'cid': cid,
+      'aid': aid,
+      'videos': videos,
+      'pubdate': pubdate,
+      'favorite': favorite,
+      'page': page,
+      'from': from,
+      'part': part,
+      'duration': duration,
+      'vid': vid,
+      'weblink': weblink,
+      'first_frame': firstFrame,
+      'tname': tname,
+      'pic': pic,
+      'title': title,
+      'face': face,
+      'name': name,
+      'bvid': bvid,
+    };
+  }
 }
 
-class VideoInfoData {
+class LiveMediaInfoData {
   final String url;
   final int quality;
   final String format;
@@ -70,7 +93,7 @@ class VideoInfoData {
   final String time;
   final List<int> acceptQuality;
 
-  VideoInfoData({
+  LiveMediaInfoData({
     required this.url,
     required this.quality,
     required this.format,
@@ -79,8 +102,8 @@ class VideoInfoData {
     required this.acceptQuality,
   });
 
-  factory VideoInfoData.fromJson(Map<String, dynamic> json) {
-    return VideoInfoData(
+  factory LiveMediaInfoData.fromJson(Map<String, dynamic> json) {
+    return LiveMediaInfoData(
       url: json['url'],
       quality: json['quality'],
       format: json['format'],
