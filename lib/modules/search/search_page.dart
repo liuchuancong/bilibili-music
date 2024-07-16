@@ -146,7 +146,7 @@ class RoomCard extends StatelessWidget {
                   top: dense ? 0 : 2,
                   child: CountChip(
                     icon: Icons.video_collection_rounded,
-                    count: readableCount(bilibiliVideo.favorites.toString()),
+                    count: readableCount(bilibiliVideo.play.toString()),
                     dense: dense,
                     color: Theme.of(context).colorScheme.error,
                   ),

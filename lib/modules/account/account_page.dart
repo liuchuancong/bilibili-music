@@ -14,13 +14,6 @@ class AccountPage extends GetView<AccountController> {
       ),
       body: ListView(
         children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: Text(
-              "哔哩哔哩",
-              textAlign: TextAlign.center,
-            ),
-          ),
           Obx(
             () => ListTile(
               leading: Image.asset(
