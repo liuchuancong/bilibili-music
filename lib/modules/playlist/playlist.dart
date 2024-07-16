@@ -18,14 +18,24 @@ class PlayListPage extends GetView<PlayListController> {
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () {},
-          ),
+          Obx(() => IconButton(
+                icon: Icon(
+                  controller.settingsService.isExistVideoAlbum(controller.bilibiliVideo)
+                      ? Icons.videocam_off_outlined
+                      : Icons.videocam_outlined,
+                ),
+                onPressed: () {
+                  controller.settingsService.toggleCollectVideo(controller.bilibiliVideo);
+                },
+              )),
+          Obx(() => IconButton(
+                icon: Icon(controller.settingsService.isExistVideoAlbum(controller.bilibiliVideo)
+                    ? Icons.music_off_outlined
+                    : Icons.music_note_outlined),
+                onPressed: () {
+                  controller.settingsService.toggleCollectVideo(controller.bilibiliVideo);
+                },
+              )),
         ],
       ),
       body: Obx(() {
@@ -65,6 +75,7 @@ class PlayListPage extends GetView<PlayListController> {
                           color: controller.settingsService.isCurrentVideoInfo(videoInfo) ? Colors.white : Colors.black,
                         ),
                         onPressed: () {
+                          controller.settingsService.setCurrentVideo(videoInfo);
                           AppNavigator.toLiveRoomDetail(videoInfo: videoInfo);
                         }),
                   ),

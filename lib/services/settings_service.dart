@@ -133,6 +133,16 @@ class SettingsService extends GetxController {
     }
   }
 
+  void toggleCollectVideo(BilibiliVideo video) {
+    if (!isExistVideoAlbum(video)) {
+      videoAlbum.add(video);
+      PrefUtil.setStringList('videoAlbum', videoAlbum.map((e) => jsonEncode(e.toJson())).toList());
+    } else {
+      videoAlbum.remove(video);
+      PrefUtil.setStringList('videoAlbum', videoAlbum.map((e) => jsonEncode(e.toJson())).toList());
+    }
+  }
+
   bool isExistVideoAlbum(BilibiliVideo video) {
     return videoAlbum.contains(video);
   }

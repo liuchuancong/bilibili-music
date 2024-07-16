@@ -17,6 +17,7 @@ class PlayListController extends BasePageController {
 
   @override
   void onInit() {
+    settingsService.currentVideoIndex.value = 0;
     list.listen((p0) {
       settingsService.videoInfos = list;
     });

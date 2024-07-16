@@ -69,7 +69,7 @@ class SearchPage extends GetView<SearchMusicController> {
                       },
                     )
                   : const EmptyView(
-                      icon: Icons.table_chart,
+                      icon: Icons.error_outline,
                       title: "暂无搜索结果",
                       subtitle: "请尝试更换关键词或稍后再试",
                     ),
