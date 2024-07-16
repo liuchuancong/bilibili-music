@@ -1,8 +1,16 @@
+import 'dart:math';
 import 'package:get/get.dart';
+import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:bilibilimusic/core/bilibili_site.dart';
 import 'package:bilibilimusic/models/live_media_info.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
+
+enum PlayMode {
+  singleLoop, // 单曲循环
+  listLoop, // 列表循环
+  random, // 随机播放
+}
 
 class AudioController extends GetxController {
   late AudioPlayer _audioPlayer;
@@ -12,8 +20,10 @@ class AudioController extends GetxController {
   AudioPlayer get audioPlayer => _audioPlayer;
   List<LiveMediaInfo> get playlist => _playlist;
   final isPlaying = false.obs;
-  int get currentIndex => _currentIndex.value;
 
+  int tryTimes = 0;
+  int get currentIndex => _currentIndex.value;
+  final playMode = PlayMode.listLoop.obs; // 默认播放模式为列表循环
   final currentMusicDuration = const Duration(seconds: 0).obs;
   final currentMusicPosition = const Duration(seconds: 0).obs;
 
@@ -26,19 +36,18 @@ class AudioController extends GetxController {
 
     _audioPlayer.positionStream.listen((position) {
       // 监听播放进度
-      print('position: $position');
       currentMusicPosition.value = position;
     });
 
     _audioPlayer.durationStream.listen((duration) {
       // 监听总时长
-      print('duration: $duration');
-      currentMusicDuration.value = duration!;
+      if (duration != null) {
+        currentMusicDuration.value = duration;
+      }
     });
 
     _audioPlayer.playerStateStream.listen((state) {
       // 监听播放状态
-      print('state: $state');
       isPlaying.value = state.playing;
       if (state.processingState == ProcessingState.completed) {
         next();
@@ -66,10 +75,9 @@ class AudioController extends GetxController {
     _playlist.assignAll(urls);
   }
 
-  Future<void> startPlay(LiveMediaInfo mediaInfo, {int retries = 0}) async {
-    if (retries >= 3) {
-      print('Failed to fetch audio detail after 3 attempts.');
-
+  Future<void> startPlay(LiveMediaInfo mediaInfo) async {
+    if (tryTimes >= 3) {
+      next();
       return;
     }
 
@@ -77,17 +85,29 @@ class AudioController extends GetxController {
       LiveMediaInfoData? videoInfoData =
           await BiliBiliSite().getAudioDetail(mediaInfo.aid, mediaInfo.cid, mediaInfo.bvid);
       if (videoInfoData != null) {
-        _audioPlayer.setUrl(videoInfoData.url); // 假设audioUrl是videoInfoData的一个属性
-        await _audioPlayer.play();
+        try {
+          await _audioPlayer.setUrl(videoInfoData.url);
+          tryTimes = 0; // 重置重试计数器
+        } on PlayerException {
+          await retryStartPlay(mediaInfo);
+        } on PlayerInterruptedException {
+          await retryStartPlay(mediaInfo);
+        } catch (_) {
+          await retryStartPlay(mediaInfo);
+        }
       } else {
-        await Future.delayed(const Duration(seconds: 2));
-        await startPlay(mediaInfo, retries: retries + 1);
+        await retryStartPlay(mediaInfo);
       }
-    } catch (e) {
-      print('Error fetching audio detail: $e');
-      await Future.delayed(const Duration(seconds: 2));
-      await startPlay(mediaInfo, retries: retries + 1);
+      await _audioPlayer.play();
+    } catch (_) {
+      await retryStartPlay(mediaInfo);
     }
+  }
+
+  Future<void> retryStartPlay(LiveMediaInfo mediaInfo) async {
+    await Future.delayed(const Duration(seconds: 1));
+    tryTimes++; // 增加重试计数器
+    await startPlay(mediaInfo);
   }
 
   Future<void> play() async {
@@ -103,12 +123,26 @@ class AudioController extends GetxController {
   }
 
   Future<void> next() async {
+    tryTimes = 0; // 重置重试计数器
     if (_playlist.isNotEmpty) {
       int newIndex;
-      if (_currentIndex.value < _playlist.length - 1) {
-        newIndex = _currentIndex.value + 1;
-      } else {
-        newIndex = 0; // 到达列表末尾，跳转到第一个元素
+      switch (playMode.value) {
+        case PlayMode.singleLoop:
+          // 如果是单曲循环，保持索引不变
+          newIndex = _currentIndex.value;
+          break;
+        case PlayMode.listLoop:
+          // 如果是列表循环，按正常顺序或循环到第一个元素
+          if (_currentIndex.value < _playlist.length - 1) {
+            newIndex = _currentIndex.value + 1;
+          } else {
+            newIndex = 0;
+          }
+          break;
+        case PlayMode.random:
+          // 如果是随机播放，选择一个随机索引
+          newIndex = Random().nextInt(_playlist.length);
+          break;
       }
       _currentIndex.value = newIndex;
       await startPlay(_playlist[_currentIndex.value]);
@@ -116,12 +150,26 @@ class AudioController extends GetxController {
   }
 
   Future<void> previous() async {
+    tryTimes = 0; // 重置重试计数器
     if (_playlist.isNotEmpty) {
       int newIndex;
-      if (_currentIndex.value > 0) {
-        newIndex = _currentIndex.value - 1;
-      } else {
-        newIndex = _playlist.length - 1; // 到达列表开头，跳转到最后一个元素
+      switch (playMode.value) {
+        case PlayMode.singleLoop:
+          // 如果是单曲循环，保持索引不变
+          newIndex = _currentIndex.value;
+          break;
+        case PlayMode.listLoop:
+          // 如果是列表循环，按正常顺序或循环到最后一个元素
+          if (_currentIndex.value > 0) {
+            newIndex = _currentIndex.value - 1;
+          } else {
+            newIndex = _playlist.length - 1;
+          }
+          break;
+        case PlayMode.random:
+          // 如果是随机播放，选择一个随机索引
+          newIndex = Random().nextInt(_playlist.length);
+          break;
       }
       _currentIndex.value = newIndex;
       await startPlay(_playlist[_currentIndex.value]);

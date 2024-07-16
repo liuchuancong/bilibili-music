@@ -140,8 +140,12 @@ class PlayListPage extends GetView<PlayListController> {
                   icon: const Icon(Icons.skip_previous),
                   onPressed: controller.audioController.previous,
                 ),
+                IconButton(
+                  icon: const Icon(Icons.forward_5_outlined),
+                  onPressed: controller.audioController.previous,
+                ),
                 Obx(() => IconButton(
-                      icon: Icon(controller.audioController.audioPlayer.playing ? Icons.pause : Icons.play_arrow),
+                      icon: Icon(controller.audioController.isPlaying.value ? Icons.pause : Icons.play_arrow),
                       onPressed: () {
                         if (controller.audioController.audioPlayer.playing) {
                           controller.audioController.pause();
@@ -150,6 +154,10 @@ class PlayListPage extends GetView<PlayListController> {
                         }
                       },
                     )),
+                IconButton(
+                  icon: const Icon(Icons.replay_5_outlined),
+                  onPressed: controller.audioController.previous,
+                ),
                 IconButton(
                   icon: const Icon(Icons.skip_next),
                   onPressed: controller.audioController.next,

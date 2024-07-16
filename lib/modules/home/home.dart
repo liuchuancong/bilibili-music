@@ -54,35 +54,30 @@ class HomePage extends GetView<HomeController> {
                   icon: const Icon(Icons.skip_previous),
                   onPressed: controller.audioController.previous,
                 ),
-                IconButton(
-                  icon: Icon(controller.audioController.audioPlayer.playing ? Icons.pause : Icons.play_arrow),
-                  onPressed: () {
-                    if (controller.audioController.audioPlayer.playing) {
-                      controller.audioController.pause();
-                    } else {
-                      controller.audioController.play();
-                    }
-                  },
-                ),
+                Obx(() => IconButton(
+                      icon: Icon(controller.audioController.isPlaying.value ? Icons.pause : Icons.play_arrow),
+                      onPressed: () {
+                        if (controller.audioController.audioPlayer.playing) {
+                          controller.audioController.pause();
+                        } else {
+                          controller.audioController.play();
+                        }
+                      },
+                    )),
                 IconButton(
                   icon: const Icon(Icons.skip_next),
                   onPressed: controller.audioController.next,
                 ),
               ],
             ),
-            ProgressBar(
-              progress: controller.audioController.currentMusicPosition.value,
-              barHeight: 5,
-              thumbRadius: 4,
-              thumbGlowRadius: 8,
-              progressBarColor: Colors.white,
-              bufferedBarColor: Colors.white38,
-              thumbColor: Colors.white,
-              thumbGlowColor: Colors.white,
-              total: controller.audioController.currentMusicDuration.value,
-              timeLabelTextStyle: const TextStyle(fontSize: 12.0),
-              onSeek: (duration) {},
-            ),
+            Obx(() => ProgressBar(
+                  progress: controller.audioController.currentMusicPosition.value,
+                  barHeight: 5,
+                  thumbRadius: 4,
+                  thumbGlowRadius: 8,
+                  total: controller.audioController.currentMusicDuration.value,
+                  onSeek: (duration) {},
+                )),
           ],
         ),
       ),
