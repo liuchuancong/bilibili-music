@@ -66,9 +66,10 @@ class SearchPage extends GetView<SearchMusicController> {
                       itemCount: controller.list.length,
                       itemBuilder: (context, index) {
                         return RoomCard(bilibiliVideo: controller.list[index]);
-                      })
+                      },
+                    )
                   : const EmptyView(
-                      icon: Icons.hourglass_empty,
+                      icon: Icons.table_chart,
                       title: "暂无搜索结果",
                       subtitle: "请尝试更换关键词或稍后再试",
                     ),
@@ -162,13 +163,16 @@ class RoomCard extends StatelessWidget {
                 radius: dense ? 17 : null,
                 backgroundColor: Theme.of(context).disabledColor,
               ),
-              title: Text(
-                bilibiliVideo.title ?? '',
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
+              title: SizedBox(
+                height: 50,
+                child: Text(
+                  bilibiliVideo.title ?? '',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
               subtitle: Text(
@@ -180,15 +184,6 @@ class RoomCard extends StatelessWidget {
                   fontSize: dense ? 12 : 14,
                 ),
               ),
-              // trailing: Text(
-              //   bilibiliVideo.title!,
-              //   maxLines: 2,
-              //   style: const TextStyle(
-              //     overflow: TextOverflow.ellipsis,
-              //     fontWeight: FontWeight.bold,
-              //     fontSize: 12,
-              //   ),
-              // ),
             )
           ],
         ),

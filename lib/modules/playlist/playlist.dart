@@ -38,20 +38,36 @@ class PlayListPage extends GetView<PlayListController> {
                 controller.settingsService.setCurrentVideo(videoInfo);
                 AppNavigator.toLiveRoomDetail(videoInfo: videoInfo);
               },
-              child: Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                elevation: 4,
-                child: ListTile(
-                  title: Text(
-                    videoInfo.part,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              child: Obx(
+                () => Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                  color:
+                      controller.settingsService.isCurrentVideoInfo(videoInfo) ? Get.theme.colorScheme.primary : null,
+                  elevation: 4,
+                  child: ListTile(
+                    title: Text(
+                      videoInfo.part,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: controller.settingsService.isCurrentVideoInfo(videoInfo) ? Colors.white : Colors.black,
+                      ),
+                    ),
+                    subtitle: Text(formatDuration(videoInfo.duration),
+                        style: TextStyle(
+                            fontSize: 14,
+                            color: controller.settingsService.isCurrentVideoInfo(videoInfo)
+                                ? Colors.white
+                                : Colors.black)),
+                    trailing: IconButton(
+                        icon: Icon(
+                          Icons.keyboard_arrow_right_sharp,
+                          color: controller.settingsService.isCurrentVideoInfo(videoInfo) ? Colors.white : Colors.black,
+                        ),
+                        onPressed: () {
+                          AppNavigator.toLiveRoomDetail(videoInfo: videoInfo);
+                        }),
                   ),
-                  subtitle: Text(formatDuration(videoInfo.duration), style: const TextStyle(fontSize: 14)),
-                  trailing: IconButton(
-                      icon: const Icon(Icons.keyboard_arrow_right_sharp),
-                      onPressed: () {
-                        AppNavigator.toLiveRoomDetail(videoInfo: videoInfo);
-                      }),
                 ),
               ),
             );

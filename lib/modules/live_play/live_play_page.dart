@@ -25,144 +25,132 @@ class LivePlayPage extends GetWidget<LivePlayController> {
     return true;
   }
 
+  buildPhoneView() {
+    return SafeArea(
+      child: Column(
+        children: <Widget>[
+          buildVideoPlayer(),
+          const ResolutionsRow(),
+          const Divider(height: 1),
+          Expanded(
+            child: Obx(
+              () => ListView.builder(
+                itemCount: settings.videoInfos.length,
+                itemBuilder: (context, index) {
+                  VideoInfo videoInfo = settings.videoInfos[index];
+                  return GestureDetector(
+                    onTap: () {
+                      controller.playByVideoInfo(videoInfo);
+                    },
+                    child: Obx(
+                      () => Card(
+                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                        color: settings.isCurrentVideoInfo(videoInfo) ? Get.theme.colorScheme.primary : null,
+                        elevation: 4,
+                        child: ListTile(
+                          title: Text(
+                            videoInfo.part,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: settings.isCurrentVideoInfo(videoInfo) ? Colors.white : Colors.black,
+                            ),
+                          ),
+                          subtitle: Text(formatDuration(videoInfo.duration),
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: settings.isCurrentVideoInfo(videoInfo) ? Colors.white : Colors.black)),
+                          trailing: IconButton(
+                              icon: Icon(
+                                Icons.keyboard_arrow_right_sharp,
+                                color: settings.isCurrentVideoInfo(videoInfo) ? Colors.white : Colors.black,
+                              ),
+                              onPressed: () {
+                                controller.playByVideoInfo(videoInfo);
+                              }),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  buildPadView() {
+    return SafeArea(
+      child: Row(children: <Widget>[
+        Flexible(
+          flex: 5,
+          child: buildVideoPlayer(),
+        ),
+        Flexible(
+          flex: 3,
+          child: Column(children: [
+            const ResolutionsRow(),
+            const Divider(height: 1),
+            Expanded(
+              child: Obx(
+                () => ListView.builder(
+                  itemCount: settings.videoInfos.length,
+                  itemBuilder: (context, index) {
+                    VideoInfo videoInfo = settings.videoInfos[index];
+                    return GestureDetector(
+                      onTap: () {
+                        controller.playByVideoInfo(videoInfo);
+                      },
+                      child: Obx(
+                        () => Card(
+                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                          color: settings.isCurrentVideoInfo(videoInfo) ? Get.theme.colorScheme.primary : null,
+                          elevation: 4,
+                          child: ListTile(
+                            title: Text(
+                              videoInfo.part,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: settings.isCurrentVideoInfo(videoInfo) ? Colors.white : Colors.black,
+                              ),
+                            ),
+                            subtitle: Text(formatDuration(videoInfo.duration),
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    color: settings.isCurrentVideoInfo(videoInfo) ? Colors.white : Colors.black)),
+                            trailing: IconButton(
+                                icon: Icon(
+                                  Icons.keyboard_arrow_right_sharp,
+                                  color: settings.isCurrentVideoInfo(videoInfo) ? Colors.white : Colors.black,
+                                ),
+                                onPressed: () {
+                                  controller.playByVideoInfo(videoInfo);
+                                }),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ]),
+        ),
+      ]),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BackButtonListener(
       onBackButtonPressed: onWillPop,
       child: Scaffold(
         appBar: AppBar(),
-        body: Builder(
-          builder: (BuildContext context) {
-            return LayoutBuilder(builder: (context, constraint) {
-              final width = Get.width;
-              return SafeArea(
-                child: width <= 680
-                    ? Column(
-                        children: <Widget>[
-                          buildVideoPlayer(),
-                          const ResolutionsRow(),
-                          const Divider(height: 1),
-                          Expanded(
-                            child: Obx(
-                              () => ListView.builder(
-                                itemCount: settings.videoInfos.length,
-                                itemBuilder: (context, index) {
-                                  VideoInfo videoInfo = settings.videoInfos[index];
-                                  return GestureDetector(
-                                    onTap: () {
-                                      controller.playByVideoInfo(videoInfo);
-                                    },
-                                    child: Obx(
-                                      () => Card(
-                                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                                        color: settings.isCurrentVideoInfo(videoInfo)
-                                            ? Get.theme.colorScheme.primary
-                                            : null,
-                                        elevation: 4,
-                                        child: ListTile(
-                                          title: Text(
-                                            videoInfo.part,
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color:
-                                                  settings.isCurrentVideoInfo(videoInfo) ? Colors.white : Colors.black,
-                                            ),
-                                          ),
-                                          subtitle: Text(formatDuration(videoInfo.duration),
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: settings.isCurrentVideoInfo(videoInfo)
-                                                      ? Colors.white
-                                                      : Colors.black)),
-                                          trailing: IconButton(
-                                              icon: Icon(
-                                                Icons.keyboard_arrow_right_sharp,
-                                                color: settings.isCurrentVideoInfo(videoInfo)
-                                                    ? Colors.white
-                                                    : Colors.black,
-                                              ),
-                                              onPressed: () {
-                                                controller.playByVideoInfo(videoInfo);
-                                              }),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    : Row(children: <Widget>[
-                        Flexible(
-                          flex: 5,
-                          child: buildVideoPlayer(),
-                        ),
-                        Flexible(
-                          flex: 3,
-                          child: Column(children: [
-                            const ResolutionsRow(),
-                            const Divider(height: 1),
-                            Expanded(
-                              child: Obx(
-                                () => ListView.builder(
-                                  itemCount: settings.videoInfos.length,
-                                  itemBuilder: (context, index) {
-                                    VideoInfo videoInfo = settings.videoInfos[index];
-                                    return GestureDetector(
-                                      onTap: () {
-                                        controller.playByVideoInfo(videoInfo);
-                                      },
-                                      child: Obx(
-                                        () => Card(
-                                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                                          color: settings.isCurrentVideoInfo(videoInfo)
-                                              ? Get.theme.colorScheme.primary
-                                              : null,
-                                          elevation: 4,
-                                          child: ListTile(
-                                            title: Text(
-                                              videoInfo.part,
-                                              style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
-                                                color: settings.isCurrentVideoInfo(videoInfo)
-                                                    ? Colors.white
-                                                    : Colors.black,
-                                              ),
-                                            ),
-                                            subtitle: Text(formatDuration(videoInfo.duration),
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    color: settings.isCurrentVideoInfo(videoInfo)
-                                                        ? Colors.white
-                                                        : Colors.black)),
-                                            trailing: IconButton(
-                                                icon: Icon(
-                                                  Icons.keyboard_arrow_right_sharp,
-                                                  color: settings.isCurrentVideoInfo(videoInfo)
-                                                      ? Colors.white
-                                                      : Colors.black,
-                                                ),
-                                                onPressed: () {
-                                                  controller.playByVideoInfo(videoInfo);
-                                                }),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                          ]),
-                        ),
-                      ]),
-              );
-            });
-          },
+        body: SafeArea(
+          child: settings.device.value == 'phone' ? buildPhoneView() : buildPadView(),
         ),
       ),
     );

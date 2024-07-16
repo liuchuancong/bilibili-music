@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:bilibilimusic/style/theme.dart';
 import 'package:flutter_color/flutter_color.dart';
 import 'package:bilibilimusic/utils/pref_util.dart';
+import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:bilibilimusic/models/live_video_info.dart';
 import 'package:bilibilimusic/services/bilibili_account_service.dart';
@@ -25,6 +26,10 @@ class SettingsService extends GetxController {
 
     bilibiliCookie.listen((value) {
       PrefUtil.setString('bilibiliCookie', value);
+    });
+
+    device.listen((value) {
+      PrefUtil.setString('device', value);
     });
   }
 
@@ -82,6 +87,15 @@ class SettingsService extends GetxController {
 
   final bilibiliCookie = (PrefUtil.getString('bilibiliCookie') ?? '').obs;
 
+  final device = (PrefUtil.getString('device') ?? 'phone').obs;
+
+  final deviceList = ['phone', 'pad', 'pc'].obs;
+
+  void changeDevice(String device) {
+    this.device.value = device;
+    PrefUtil.setString('device', device);
+  }
+
   // 当前视频播放列表
   var videoInfos = [].obs;
   var currentVideoIndex = 0.obs;
@@ -100,6 +114,27 @@ class SettingsService extends GetxController {
 
   void setCurrentVideo(VideoInfo videoInfo) {
     setCurrentVideoIndex(videoInfos.indexWhere((element) => element == videoInfo));
+  }
+
+  final videoAlbum =
+      ((PrefUtil.getStringList('videoAlbum') ?? []).map((e) => BilibiliVideo.fromJson(jsonDecode(e))).toList()).obs;
+
+  void addVideoAlbum(BilibiliVideo video) {
+    if (!isExistVideoAlbum(video)) {
+      videoAlbum.add(video);
+      PrefUtil.setStringList('videoAlbum', videoAlbum.map((e) => jsonEncode(e.toJson())).toList());
+    }
+  }
+
+  void removeVideoAlbum(BilibiliVideo video) {
+    if (isExistVideoAlbum(video)) {
+      videoAlbum.remove(video);
+      PrefUtil.setStringList('videoAlbum', videoAlbum.map((e) => jsonEncode(e.toJson())).toList());
+    }
+  }
+
+  bool isExistVideoAlbum(BilibiliVideo video) {
+    return videoAlbum.contains(video);
   }
 
   VideoInfo getCurrentVideoInfo() {

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'custom_interceptor.dart';
+import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/plugins/core_error.dart';
 
 class HttpClient {
@@ -49,6 +50,7 @@ class HttpClient {
       if (e is DioException && e.type == DioExceptionType.badResponse) {
         throw CoreError(e.message ?? "", statusCode: e.response?.statusCode ?? 0);
       } else {
+        SmartDialog.showToast("请求失败");
         throw CoreError("发送GET请求失败");
       }
     }
@@ -81,6 +83,7 @@ class HttpClient {
       if (e is DioException && e.type == DioExceptionType.badResponse) {
         throw CoreError(e.message ?? "", statusCode: e.response?.statusCode ?? 0);
       } else {
+        SmartDialog.showToast("请求失败");
         throw CoreError("发送GET请求失败");
       }
     }
@@ -119,6 +122,7 @@ class HttpClient {
       if (e is DioException && e.type == DioExceptionType.badResponse) {
         throw CoreError(e.message ?? "", statusCode: e.response?.statusCode ?? 0);
       } else {
+        SmartDialog.showToast("请求失败");
         throw CoreError("发送POST请求失败");
       }
     }

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ffi';
 import 'dart:math';
 import 'dart:async';
 import 'package:get/get.dart';
@@ -20,7 +21,7 @@ class VideoControllerPanel extends StatefulWidget {
 }
 
 class _VideoControllerPanelState extends State<VideoControllerPanel> {
-  static const barHeight = 70.0;
+  double barHeight = 70.0;
 
   // Video controllers
   VideoController get controller => widget.controller;
@@ -46,6 +47,7 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.enableController();
+      barHeight = controller.settingsService.device.value == 'phone' ? 80.0 : 70.0;
     });
   }
 
@@ -400,7 +402,9 @@ class BottomActionBar extends StatelessWidget {
                     ),
                     SeekToButton(isLeft: false, controller: controller),
                     SwitchButton(controller: controller, isLeft: false),
-                    TimeSliderButton(controller: controller),
+                    controller.settingsService.device.value != 'phone'
+                        ? TimeSliderButton(controller: controller)
+                        : Container(),
                     const Spacer(),
                     MuteButton(controller: controller),
                     ExpandButton(controller: controller),
@@ -408,7 +412,7 @@ class BottomActionBar extends StatelessWidget {
                 ),
                 ProgressBar(
                   progress: Duration(seconds: controller.position.value),
-                  barHeight: 2,
+                  barHeight: 5,
                   thumbRadius: 4,
                   thumbGlowRadius: 8,
                   progressBarColor: Colors.white,
@@ -416,7 +420,7 @@ class BottomActionBar extends StatelessWidget {
                   thumbColor: Colors.white,
                   thumbGlowColor: Colors.white,
                   total: Duration(seconds: controller.duration.value),
-                  timeLabelTextStyle: const TextStyle(fontSize: 0),
+                  timeLabelTextStyle: TextStyle(fontSize: controller.settingsService.device.value == 'phone' ? 12 : 0),
                   onSeek: (duration) {
                     controller.betterPlayerController.seekTo(duration);
                   },
