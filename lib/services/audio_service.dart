@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:async';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:bilibilimusic/common/index.dart';
@@ -90,13 +91,18 @@ class AudioController extends GetxController {
       }
     });
 
-    currentMusicInfo.value = {
-      'album': '',
-      'title': playlist[currentIndex].part,
-      'author': playlist[currentIndex].name,
-      'cover': playlist[currentIndex].pic,
-      'lyric': '',
-    };
+    if (playlist.isNotEmpty) {
+      currentMusicInfo.value = {
+        'album': '',
+        'title': playlist[currentIndex].part,
+        'author': playlist[currentIndex].name,
+        'cover': playlist[currentIndex].pic,
+        'lyric': '',
+      };
+      Timer(const Duration(seconds: 2), () {
+        startPlay(playlist[currentIndex]);
+      });
+    }
   }
 
   void setPlaylist(List<LiveMediaInfo> urls) {
