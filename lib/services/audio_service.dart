@@ -90,7 +90,7 @@ class AudioController extends GetxController {
     settingsService.currentMediaList.assignAll(urls);
   }
 
-  Future<void> startPlay(LiveMediaInfo mediaInfo) async {
+  Future<void> startPlay(LiveMediaInfo mediaInfo, {bool isAutoPlay = true}) async {
     if (tryTimes >= 3) {
       SmartDialog.showToast("当前歌曲加载失败,正在播放下一首");
       next();
@@ -115,7 +115,9 @@ class AudioController extends GetxController {
       } else {
         await retryStartPlay(mediaInfo);
       }
-      await _audioPlayer.play();
+      if (isAutoPlay) {
+        await _audioPlayer.play();
+      }
     } catch (_) {
       await retryStartPlay(mediaInfo);
     }

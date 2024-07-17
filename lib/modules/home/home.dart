@@ -65,7 +65,7 @@ class AlbumGridView extends GetView<HomeController> {
               },
             )
           : const EmptyView(
-              icon: Icons.error_outline,
+              icon: Icons.search,
               title: "暂无数据",
               subtitle: "请尝试搜索关注",
             ));
@@ -92,7 +92,7 @@ class MuiscGridView extends GetView<HomeController> {
               },
             )
           : const EmptyView(
-              icon: Icons.error_outline,
+              icon: Icons.search,
               title: "暂无数据",
               subtitle: "请尝试搜索关注",
             ));

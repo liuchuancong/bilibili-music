@@ -63,7 +63,7 @@ class _MyAppState extends State<MyApp> {
       var lightTheme = MyTheme(primaryColor: themeColor).lightThemeData;
       var darkTheme = MyTheme(primaryColor: themeColor).darkThemeData;
       return GetMaterialApp(
-        title: '纯粹直播',
+        title: 'Bilibili Music',
         themeMode: SettingsService.themeModes[settings.themeModeName.value]!,
         theme: lightTheme,
         darkTheme: darkTheme,

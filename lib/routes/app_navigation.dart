@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:ffi';
 import 'package:get/get.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/plugins/utils.dart';
@@ -40,19 +39,15 @@ class AppNavigator {
 
 class MyPageRouteObserver extends RouteObserver<PageRoute> {
   @override
-  void didPush(Route route, Route? previousRoute) {
-    super.didPush(route, previousRoute);
-    print('Page pushed: ${route.settings.name}');
-  }
-
-  @override
   void didPop(Route route, Route? previousRoute) {
     super.didPop(route, previousRoute);
     if (route.settings.name == RoutePath.kLivePlay) {
       final AudioController audioController = Get.find<AudioController>();
       if (audioController.settingsService.currentMediaList.isNotEmpty) {
         audioController.startPlay(
-            audioController.settingsService.currentMediaList[audioController.settingsService.currentMediaIndex.value]);
+          audioController.settingsService.currentMediaList[audioController.settingsService.currentMediaIndex.value],
+          isAutoPlay: false,
+        );
       }
     }
   }
