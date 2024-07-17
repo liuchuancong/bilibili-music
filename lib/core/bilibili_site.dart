@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:bilibilimusic/core/util.dart';
@@ -227,6 +228,118 @@ class BiliBiliSite {
       );
     }
     return null;
+  }
+
+  Future<Map<String, dynamic>> getAudioLyric(int avid, int cid, String bvid) async {
+    cookie = settings.bilibiliCookie.value;
+
+    var sign = await getSignedParams({
+      "aid": avid,
+      "bvid": bvid,
+      "cid": cid,
+    });
+    var header = {
+      "cookie": cookie,
+      "authority": "api.bilibili.com",
+      "accept":
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "accept-language": "zh-CN,zh;q=0.9",
+      "cache-control": "no-cache",
+      "dnt": "1",
+      "pragma": "no-cache",
+      "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": '"macOS"',
+      "sec-fetch-dest": "document",
+      "sec-fetch-mode": "navigate",
+      "sec-fetch-site": "none",
+      "sec-fetch-user": "?1",
+      "upgrade-insecure-requests": "1",
+      "user-agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+      "Referer": "https://www.bilibili.com/video/$bvid",
+    };
+    var result = await HttpClient.instance.getJson(
+      "http://api.bilibili.com/x/player/wbi/v2",
+      queryParameters: sign,
+      header: header,
+    );
+    if (result["code"] == 0) {
+      if (result["data"]["bgm_info"] != null && result["data"]["bgm_info"]["music_id"] != null) {
+        return await getMusicInfo(result["data"]["bgm_info"]['music_id']);
+      }
+      return {
+        'album': '',
+        'title': result["data"]['bgm_info']['music_title'],
+        'author': '',
+        'cover': '',
+        'lyric': '',
+      };
+    }
+    return {
+      'album': '',
+      'title': '',
+      'author': '',
+      'cover': '',
+      'lyric': '',
+    };
+  }
+
+  Future<Map<String, dynamic>> getMusicInfo(String musicId) async {
+    cookie = settings.bilibiliCookie.value;
+    var sign = await getSignedParams({"music_id": musicId, "relation_from": "bgm_page"});
+    var header = {
+      "cookie": cookie,
+      "authority": "api.bilibili.com",
+      "accept":
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "accept-language": "zh-CN,zh;q=0.9",
+      "cache-control": "no-cache",
+      "dnt": "1",
+      "pragma": "no-cache",
+      "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": '"macOS"',
+      "sec-fetch-dest": "document",
+      "sec-fetch-mode": "navigate",
+      "sec-fetch-site": "none",
+      "sec-fetch-user": "?1",
+      "upgrade-insecure-requests": "1",
+      "user-agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+      "Referer": "https://music.bilibili.com/",
+    };
+    var result = await HttpClient.instance.getJson(
+      "https://api.bilibili.com/x/copyright-music-publicity/bgm/detail",
+      queryParameters: sign,
+      header: header,
+    );
+    if (result["code"] == 0) {
+      return {
+        'album': result['data']['album'],
+        'title': result['data']['music_title'],
+        'author': result['data']['origin_artist'],
+        'cover': result['data']['mv_cover'],
+        'lyric': result['data']['mv_lyric'],
+      };
+    }
+    return {
+      'album': '',
+      'title': '',
+      'author': '',
+      'cover': '',
+      'lyric': '',
+    };
+  }
+
+  Future<String> getLyrics(String bgmInfo) async {
+    var lyrics = await HttpClient.instance.getFile("https://api.lrc.cx/lyrics?title=$bgmInfo");
+    return utf8.decode(lyrics.data);
+  }
+
+  Future<String> getBilibiliLyrics(String url) async {
+    var lyrics = await HttpClient.instance.getFile(url);
+    return utf8.decode(lyrics.data);
   }
 }
 

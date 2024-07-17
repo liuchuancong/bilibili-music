@@ -192,4 +192,36 @@ class HttpClient {
       }
     }
   }
+
+  /// Get请求，返回Response
+  /// * [url] 请求链接
+  /// * [queryParameters] 请求参数
+  /// * [cancel] 任务取消Token
+  Future<Response<dynamic>> getFile(
+    String url, {
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? header,
+    CancelToken? cancel,
+  }) async {
+    try {
+      queryParameters ??= {};
+      header ??= {};
+      var result = await dio.get<List<int>>(
+        url,
+        queryParameters: queryParameters,
+        options: Options(
+          responseType: ResponseType.bytes,
+          headers: header,
+        ),
+        cancelToken: cancel,
+      );
+      return result;
+    } catch (e) {
+      if (e is DioException && e.type == DioExceptionType.badResponse) {
+        return e.response!;
+      } else {
+        throw CoreError("发送GET请求失败");
+      }
+    }
+  }
 }

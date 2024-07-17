@@ -7,6 +7,10 @@ import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/play/blur_back_ground.dart';
 import 'package:bilibilimusic/services/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:bilibilimusic/play/lyric/lyrics_reader_model.dart';
+import 'package:bilibilimusic/play/lyric/lyric_ui/ui_netease.dart';
+import 'package:bilibilimusic/play/lyric/lyrics_model_builder.dart';
+import 'package:bilibilimusic/play/lyric/lyrics_reader_widget.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 
 class MusicPage extends StatefulWidget {
@@ -22,18 +26,41 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
   late Animation animation;
 
   final AudioController audioController = Get.find<AudioController>();
-
+  late LyricsReaderModel lyricModel;
+  var lyricUI = UINetease();
   @override
   void initState() {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
+    setTransparentStatusBar();
     controller = AnimationController(vsync: this, duration: const Duration(seconds: 15));
     waveController = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
     )..repeat();
+    audioController.lyricStatus.listen((p0) {
+      lyricModel = LyricsModelBuilder.create().bindLyricToMain(audioController.normalLyric.value).getModel();
+      setState(() {});
+    });
+
+    lyricModel = LyricsModelBuilder.create().bindLyricToMain(audioController.normalLyric.value).getModel();
+
     super.initState();
+  }
+
+  // 你可以在需要的地方调用这个方法，比如在main函数之前
+  void setTransparentStatusBar() {
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent, // 设置状态栏背景为透明
+        statusBarBrightness: Brightness.dark, // 根据你的背景颜色调整文字颜色
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    waveController.dispose();
+    super.dispose();
   }
 
   void setLyricState() {
@@ -101,35 +128,46 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
   }
 
   Widget _buildLyric() {
-    if (audioController.lyricContent.value.isNotEmpty) {
-      final style = _bodyText2Style(context);
-      style.copyWith(color: style.color!.withOpacity(0.7));
-
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          return ShaderMask(
-            blendMode: BlendMode.dstATop,
-            shaderCallback: (Rect bounds) {
-              return RadialGradient(
-                center: Alignment.topLeft,
-                radius: 1.0,
-                colors: <Color>[Colors.yellow, Colors.deepOrange.shade900],
-                tileMode: TileMode.mirror,
-              ).createShader(bounds);
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(),
+    return LyricsReader(
+      padding: const EdgeInsets.symmetric(horizontal: 5.0),
+      model: lyricModel,
+      position: audioController.currentMusicPosition.value.inMilliseconds,
+      lyricUi: lyricUI,
+      playing: audioController.isPlaying.value,
+      size: Size(double.infinity, MediaQuery.of(context).size.height * 0.55),
+      emptyBuilder: () => Center(
+        child: Text(
+          audioController.lyricStatus.value == LyricStatus.loading ? '歌词加载中...' : '暂无歌词',
+          style: lyricUI.getOtherMainTextStyle(),
+        ),
+      ),
+      onTap: setLyricState,
+      selectLineBuilder: (progress, confirm) {
+        return Row(
+          children: [
+            IconButton(
+                onPressed: () {
+                  confirm.call();
+                  setState(() {
+                    audioController.seek(Duration(milliseconds: progress));
+                  });
+                },
+                icon: const Icon(Icons.play_arrow_outlined, color: Colors.white)),
+            Expanded(
+              child: Container(
+                decoration: const BoxDecoration(color: Colors.white),
+                height: 1,
+                width: double.infinity,
+              ),
             ),
-          );
-        },
-      );
-    } else {
-      final style = _bodyText2Style(context);
-      return Center(
-        child: Text('暂无歌词', style: style),
-      );
-    }
+            Text(
+              formatDuration(progress ~/ 1000).toString(),
+              style: const TextStyle(color: Colors.white),
+            )
+          ],
+        );
+      },
+    );
   }
 
   Widget _buildImage() {
@@ -157,7 +195,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(200),
                           child: CachedNetworkImage(
-                            imageUrl: audioController.playlist[audioController.currentIndex].pic,
+                            imageUrl: audioController.currentMusicInfo.value['cover']!,
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -186,27 +224,29 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
   }
 
   Widget _buildTitle() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        MarqueeList(
-          key: ValueKey(audioController.playlist[audioController.currentIndex].cid),
-          scrollDirection: Axis.horizontal,
-          scrollDuration: const Duration(seconds: 2),
-          children: [
-            Text(
-              audioController.playlist[audioController.currentIndex].part,
-              style: const TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+    return Obx(() => Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            MarqueeList(
+              key: ValueKey(audioController.playlist[audioController.currentIndex].cid),
+              scrollDirection: Axis.horizontal,
+              scrollDuration: const Duration(seconds: 2),
+              children: [
+                Text(
+                  audioController.currentMusicInfo.value['title']!,
+                  style: const TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
+            Text(
+                '${audioController.currentMusicInfo.value['author']!} - ${audioController.currentMusicInfo.value['album']!}',
+                style: _bodyText2Style(context))
           ],
-        ),
-        Text(audioController.playlist[audioController.currentIndex].name, style: _bodyText2Style(context))
-      ],
-    );
+        ));
   }
 
   Widget _buildSeekBar() {
@@ -217,9 +257,9 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
             barHeight: 5,
             thumbRadius: 4,
             thumbGlowRadius: 8,
-            baseBarColor: Colors.white.withOpacity(0.2),
-            progressBarColor: Colors.white.withOpacity(0.2),
-            bufferedBarColor: Colors.white.withOpacity(0.1),
+            baseBarColor: Colors.white.withOpacity(0.5),
+            progressBarColor: Colors.red[700],
+            bufferedBarColor: Colors.red[300],
             thumbColor: Colors.white,
             thumbGlowColor: Colors.white,
             timeLabelTextStyle: _bodyText2Style(context),
@@ -229,17 +269,56 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
     );
   }
 
+  Widget _buildPlayModelIcon() {
+    if (audioController.playMode.value == PlayMode.listLoop) {
+      return IconButton(
+          icon: const Icon(
+            Icons.repeat_rounded,
+            size: 32,
+            color: Colors.white,
+          ),
+          onPressed: () => audioController.changePlayMode());
+    } else if (audioController.playMode.value == PlayMode.singleLoop) {
+      return IconButton(
+          icon: const Icon(
+            Icons.repeat_one,
+            size: 32,
+            color: Colors.white,
+          ),
+          onPressed: () => audioController.changePlayMode());
+    } else {
+      return IconButton(
+          icon: const Icon(
+            Icons.shuffle,
+            size: 32,
+            color: Colors.white,
+          ),
+          onPressed: () => audioController.changePlayMode());
+    }
+  }
+
   Widget _buildControlsBar() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
+        Obx(
+          () => _buildPlayModelIcon(),
+        ),
         IconButton(
-          icon: const Icon(Icons.skip_previous),
+          icon: const Icon(
+            Icons.skip_previous,
+            size: 32,
+            color: Colors.white,
+          ),
           onPressed: audioController.previous,
         ),
         Obx(
           () => IconButton(
-            icon: Icon(audioController.isPlaying.value ? Icons.pause : Icons.play_arrow),
+            icon: Icon(
+              audioController.isPlaying.value ? Icons.pause : Icons.play_arrow,
+              size: 32,
+              color: Colors.white,
+            ),
             onPressed: () {
               if (audioController.audioPlayer.playing) {
                 audioController.pause();
@@ -250,8 +329,20 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
           ),
         ),
         IconButton(
-          icon: const Icon(Icons.skip_next),
+          icon: const Icon(
+            Icons.skip_next,
+            size: 32,
+            color: Colors.white,
+          ),
           onPressed: audioController.next,
+        ),
+        IconButton(
+          icon: const Icon(
+            Icons.menu_open_rounded,
+            size: 32,
+            color: Colors.white,
+          ),
+          onPressed: audioController.previous,
         ),
       ],
     );
@@ -260,27 +351,26 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Stack(
-          children: [
-            BlurBackground(imageUrl: audioController.playlist[audioController.currentIndex].pic),
-            Column(
-              children: [
-                const SizedBox(height: 14),
-                _buildTopBar(),
-                const SizedBox(height: 80),
-                _buildCenterSection(),
-                const SizedBox(height: 10),
-                _buildTitle(),
-                const SizedBox(height: 10),
-                _buildSeekBar(),
-                const SizedBox(height: 30),
-                _buildControlsBar(),
-                const SizedBox(height: 30),
-              ],
-            )
-          ],
-        ),
+      extendBody: true,
+      body: Stack(
+        children: [
+          Obx(() => BlurBackground(imageUrl: audioController.currentMusicInfo.value['cover']!)),
+          Column(
+            children: [
+              const SizedBox(height: 30),
+              _buildTopBar(),
+              const SizedBox(height: 10),
+              _buildCenterSection(),
+              const SizedBox(height: 10),
+              _buildTitle(),
+              const SizedBox(height: 10),
+              _buildSeekBar(),
+              const SizedBox(height: 20),
+              _buildControlsBar(),
+              const SizedBox(height: 30),
+            ],
+          )
+        ],
       ),
     );
   }

@@ -5,6 +5,8 @@ import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/core/bilibili_site.dart';
 import 'package:bilibilimusic/models/live_media_info.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
+import 'package:bilibilimusic/play/lyric/lyric_ui/ui_netease.dart';
+import 'package:bilibilimusic/play/lyric/lyrics_reader_model.dart';
 
 enum PlayMode {
   singleLoop, // 单曲循环
@@ -12,11 +14,19 @@ enum PlayMode {
   random, // 随机播放
 }
 
+enum LyricStatus {
+  loading, // 单曲循环
+  loadSuccess, // 列表循环
+  loadFailed, // 随机播放
+}
+
 class AudioController extends GetxController {
   late AudioPlayer _audioPlayer;
   final _playlist = <LiveMediaInfo>[].obs; // 使用RxList来管理播放列表
   final _currentIndex = 0.obs;
   final SettingsService settingsService = Get.find<SettingsService>();
+  late LyricsReaderModel lyricModel;
+  late UINetease lyricUI;
   AudioPlayer get audioPlayer => _audioPlayer;
   List<LiveMediaInfo> get playlist => _playlist;
   final isPlaying = false.obs;
@@ -26,8 +36,16 @@ class AudioController extends GetxController {
   final playMode = PlayMode.listLoop.obs; // 默认播放模式为列表循环
   final currentMusicDuration = const Duration(seconds: 0).obs;
   final currentMusicPosition = const Duration(seconds: 0).obs;
+  final normalLyric = ''.obs;
+  final lyricStatus = LyricStatus.loading.obs;
 
-  final lyricContent = ''.obs;
+  final currentMusicInfo = {
+    'album': '',
+    'title': '',
+    'author': '',
+    'cover': '',
+    'lyric': '',
+  }.obs;
 
   @override
   void onInit() {
@@ -71,6 +89,14 @@ class AudioController extends GetxController {
         startPlay(_playlist[0]);
       }
     });
+
+    currentMusicInfo.value = {
+      'album': '',
+      'title': playlist[currentIndex].part,
+      'author': playlist[currentIndex].name,
+      'cover': playlist[currentIndex].pic,
+      'lyric': '',
+    };
   }
 
   void setPlaylist(List<LiveMediaInfo> urls) {
@@ -88,6 +114,7 @@ class AudioController extends GetxController {
       LiveMediaInfoData? videoInfoData =
           await BiliBiliSite().getAudioDetail(mediaInfo.aid, mediaInfo.cid, mediaInfo.bvid);
       if (videoInfoData != null) {
+        getLyric(mediaInfo);
         try {
           await _audioPlayer.setUrl(videoInfoData.url, headers: getHeaders(mediaInfo));
           tryTimes = 0; // 重置重试计数器
@@ -115,6 +142,52 @@ class AudioController extends GetxController {
 
   Future<void> play() async {
     _audioPlayer.play();
+  }
+
+  Future<void> seek(Duration position) async {
+    _audioPlayer.seek(position);
+  }
+
+  Future<void> getLyric(LiveMediaInfo mediaInfo) async {
+    lyricStatus.value = LyricStatus.loading;
+    Map musicInfo = await BiliBiliSite().getAudioLyric(mediaInfo.aid, mediaInfo.cid, mediaInfo.bvid);
+    currentMusicInfo.value = {
+      'album': musicInfo['album'],
+      'title': musicInfo['title'],
+      'author': musicInfo['author'],
+      'cover': musicInfo['cover'],
+      'lyric': musicInfo['lyric'],
+    };
+    if (musicInfo['title'].isEmpty) {
+      lyricStatus.value = LyricStatus.loadFailed;
+      normalLyric.value = ' ';
+    } else {
+      if (musicInfo['lyric'].isEmpty) {
+        try {
+          String lyric = await BiliBiliSite().getLyrics(musicInfo['title']);
+          normalLyric.value = lyric;
+          lyricStatus.value = LyricStatus.loadSuccess;
+        } catch (_) {
+          lyricStatus.value = LyricStatus.loadFailed;
+          normalLyric.value = ' ';
+        }
+      } else {
+        try {
+          String lyric = await BiliBiliSite().getBilibiliLyrics(musicInfo['lyric']);
+          normalLyric.value = lyric;
+          lyricStatus.value = LyricStatus.loadSuccess;
+        } catch (e) {
+          try {
+            String lyric = await BiliBiliSite().getLyrics(musicInfo['title']);
+            normalLyric.value = lyric;
+            lyricStatus.value = LyricStatus.loadSuccess;
+          } catch (_) {
+            lyricStatus.value = LyricStatus.loadFailed;
+            normalLyric.value = ' ';
+          }
+        }
+      }
+    }
   }
 
   Map<String, String> getHeaders(LiveMediaInfo mediaInfo) {
@@ -208,5 +281,22 @@ class AudioController extends GetxController {
   void onClose() {
     _audioPlayer.dispose();
     super.onClose();
+  }
+
+  changePlayMode() {
+    switch (playMode.value) {
+      case PlayMode.listLoop:
+        playMode.value = PlayMode.singleLoop;
+        SmartDialog.showToast("单曲循环");
+        break;
+      case PlayMode.singleLoop:
+        playMode.value = PlayMode.random;
+        SmartDialog.showToast("随机播放");
+        break;
+      case PlayMode.random:
+        playMode.value = PlayMode.listLoop;
+        SmartDialog.showToast("列表循环");
+        break;
+    }
   }
 }
