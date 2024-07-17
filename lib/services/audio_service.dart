@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/core/bilibili_site.dart';
 import 'package:bilibilimusic/models/live_media_info.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
@@ -76,6 +77,7 @@ class AudioController extends GetxController {
 
   Future<void> startPlay(LiveMediaInfo mediaInfo) async {
     if (tryTimes >= 3) {
+      SmartDialog.showToast("当前歌曲加载失败,正在播放下一首");
       next();
       return;
     }

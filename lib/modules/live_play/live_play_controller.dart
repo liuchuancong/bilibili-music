@@ -24,7 +24,7 @@ class LivePlayController extends StateController {
   }
 
   Future onInitPlayer() async {
-    var detail = await BiliBiliSite().getAudioDetail(videoInfo.aid, videoInfo.cid, videoInfo.bvid);
+    var detail = await BiliBiliSite().getVideoDetail(videoInfo.aid, videoInfo.cid, videoInfo.bvid);
     if (detail != null) {
       videoInfoData = detail;
       success.value = true;
