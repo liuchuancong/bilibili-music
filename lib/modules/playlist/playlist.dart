@@ -50,16 +50,31 @@ class PlayListPage extends GetView<PlayListController> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      controller.settingsService.setCurrentVideo(controller.list[0]);
-                      AppNavigator.toLiveRoomDetail(videoInfo: controller.list[0]);
+                      if (controller.list.isNotEmpty) {
+                        controller.settingsService.setCurrentMedia(controller.list[0]);
+                        AppNavigator.toLiveRoomDetail(mediaInfo: controller.list[0]);
+                      }
                     },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8), // 调整内边距
+                      textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700), // 调整文本大小
+                    ),
                     child: const Text('播放全部视频'),
+                  ),
+                  const SizedBox(
+                    width: 10,
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      controller.settingsService
-                          .setCurreentMusicList(controller.list.value.map((item) => item as LiveMediaInfo).toList());
+                      if (controller.list.isNotEmpty) {
+                        controller.settingsService
+                            .setCurreentMusicList(controller.list.value.map((item) => item as LiveMediaInfo).toList());
+                      }
                     },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8), // 调整内边距
+                      textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700), // 调整文本大小
+                    ),
                     child: const Text('播放全部音乐'),
                   ),
                   // 更多按钮...
@@ -72,47 +87,66 @@ class PlayListPage extends GetView<PlayListController> {
               child: ListView.builder(
                 itemCount: controller.list.length,
                 itemBuilder: (context, index) {
-                  LiveMediaInfo videoInfo = controller.list[index];
-                  return GestureDetector(
-                    onTap: () {
-                      controller.settingsService.setCurrentVideo(videoInfo);
-                      AppNavigator.toLiveRoomDetail(videoInfo: videoInfo);
-                    },
-                    child: Obx(
-                      () => Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                        color: controller.settingsService.isCurrentVideoInfo(videoInfo)
-                            ? Get.theme.colorScheme.primary
-                            : null,
-                        elevation: 4,
-                        child: ListTile(
-                          title: Text(
-                            videoInfo.part,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: controller.settingsService.isCurrentVideoInfo(videoInfo)
-                                  ? Colors.white
-                                  : Colors.black,
-                            ),
+                  LiveMediaInfo mediaInfo = controller.list[index];
+                  return Obx(
+                    () => Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                      color: controller.settingsService.isCurrentMediia(mediaInfo)
+                          ? Get.theme.colorScheme.primary.withOpacity(0.8)
+                          : null,
+                      elevation: 4,
+                      child: ListTile(
+                        title: Text(
+                          mediaInfo.part,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: controller.settingsService.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black,
                           ),
-                          subtitle: Text(formatDuration(videoInfo.duration),
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: controller.settingsService.isCurrentVideoInfo(videoInfo)
-                                      ? Colors.white
-                                      : Colors.black)),
-                          trailing: IconButton(
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            IconButton(
                               icon: Icon(
-                                Icons.keyboard_arrow_right_sharp,
-                                color: controller.settingsService.isCurrentVideoInfo(videoInfo)
-                                    ? Colors.white
-                                    : Colors.black,
+                                Icons.library_music_outlined,
+                                color:
+                                    controller.settingsService.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black,
                               ),
                               onPressed: () {
-                                controller.settingsService.setCurrentVideo(videoInfo);
-                                AppNavigator.toLiveRoomDetail(videoInfo: videoInfo);
-                              }),
+                                controller.audioController.startPlayAtIndex(
+                                    index, controller.list.value.map((item) => item as LiveMediaInfo).toList());
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.video_collection_outlined,
+                                color:
+                                    controller.settingsService.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black,
+                              ),
+                              onPressed: () {
+                                if (controller.list.isNotEmpty) {
+                                  controller.audioController.pause();
+                                  controller.settingsService.startPlayVideoAtIndex(
+                                      index, controller.list.value.map((item) => item as LiveMediaInfo).toList());
+                                  AppNavigator.toLiveRoomDetail(mediaInfo: mediaInfo);
+                                }
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.add,
+                                color:
+                                    controller.settingsService.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black,
+                              ),
+                              onPressed: () {
+                                controller.settingsService.setCurrentMedia(mediaInfo);
+                                AppNavigator.toLiveRoomDetail(mediaInfo: mediaInfo);
+                              },
+                            ),
+                          ],
                         ),
                       ),
                     ),

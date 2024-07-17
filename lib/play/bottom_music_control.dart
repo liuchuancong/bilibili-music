@@ -13,8 +13,8 @@ class BottomMusicControl extends GetWidget<AudioController> {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.black12, width: 0.5)),
-        color: Colors.transparent,
+        border: Border(top: BorderSide(color: Colors.black12, width: 1)),
+        color: Color.fromARGB(255, 203, 205, 214),
       ),
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
       child: Column(
@@ -25,28 +25,42 @@ class BottomMusicControl extends GetWidget<AudioController> {
               Expanded(
                 child: Obx(
                   () => ListTile(
-                    leading: CircleAvatar(
-                      child: ClipOval(
-                        child: CachedNetworkImage(imageUrl: controller.playlist[controller.currentIndex].face),
-                      ),
-                    ),
-                    title: MarqueeList(
-                      key: ValueKey(controller.playlist[controller.currentIndex].cid),
-                      scrollDirection: Axis.horizontal,
-                      scrollDuration: const Duration(seconds: 2),
-                      children: [
-                        Text(
-                          controller.playlist[controller.currentIndex].part,
-                          style: const TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    subtitle: Text(controller.playlist[controller.currentIndex].name),
+                    splashColor: Colors.transparent,
+                    tileColor: Colors.transparent, // 防止整个 ListTile 被着色
+                    contentPadding: EdgeInsets.zero, // 防止默认内边距影响视觉效果
+                    visualDensity: VisualDensity.compact, // 紧凑模式，更小的 padding
+                    dense: true,
+                    enableFeedback: false,
+                    leading: controller.playlist.isNotEmpty
+                        ? CircleAvatar(
+                            child: ClipOval(
+                              child: CachedNetworkImage(imageUrl: controller.playlist[controller.currentIndex].face),
+                            ),
+                          )
+                        : const Icon(Icons.music_note),
+                    title: controller.playlist.isNotEmpty
+                        ? MarqueeList(
+                            key: ValueKey(controller.playlist[controller.currentIndex].cid),
+                            scrollDirection: Axis.horizontal,
+                            scrollDuration: const Duration(seconds: 2),
+                            children: [
+                              Text(
+                                controller.playlist[controller.currentIndex].part,
+                                style: const TextStyle(
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          )
+                        : const Text('暂无歌曲'),
+                    subtitle: controller.playlist.isNotEmpty
+                        ? Text(controller.playlist[controller.currentIndex].name)
+                        : const Text('请选择歌单'),
                     onTap: () {
-                      Get.toNamed(RoutePath.kmusicPage);
+                      if (controller.playlist.isNotEmpty) {
+                        Get.toNamed(RoutePath.kmusicPage);
+                      }
                     },
                   ),
                 ),
@@ -55,12 +69,18 @@ class BottomMusicControl extends GetWidget<AudioController> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.skip_previous),
+                    icon: const Icon(
+                      Icons.skip_previous,
+                      size: 32,
+                    ),
                     onPressed: controller.previous,
                   ),
                   Obx(
                     () => IconButton(
-                      icon: Icon(controller.isPlaying.value ? Icons.pause : Icons.play_arrow),
+                      icon: Icon(
+                        controller.isPlaying.value ? Icons.pause : Icons.play_arrow,
+                        size: 32,
+                      ),
                       onPressed: () {
                         if (controller.audioPlayer.playing) {
                           controller.pause();
@@ -71,7 +91,10 @@ class BottomMusicControl extends GetWidget<AudioController> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.skip_next),
+                    icon: const Icon(
+                      Icons.skip_next,
+                      size: 32,
+                    ),
                     onPressed: controller.next,
                   ),
                 ],
@@ -84,7 +107,9 @@ class BottomMusicControl extends GetWidget<AudioController> {
                 thumbRadius: 4,
                 thumbGlowRadius: 8,
                 total: controller.currentMusicDuration.value,
-                onSeek: (duration) {},
+                onSeek: (duration) {
+                  controller.seek(duration);
+                },
               )),
         ],
       ),

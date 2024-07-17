@@ -90,12 +90,12 @@ class SettingsService extends GetxController {
       PrefUtil.setStringList('historyRooms', historyRooms.map<String>((e) => jsonEncode(e.toJson())).toList());
     });
 
-    currentMusicList.listen((List<LiveMediaInfo> medias) {
-      PrefUtil.setStringList('currentMusicList', medias.map<String>((e) => jsonEncode(e.toJson())).toList());
+    currentMediaList.listen((List<LiveMediaInfo> medias) {
+      PrefUtil.setStringList('currentMediaList', medias.map<String>((e) => jsonEncode(e.toJson())).toList());
     });
 
-    currentMusicIndex.listen((int index) {
-      PrefUtil.setInt('currentMusicIndex', index);
+    currentMediaIndex.listen((index) {
+      PrefUtil.setInt('currentMediaIndex', index);
     });
   }
 
@@ -196,16 +196,25 @@ class SettingsService extends GetxController {
     PrefUtil.setString('device', dv);
   }
 
-  // 当前视频播放列表
-  var videoInfos = [].obs;
-  var currentVideoIndex = 0.obs;
+  // 当前媒体播放列表
+  var currentMediaIndex = (PrefUtil.getInt('currentMediaIndex') ?? 0).obs;
 
-  void setCurrentVideoIndex(int index) {
-    currentVideoIndex.value = index;
+  void setCurrentMediaIndex(int index) {
+    currentMediaIndex.value = index;
   }
 
-  void setCurrentVideo(LiveMediaInfo videoInfo) {
-    setCurrentVideoIndex(videoInfos.indexWhere((element) => element == videoInfo));
+  // 当前播放媒体list相关
+  final currentMediaList =
+      ((PrefUtil.getStringList('currentMediaList') ?? []).map((e) => LiveMediaInfo.fromJson(jsonDecode(e))).toList())
+          .obs;
+
+  void setCurrentMedia(LiveMediaInfo mediaInfo) {
+    setCurrentMediaIndex(currentMediaList.indexWhere((element) => element.cid == mediaInfo.cid));
+  }
+
+  Future<void> startPlayVideoAtIndex(int index, List<LiveMediaInfo> currentPlaylist) async {
+    currentMediaList.assignAll(currentPlaylist);
+    currentMediaIndex.value = index;
   }
 
   final videoAlbum =
@@ -240,30 +249,29 @@ class SettingsService extends GetxController {
     return videoAlbum.any((element) => element.id == video.id);
   }
 
-  LiveMediaInfo getCurrentVideoInfo() {
-    return videoInfos[currentVideoIndex.value];
-  }
-
   LiveMediaInfo getNextVideoInfo() {
-    if (currentVideoIndex.value + 1 < videoInfos.length) {
-      setCurrentVideoIndex(currentVideoIndex.value + 1);
-      return videoInfos[currentVideoIndex.value + 1];
+    if (currentMediaIndex.value + 1 < currentMediaList.length) {
+      setCurrentMediaIndex(currentMediaIndex.value + 1);
+      return currentMediaList[currentMediaIndex.value + 1];
     }
-    setCurrentVideoIndex(0);
-    return videoInfos[0];
+    setCurrentMediaIndex(0);
+    return currentMediaList[0];
   }
 
   LiveMediaInfo getPreviousVideoInfo() {
-    if (currentVideoIndex.value - 1 >= 0) {
-      setCurrentVideoIndex(currentVideoIndex.value - 1);
-      return videoInfos[currentVideoIndex.value - 1];
+    if (currentMediaIndex.value - 1 >= 0) {
+      setCurrentMediaIndex(currentMediaIndex.value - 1);
+      return currentMediaList[currentMediaIndex.value - 1];
     }
-    setCurrentVideoIndex(videoInfos.length - 1);
-    return videoInfos[videoInfos.length - 1];
+    setCurrentMediaIndex(currentMediaList.length - 1);
+    return currentMediaList[currentMediaList.length - 1];
   }
 
-  bool isCurrentVideoInfo(LiveMediaInfo videoInfo) {
-    return videoInfo == getCurrentVideoInfo();
+  bool isCurrentMediia(LiveMediaInfo mediaInfo) {
+    if (currentMediaList.isEmpty) {
+      return false;
+    }
+    return currentMediaList[currentMediaIndex.value].cid == mediaInfo.cid;
   }
 
   // 音乐相关
@@ -304,17 +312,11 @@ class SettingsService extends GetxController {
   }
 
   setCurreentMusicList(List<LiveMediaInfo> medias) {
-    currentMusicList.value = medias;
-    currentMusicIndex.value = 0;
-    PrefUtil.setStringList('currentMusicList', currentMusicList.map((e) => jsonEncode(e.toJson())).toList());
-    PrefUtil.setInt('currentMusicIndex', 0);
+    currentMediaList.value = medias;
+    currentMediaIndex.value = 0;
+    PrefUtil.setStringList('currentMediaList', currentMediaList.map((e) => jsonEncode(e.toJson())).toList());
+    PrefUtil.setInt('currentMediaIndex', 0);
   }
-
-  // 当前播放音乐list相关
-  final currentMusicList =
-      ((PrefUtil.getStringList('currentMusicList') ?? []).map((e) => LiveMediaInfo.fromJson(jsonDecode(e))).toList())
-          .obs;
-  final currentMusicIndex = (PrefUtil.getInt('currentMusicIndex') ?? 0).obs;
 
   bool backup(File file) {
     try {

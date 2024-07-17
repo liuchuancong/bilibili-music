@@ -226,6 +226,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
   Widget _buildTitle() {
     return Obx(() => Column(
           crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             MarqueeList(
               key: ValueKey(audioController.playlist[audioController.currentIndex].cid),
@@ -242,9 +243,8 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
                 ),
               ],
             ),
-            Text(
-                '${audioController.currentMusicInfo.value['author']!} - ${audioController.currentMusicInfo.value['album']!}',
-                style: _bodyText2Style(context))
+            Text(audioController.currentMusicInfo.value['author']!,
+                style: _bodyText2Style(context), maxLines: 1, overflow: TextOverflow.ellipsis)
           ],
         ));
   }
@@ -264,7 +264,9 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
             thumbGlowColor: Colors.white,
             timeLabelTextStyle: _bodyText2Style(context),
             total: audioController.currentMusicDuration.value,
-            onSeek: (duration) {},
+            onSeek: (duration) {
+              audioController.seek(duration);
+            },
           )),
     );
   }

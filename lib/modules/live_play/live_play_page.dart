@@ -35,39 +35,51 @@ class LivePlayPage extends GetWidget<LivePlayController> {
           Expanded(
             child: Obx(
               () => ListView.builder(
-                itemCount: settings.videoInfos.length,
+                itemCount: settings.currentMediaList.length,
                 itemBuilder: (context, index) {
-                  LiveMediaInfo videoInfo = settings.videoInfos[index];
-                  return GestureDetector(
-                    onTap: () {
-                      controller.playByVideoInfo(videoInfo);
-                    },
-                    child: Obx(
-                      () => Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                        color: settings.isCurrentVideoInfo(videoInfo) ? Get.theme.colorScheme.primary : null,
-                        elevation: 4,
-                        child: ListTile(
-                          title: Text(
-                            videoInfo.part,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: settings.isCurrentVideoInfo(videoInfo) ? Colors.white : Colors.black,
-                            ),
+                  LiveMediaInfo mediaInfo = settings.currentMediaList[index];
+                  return Obx(
+                    () => Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                      color: controller.settingsService.isCurrentMediia(mediaInfo)
+                          ? Get.theme.colorScheme.primary.withOpacity(0.8)
+                          : null,
+                      elevation: 4,
+                      child: ListTile(
+                        title: Text(
+                          mediaInfo.part,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: controller.settingsService.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black,
                           ),
-                          subtitle: Text(formatDuration(videoInfo.duration),
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: settings.isCurrentVideoInfo(videoInfo) ? Colors.white : Colors.black)),
-                          trailing: IconButton(
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            IconButton(
                               icon: Icon(
-                                Icons.keyboard_arrow_right_sharp,
-                                color: settings.isCurrentVideoInfo(videoInfo) ? Colors.white : Colors.black,
+                                Icons.video_library_outlined,
+                                color:
+                                    controller.settingsService.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black,
                               ),
                               onPressed: () {
-                                controller.playByVideoInfo(videoInfo);
-                              }),
+                                controller.playByVideoInfo(mediaInfo);
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.add,
+                                color:
+                                    controller.settingsService.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black,
+                              ),
+                              onPressed: () {
+                                controller.playByVideoInfo(mediaInfo);
+                              },
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -96,38 +108,38 @@ class LivePlayPage extends GetWidget<LivePlayController> {
             Expanded(
               child: Obx(
                 () => ListView.builder(
-                  itemCount: settings.videoInfos.length,
+                  itemCount: settings.currentMediaList.length,
                   itemBuilder: (context, index) {
-                    LiveMediaInfo videoInfo = settings.videoInfos[index];
+                    LiveMediaInfo mediaInfo = settings.currentMediaList[index];
                     return GestureDetector(
                       onTap: () {
-                        controller.playByVideoInfo(videoInfo);
+                        controller.playByVideoInfo(mediaInfo);
                       },
                       child: Obx(
                         () => Card(
                           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                          color: settings.isCurrentVideoInfo(videoInfo) ? Get.theme.colorScheme.primary : null,
+                          color: settings.isCurrentMediia(mediaInfo) ? Get.theme.colorScheme.primary : null,
                           elevation: 4,
                           child: ListTile(
                             title: Text(
-                              videoInfo.part,
+                              mediaInfo.part,
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: settings.isCurrentVideoInfo(videoInfo) ? Colors.white : Colors.black,
+                                color: settings.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black,
                               ),
                             ),
-                            subtitle: Text(formatDuration(videoInfo.duration),
+                            subtitle: Text(formatDuration(mediaInfo.duration),
                                 style: TextStyle(
                                     fontSize: 14,
-                                    color: settings.isCurrentVideoInfo(videoInfo) ? Colors.white : Colors.black)),
+                                    color: settings.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black)),
                             trailing: IconButton(
                                 icon: Icon(
                                   Icons.keyboard_arrow_right_sharp,
-                                  color: settings.isCurrentVideoInfo(videoInfo) ? Colors.white : Colors.black,
+                                  color: settings.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black,
                                 ),
                                 onPressed: () {
-                                  controller.playByVideoInfo(videoInfo);
+                                  controller.playByVideoInfo(mediaInfo);
                                 }),
                           ),
                         ),
@@ -173,7 +185,7 @@ class LivePlayPage extends GetWidget<LivePlayController> {
                 clipBehavior: Clip.antiAlias,
                 color: Get.theme.focusColor,
                 child: CachedNetworkImage(
-                  imageUrl: controller.videoInfo.pic,
+                  imageUrl: controller.mediaInfo.pic,
                   cacheManager: CustomCacheManager.instance,
                   fit: BoxFit.fill,
                   errorWidget: (context, error, stackTrace) => const Center(
@@ -213,7 +225,7 @@ class _ResolutionsRowState extends State<ResolutionsRow> {
       const Icon(Icons.whatshot_rounded, size: 14),
       const SizedBox(width: 4),
       Text(
-        readableCount(controller.videoInfo.favorite.toString()),
+        readableCount(controller.mediaInfo.favorite.toString()),
         style: Get.textTheme.bodySmall,
       ),
     ]);

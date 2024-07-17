@@ -11,7 +11,7 @@ import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:bilibilimusic/modules/live_play/live_play_controller.dart';
 
 class VideoController with ChangeNotifier {
-  final LiveMediaInfo videoInfo;
+  final LiveMediaInfo mediaInfo;
 
   final LiveMediaInfoData videoInfoData;
   var initialized = false.obs;
@@ -20,7 +20,7 @@ class VideoController with ChangeNotifier {
   final int initPosition;
 
   SettingsService settingsService = Get.find<SettingsService>();
-  VideoController({required this.videoInfo, required this.videoInfoData, required this.initPosition}) {
+  VideoController({required this.mediaInfo, required this.videoInfoData, required this.initPosition}) {
     initVideoController();
   }
 
@@ -66,9 +66,9 @@ class VideoController with ChangeNotifier {
     BetterPlayerDataSource dataSource = BetterPlayerDataSource(BetterPlayerDataSourceType.network, videoInfoData.url,
         notificationConfiguration: BetterPlayerNotificationConfiguration(
           showNotification: true,
-          title: videoInfo.title,
-          author: videoInfo.name,
-          imageUrl: videoInfo.pic,
+          title: mediaInfo.title,
+          author: mediaInfo.name,
+          imageUrl: mediaInfo.pic,
         ),
         headers: {
           "cookie": settingsService.bilibiliCookie.value,
@@ -89,7 +89,7 @@ class VideoController with ChangeNotifier {
           "upgrade-insecure-requests": "1",
           "user-agent":
               "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-          "Referer": "https://www.bilibili.com/video/${videoInfo.bvid}",
+          "Referer": "https://www.bilibili.com/video/${mediaInfo.bvid}",
         });
     betterPlayerController.setupDataSource(dataSource);
 

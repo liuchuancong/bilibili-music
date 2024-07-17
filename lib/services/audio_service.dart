@@ -23,17 +23,15 @@ enum LyricStatus {
 
 class AudioController extends GetxController {
   late AudioPlayer _audioPlayer;
-  final _playlist = <LiveMediaInfo>[].obs; // 使用RxList来管理播放列表
-  final _currentIndex = 0.obs;
   final SettingsService settingsService = Get.find<SettingsService>();
   late LyricsReaderModel lyricModel;
   late UINetease lyricUI;
   AudioPlayer get audioPlayer => _audioPlayer;
-  List<LiveMediaInfo> get playlist => _playlist;
+  List<LiveMediaInfo> get playlist => settingsService.currentMediaList.value;
   final isPlaying = false.obs;
   final showLyric = false.obs;
   int tryTimes = 0;
-  int get currentIndex => _currentIndex.value;
+  int get currentIndex => settingsService.currentMediaIndex.value;
   final playMode = PlayMode.listLoop.obs; // 默认播放模式为列表循环
   final currentMusicDuration = const Duration(seconds: 0).obs;
   final currentMusicPosition = const Duration(seconds: 0).obs;
@@ -52,9 +50,6 @@ class AudioController extends GetxController {
   void onInit() {
     super.onInit();
     _audioPlayer = AudioPlayer();
-    _currentIndex.value = settingsService.currentMusicIndex.value;
-    _playlist.assignAll(settingsService.currentMusicList.value);
-
     _audioPlayer.positionStream.listen((position) {
       // 监听播放进度
       currentMusicPosition.value = position;
@@ -75,21 +70,7 @@ class AudioController extends GetxController {
       }
     });
 
-    _currentIndex.listen((value) {
-      settingsService.currentMusicIndex.value = value;
-    });
-
     // 监听播放列表变化
-
-    settingsService.currentMusicList.listen((value) {
-      if (value.isNotEmpty) {
-        _playlist.clear();
-        stop();
-        _playlist.assignAll(value);
-        _currentIndex.value = 0;
-        startPlay(_playlist[0]);
-      }
-    });
 
     if (playlist.isNotEmpty) {
       currentMusicInfo.value = {
@@ -106,7 +87,7 @@ class AudioController extends GetxController {
   }
 
   void setPlaylist(List<LiveMediaInfo> urls) {
-    _playlist.assignAll(urls);
+    settingsService.currentMediaList.assignAll(urls);
   }
 
   Future<void> startPlay(LiveMediaInfo mediaInfo) async {
@@ -229,57 +210,63 @@ class AudioController extends GetxController {
     _audioPlayer.stop();
   }
 
+  Future<void> startPlayAtIndex(int index, List<LiveMediaInfo> currentPlaylist) async {
+    settingsService.currentMediaList.assignAll(currentPlaylist);
+    settingsService.currentMediaIndex.value = index;
+    await startPlay(currentPlaylist[index]);
+  }
+
   Future<void> next() async {
     tryTimes = 0; // 重置重试计数器
-    if (_playlist.isNotEmpty) {
+    if (settingsService.currentMediaList.isNotEmpty) {
       int newIndex;
       switch (playMode.value) {
         case PlayMode.singleLoop:
           // 如果是单曲循环，保持索引不变
-          newIndex = _currentIndex.value;
+          newIndex = settingsService.currentMediaIndex.value;
           break;
         case PlayMode.listLoop:
           // 如果是列表循环，按正常顺序或循环到第一个元素
-          if (_currentIndex.value < _playlist.length - 1) {
-            newIndex = _currentIndex.value + 1;
+          if (settingsService.currentMediaIndex.value < settingsService.currentMediaList.length - 1) {
+            newIndex = settingsService.currentMediaIndex.value + 1;
           } else {
             newIndex = 0;
           }
           break;
         case PlayMode.random:
           // 如果是随机播放，选择一个随机索引
-          newIndex = Random().nextInt(_playlist.length);
+          newIndex = Random().nextInt(settingsService.currentMediaList.length);
           break;
       }
-      _currentIndex.value = newIndex;
-      await startPlay(_playlist[_currentIndex.value]);
+      settingsService.currentMediaIndex.value = newIndex;
+      await startPlay(settingsService.currentMediaList[settingsService.currentMediaIndex.value]);
     }
   }
 
   Future<void> previous() async {
     tryTimes = 0; // 重置重试计数器
-    if (_playlist.isNotEmpty) {
+    if (settingsService.currentMediaList.isNotEmpty) {
       int newIndex;
       switch (playMode.value) {
         case PlayMode.singleLoop:
           // 如果是单曲循环，保持索引不变
-          newIndex = _currentIndex.value;
+          newIndex = settingsService.currentMediaIndex.value;
           break;
         case PlayMode.listLoop:
           // 如果是列表循环，按正常顺序或循环到最后一个元素
-          if (_currentIndex.value > 0) {
-            newIndex = _currentIndex.value - 1;
+          if (settingsService.currentMediaIndex.value > 0) {
+            newIndex = settingsService.currentMediaIndex.value - 1;
           } else {
-            newIndex = _playlist.length - 1;
+            newIndex = settingsService.currentMediaList.length - 1;
           }
           break;
         case PlayMode.random:
           // 如果是随机播放，选择一个随机索引
-          newIndex = Random().nextInt(_playlist.length);
+          newIndex = Random().nextInt(settingsService.currentMediaList.length);
           break;
       }
-      _currentIndex.value = newIndex;
-      await startPlay(_playlist[_currentIndex.value]);
+      settingsService.currentMediaIndex.value = newIndex;
+      await startPlay(settingsService.currentMediaList[settingsService.currentMediaIndex.value]);
     }
   }
 

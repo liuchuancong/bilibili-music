@@ -33,7 +33,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
               color: Get.theme.focusColor,
               child: CachedNetworkImage(
                 cacheManager: CustomCacheManager.instance,
-                imageUrl: widget.controller.videoInfo.firstFrame,
+                imageUrl: widget.controller.mediaInfo.firstFrame,
                 fit: BoxFit.fill,
                 errorWidget: (context, error, stackTrace) => const Center(
                   child: Icon(Icons.live_tv_rounded, size: 48),

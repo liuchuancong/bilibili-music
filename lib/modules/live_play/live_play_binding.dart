@@ -6,7 +6,7 @@ class LivePlayBinding extends Binding {
   List<Bind> dependencies() {
     return [
       Bind.lazyPut(() => LivePlayController(
-            videoInfo: Get.arguments,
+            mediaInfo: Get.arguments,
           ))
     ];
   }

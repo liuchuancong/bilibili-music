@@ -14,6 +14,7 @@ class MyTheme {
   get lightThemeData {
     return ThemeData(
       useMaterial3: true,
+      splashFactory: NoSplash.splashFactory,
       colorSchemeSeed: primaryColor,
       colorScheme: colorScheme,
       brightness: Brightness.light,
@@ -28,6 +29,7 @@ class MyTheme {
     return ThemeData(
       useMaterial3: true,
       colorSchemeSeed: primaryColor,
+      splashFactory: NoSplash.splashFactory,
       colorScheme: colorScheme?.copyWith(
         error: const Color.fromARGB(255, 255, 99, 71),
       ),
