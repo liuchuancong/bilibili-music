@@ -5,7 +5,6 @@ import 'package:bilibilimusic/widgets/empty_view.dart';
 import 'package:bilibilimusic/widgets/menu_button.dart';
 import 'package:bilibilimusic/modules/search/search_page.dart';
 import 'package:bilibilimusic/modules/home/home_controller.dart';
-import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class HomePage extends GetView<HomeController> {
@@ -42,45 +41,7 @@ class HomePage extends GetView<HomeController> {
         controller: controller.tabController,
         children: const [AlbumGridView(), MuiscGridView()],
       ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.skip_previous),
-                  onPressed: controller.audioController.previous,
-                ),
-                Obx(() => IconButton(
-                      icon: Icon(controller.audioController.isPlaying.value ? Icons.pause : Icons.play_arrow),
-                      onPressed: () {
-                        if (controller.audioController.audioPlayer.playing) {
-                          controller.audioController.pause();
-                        } else {
-                          controller.audioController.play();
-                        }
-                      },
-                    )),
-                IconButton(
-                  icon: const Icon(Icons.skip_next),
-                  onPressed: controller.audioController.next,
-                ),
-              ],
-            ),
-            Obx(() => ProgressBar(
-                  progress: controller.audioController.currentMusicPosition.value,
-                  barHeight: 5,
-                  thumbRadius: 4,
-                  thumbGlowRadius: 8,
-                  total: controller.audioController.currentMusicDuration.value,
-                  onSeek: (duration) {},
-                )),
-          ],
-        ),
-      ),
+      bottomNavigationBar: const BottomMusicControl(),
     );
   }
 }

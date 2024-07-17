@@ -12,5 +12,6 @@ export 'package:shared_preferences/shared_preferences.dart';
 
 export 'package:bilibilimusic/utils/cache_manager.dart';
 export 'package:bilibilimusic/utils/index.dart';
+export 'package:bilibilimusic/play/bottom_music_control.dart';
 
 export './base/base_controller.dart';

@@ -20,12 +20,14 @@ class AudioController extends GetxController {
   AudioPlayer get audioPlayer => _audioPlayer;
   List<LiveMediaInfo> get playlist => _playlist;
   final isPlaying = false.obs;
-
+  final showLyric = false.obs;
   int tryTimes = 0;
   int get currentIndex => _currentIndex.value;
   final playMode = PlayMode.listLoop.obs; // 默认播放模式为列表循环
   final currentMusicDuration = const Duration(seconds: 0).obs;
   final currentMusicPosition = const Duration(seconds: 0).obs;
+
+  final lyricContent = ''.obs;
 
   @override
   void onInit() {

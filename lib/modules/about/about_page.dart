@@ -64,6 +64,7 @@ class _AboutPageState extends State<AboutPage> {
           ),
         ],
       ),
+      bottomNavigationBar: const BottomMusicControl(),
     );
   }
 

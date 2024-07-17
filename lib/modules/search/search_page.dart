@@ -1,11 +1,8 @@
 import 'dart:developer';
 import 'package:get/get.dart';
 import 'search_controller.dart';
-import 'package:flutter/material.dart';
-import 'package:easy_refresh/easy_refresh.dart';
-import 'package:bilibilimusic/utils/text_util.dart';
+import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/widgets/empty_view.dart';
-import 'package:bilibilimusic/utils/cache_manager.dart';
 import 'package:bilibilimusic/routes/app_navigation.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -75,6 +72,7 @@ class SearchPage extends GetView<SearchMusicController> {
                     ),
             ));
       }),
+      bottomNavigationBar: const BottomMusicControl(),
     );
   }
 }

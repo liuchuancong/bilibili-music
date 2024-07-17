@@ -1,10 +1,8 @@
 import 'package:get/get.dart';
 import 'playlist_controller.dart';
-import 'package:flutter/material.dart';
-import 'package:bilibilimusic/utils/text_util.dart';
+import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/routes/app_navigation.dart';
 import 'package:bilibilimusic/models/live_media_info.dart';
-import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 
 class PlayListPage extends GetView<PlayListController> {
   const PlayListPage({super.key});
@@ -125,56 +123,7 @@ class PlayListPage extends GetView<PlayListController> {
           ],
         );
       }),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: Colors.black12, width: 0.5)),
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.skip_previous),
-                  onPressed: controller.audioController.previous,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.forward_5_outlined),
-                  onPressed: controller.audioController.previous,
-                ),
-                Obx(() => IconButton(
-                      icon: Icon(controller.audioController.isPlaying.value ? Icons.pause : Icons.play_arrow),
-                      onPressed: () {
-                        if (controller.audioController.audioPlayer.playing) {
-                          controller.audioController.pause();
-                        } else {
-                          controller.audioController.play();
-                        }
-                      },
-                    )),
-                IconButton(
-                  icon: const Icon(Icons.replay_5_outlined),
-                  onPressed: controller.audioController.previous,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.skip_next),
-                  onPressed: controller.audioController.next,
-                ),
-              ],
-            ),
-            Obx(() => ProgressBar(
-                  progress: controller.audioController.currentMusicPosition.value,
-                  barHeight: 5,
-                  thumbRadius: 4,
-                  thumbGlowRadius: 8,
-                  total: controller.audioController.currentMusicDuration.value,
-                  onSeek: (duration) {},
-                )),
-          ],
-        ),
-      ),
+      bottomNavigationBar: const BottomMusicControl(),
     );
   }
 }

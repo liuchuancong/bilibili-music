@@ -56,6 +56,7 @@ class _BackupPageState extends State<BackupPage> {
           ),
         ],
       ),
+      bottomNavigationBar: const BottomMusicControl(),
     );
   }
 }

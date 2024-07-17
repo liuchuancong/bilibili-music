@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:bilibilimusic/play/bottom_music_control.dart';
 import 'package:bilibilimusic/services/bilibili_account_service.dart';
 import 'package:bilibilimusic/modules/account/account_controller.dart';
 
@@ -31,6 +32,7 @@ class AccountPage extends GetView<AccountController> {
           ),
         ],
       ),
+      bottomNavigationBar: const BottomMusicControl(),
     );
   }
 }

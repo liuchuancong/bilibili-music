@@ -61,6 +61,7 @@ dependencies:
   easy_refresh: ^3.4.0
   flutter_inappwebview: ^6.0.0-rc.3
   http: ^1.2.1
+  marquee_list: ^1.0.0
   parallax_cards: ^1.0.2
   crypto: ^3.0.3
   screen_brightness: ^0.2.2+1
@@ -72,6 +73,7 @@ dependencies:
   stop_watch_timer: ^3.0.2
   flutter_exit_app: ^1.1.2
   url_launcher: ^6.1.12
+  collection: ^1.18.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

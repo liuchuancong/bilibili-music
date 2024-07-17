@@ -78,4 +78,6 @@ class RoutePath {
 
   /// kToolbox
   static const kToolbox = "/tool_box";
+
+  static const kmusicPage = "/music_page";
 }

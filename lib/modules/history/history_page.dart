@@ -41,6 +41,7 @@ class HistoryPage extends GetView<HomeController> {
         controller: controller.tabController,
         children: const [AlbumGridView(), MuiscGridView()],
       ),
+      bottomNavigationBar: const BottomMusicControl(),
     );
   }
 }

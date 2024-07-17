@@ -1,5 +1,6 @@
 import 'route_path.dart';
 import 'package:get/get.dart';
+import 'package:bilibilimusic/play/music_page.dart';
 import 'package:bilibilimusic/modules/home/home.dart';
 import 'package:bilibilimusic/modules/home/home_bing.dart';
 import 'package:bilibilimusic/modules/about/about_page.dart';
@@ -19,7 +20,6 @@ import 'package:bilibilimusic/modules/live_play/live_play_binding.dart';
 import 'package:bilibilimusic/modules/account/bilibili/qr_login_page.dart';
 import 'package:bilibilimusic/modules/account/bilibili/bilibili_bings.dart';
 import 'package:bilibilimusic/modules/account/bilibili/web_login_page.dart';
-
 
 // auth
 
@@ -80,6 +80,10 @@ class AppPages {
     GetPage(
       name: RoutePath.kAbout,
       page: AboutPage.new,
+    ),
+    GetPage(
+      name: RoutePath.kmusicPage,
+      page: MusicPage.new,
     ),
     GetPage(
       name: RoutePath.kHistory,

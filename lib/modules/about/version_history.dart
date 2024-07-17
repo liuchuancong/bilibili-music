@@ -49,6 +49,7 @@ class _VersionHistoryPageState extends State<VersionHistoryPage> {
         physics: const AlwaysScrollableScrollPhysics(),
         children: getRichTextList(),
       ),
+      bottomNavigationBar: const BottomMusicControl(),
     );
   }
 }
