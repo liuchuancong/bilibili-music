@@ -114,7 +114,27 @@ class BiliBiliSite {
 
   Future<LiveMediaInfoData?> getVideoDetail(int avid, int cid, String bvid, {String qn = '80'}) async {
     cookie = settings.bilibiliCookie.value;
-    // var utoken = await getToken(avid, cid);
+    var header = {
+      "cookie": cookie,
+      "authority": "api.bilibili.com",
+      "accept":
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "accept-language": "zh-CN,zh;q=0.9",
+      "cache-control": "no-cache",
+      "dnt": "1",
+      "pragma": "no-cache",
+      "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": '"macOS"',
+      "sec-fetch-dest": "document",
+      "sec-fetch-mode": "navigate",
+      "sec-fetch-site": "none",
+      "sec-fetch-user": "?1",
+      "upgrade-insecure-requests": "1",
+      "user-agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+      "Referer": "https://www.bilibili.com/video/$bvid",
+    };
     var result = await HttpClient.instance.getJson(
       "https://api.bilibili.com/x/player/playurl",
       queryParameters: {
@@ -130,27 +150,7 @@ class BiliBiliSite {
         "platform": "html5",
         "high_quality": "1",
       },
-      header: {
-        "cookie": cookie,
-        "authority": "api.bilibili.com",
-        "accept":
-            "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-        "accept-language": "zh-CN,zh;q=0.9",
-        "cache-control": "no-cache",
-        "dnt": "1",
-        "pragma": "no-cache",
-        "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
-        "sec-ch-ua-mobile": "?0",
-        "sec-ch-ua-platform": '"macOS"',
-        "sec-fetch-dest": "document",
-        "sec-fetch-mode": "navigate",
-        "sec-fetch-site": "none",
-        "sec-fetch-user": "?1",
-        "upgrade-insecure-requests": "1",
-        "User-Agent":
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
-        "Referer": "https://www.bilibili.com",
-      },
+      header: header,
     );
 
     if (result["code"] == 0) {
@@ -173,48 +173,32 @@ class BiliBiliSite {
   Future<LiveMediaInfoData?> getAudioDetail(int avid, int cid, String bvid, {String qn = '32'}) async {
     cookie = settings.bilibiliCookie.value;
 
-    var sign = await getSignedParams({
-      "bvid": bvid,
-      "cid": cid,
-      "fnval": 16,
-    });
-    log(sign.toString(), name: 'getAudioDetail');
+    var sign = await getSignedParams({"bvid": bvid, "cid": cid, "fnval": 16});
+    var header = {
+      "cookie": cookie,
+      "authority": "api.bilibili.com",
+      "accept":
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "accept-language": "zh-CN,zh;q=0.9",
+      "cache-control": "no-cache",
+      "dnt": "1",
+      "pragma": "no-cache",
+      "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": '"macOS"',
+      "sec-fetch-dest": "document",
+      "sec-fetch-mode": "navigate",
+      "sec-fetch-site": "none",
+      "sec-fetch-user": "?1",
+      "upgrade-insecure-requests": "1",
+      "user-agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+      "Referer": "https://www.bilibili.com/video/$bvid",
+    };
     var result = await HttpClient.instance.getJson(
       "http://api.bilibili.com/x/player/wbi/playurl",
-      queryParameters: {
-        "avid": avid,
-        "bvid": bvid,
-        "cid": cid,
-        "qn": qn,
-        "fnval": 4048,
-        "gaia_source": "view-card",
-        "from_client": 'BROWSER',
-        "w_rid": sign["w_rid"],
-        "wts": sign["wts"],
-        "fourk": 1,
-        "web_location": 1550101
-      },
-      header: {
-        "cookie": cookie,
-        "authority": "api.bilibili.com",
-        "accept":
-            "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-        "accept-language": "zh-CN,zh;q=0.9",
-        "cache-control": "no-cache",
-        "dnt": "1",
-        "pragma": "no-cache",
-        "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
-        "sec-ch-ua-mobile": "?0",
-        "sec-ch-ua-platform": '"macOS"',
-        "sec-fetch-dest": "document",
-        "sec-fetch-mode": "navigate",
-        "sec-fetch-site": "none",
-        "sec-fetch-user": "?1",
-        "upgrade-insecure-requests": "1",
-        "User-Agent":
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
-        "Referer": "https://www.bilibili.com",
-      },
+      queryParameters: sign,
+      header: header,
     );
 
     if (result["code"] == 0) {
