@@ -43,6 +43,12 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
   @override
   Future<void> stop() => audioController.audioPlayer.stop();
 
+  @override
+  Future<void> skipToNext() => audioController.next();
+
+  @override
+  Future<void> skipToPrevious() => audioController.previous();
+
   /// Transform a just_audio event into an audio_service state.
   ///
   /// This method is used from the constructor. Every event received from the
