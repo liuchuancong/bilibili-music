@@ -1,10 +1,12 @@
 import 'package:get/get.dart';
 import 'package:bilibilimusic/style/theme.dart';
 import 'package:bilibilimusic/common/index.dart';
+import 'package:audio_service/audio_service.dart';
 import 'package:bilibilimusic/routes/app_pages.dart';
 import 'package:bilibilimusic/routes/route_path.dart';
 import 'package:bilibilimusic/routes/app_navigation.dart';
 import 'package:bilibilimusic/services/audio_service.dart';
+import 'package:bilibilimusic/services/audio_background.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
 import 'package:bilibilimusic/services/bilibili_account_service.dart';
 
@@ -13,6 +15,14 @@ void main() async {
   PrefUtil.prefs = await SharedPreferences.getInstance();
   // 初始化服务
   initService();
+  await AudioService.init(
+    builder: () => AudioPlayerHandler(),
+    config: const AudioServiceConfig(
+      androidNotificationChannelId: 'com.mystyle.bilibili.music',
+      androidNotificationChannelName: 'bilibili audio playback',
+      androidNotificationOngoing: true,
+    ),
+  );
   initRefresh();
   runApp(const MyApp());
 }

@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:async';
 import 'package:get/get.dart';
+import 'dart:developer' as developer;
 import 'package:just_audio/just_audio.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/core/bilibili_site.dart';
@@ -91,6 +92,8 @@ class AudioController extends GetxController {
   }
 
   Future<void> startPlay(LiveMediaInfo mediaInfo, {bool isAutoPlay = true}) async {
+    lyricStatus.value = LyricStatus.loading;
+    normalLyric.value = '';
     if (tryTimes >= 3) {
       SmartDialog.showToast("当前歌曲加载失败,正在播放下一首");
       next();
@@ -139,6 +142,7 @@ class AudioController extends GetxController {
 
   Future<void> getLyric(LiveMediaInfo mediaInfo) async {
     lyricStatus.value = LyricStatus.loading;
+    normalLyric.value = '';
     Map musicInfo = await BiliBiliSite().getAudioLyric(mediaInfo.aid, mediaInfo.cid, mediaInfo.bvid);
     currentMusicInfo.value = {
       'album': musicInfo['album'],
@@ -147,18 +151,19 @@ class AudioController extends GetxController {
       'cover': musicInfo['cover'],
       'lyric': musicInfo['lyric'],
     };
+    developer.log(musicInfo.toString());
     if (musicInfo['title'].isEmpty) {
       lyricStatus.value = LyricStatus.loadFailed;
-      normalLyric.value = ' ';
+      normalLyric.value = '';
     } else {
       if (musicInfo['lyric'].isEmpty) {
         try {
           String lyric = await BiliBiliSite().getLyrics(musicInfo['title']);
-          normalLyric.value = lyric;
           lyricStatus.value = LyricStatus.loadSuccess;
+          normalLyric.value = lyric;
         } catch (_) {
           lyricStatus.value = LyricStatus.loadFailed;
-          normalLyric.value = ' ';
+          normalLyric.value = '';
         }
       } else {
         try {

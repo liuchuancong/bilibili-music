@@ -38,11 +38,11 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
     )..repeat();
     audioController.lyricStatus.listen((p0) {
       lyricModel = LyricsModelBuilder.create().bindLyricToMain(audioController.normalLyric.value).getModel();
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     });
-
     lyricModel = LyricsModelBuilder.create().bindLyricToMain(audioController.normalLyric.value).getModel();
-
     super.initState();
   }
 

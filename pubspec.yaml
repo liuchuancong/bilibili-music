@@ -74,6 +74,7 @@ dependencies:
   flutter_exit_app: ^1.1.2
   url_launcher: ^6.1.12
   collection: ^1.18.0
+  audio_service: ^0.18.15
 dev_dependencies:
   flutter_test:
     sdk: flutter

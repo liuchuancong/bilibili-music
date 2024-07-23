@@ -18,13 +18,13 @@ packages:
     source: hosted
     version: "2.11.0"
   audio_service:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: audio_service
-      sha256: "9304c811ea702e9f989b394bafdf8332fc219d2ea9bfbf8f7446e978b0a3b781"
+      sha256: "9dd5ba7e77567b290c35908b1950d61485b4dfdd3a0ac398e98cfeec04651b75"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.18.14"
+    version: "0.18.15"
   audio_service_platform_interface:
     dependency: transitive
     description:

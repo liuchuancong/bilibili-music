@@ -314,6 +314,7 @@ class BiliBiliSite {
       queryParameters: sign,
       header: header,
     );
+
     if (result["code"] == 0) {
       return {
         'album': result['data']['album'],
@@ -334,12 +335,29 @@ class BiliBiliSite {
 
   Future<String> getLyrics(String bgmInfo) async {
     var lyrics = await HttpClient.instance.getFile("https://api.lrc.cx/lyrics?title=$bgmInfo");
-    return utf8.decode(lyrics.data);
+    String lrcText = utf8.decode(lyrics.data);
+    var lines = lrcText.split("\n");
+    if (lines.length < 10) {
+      return await getOtherLyrics(bgmInfo);
+    }
+    return lrcText;
   }
 
   Future<String> getBilibiliLyrics(String url) async {
     var lyrics = await HttpClient.instance.getFile(url);
     return utf8.decode(lyrics.data);
+  }
+
+  Future<String> getOtherLyrics(String bgmInfo) async {
+    List<dynamic> lyricResults = await HttpClient.instance.getJson("https://api.lrc.cx/jsonapi?title=$bgmInfo");
+    var lyrics = '';
+    for (var i = 0; i < lyricResults.length; i++) {
+      if (lyricResults[i]['lyrics'].toString().split("\n").length > 10) {
+        lyrics = lyricResults[i]['lyrics'];
+        break;
+      }
+    }
+    return lyrics;
   }
 }
 
