@@ -75,6 +75,10 @@ dependencies:
   url_launcher: ^6.1.12
   collection: ^1.18.0
   audio_service: ^0.18.15
+  flutter_animate: ^4.5.0
+  toggle_switch: ^2.3.0
+  font_awesome_flutter: ^10.7.0
+  ripple_wave: ^0.1.4
 dev_dependencies:
   flutter_test:
     sdk: flutter

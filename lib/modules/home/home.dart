@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/routes/route_path.dart';
 import 'package:bilibilimusic/widgets/empty_view.dart';
@@ -18,6 +19,9 @@ class HomePage extends GetView<HomeController> {
           controller: controller.tabController,
           isScrollable: true,
           tabAlignment: TabAlignment.center,
+          indicator: const UnderlineTabIndicator(
+            borderSide: BorderSide(width: 0, color: Colors.transparent),
+          ),
           labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
           labelPadding: const EdgeInsets.symmetric(horizontal: 12),
           indicatorSize: TabBarIndicatorSize.label,

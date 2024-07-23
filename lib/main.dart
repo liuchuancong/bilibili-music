@@ -74,6 +74,7 @@ class _MyAppState extends State<MyApp> {
       var darkTheme = MyTheme(primaryColor: themeColor).darkThemeData;
       return GetMaterialApp(
         title: 'Bilibili Music',
+        debugShowCheckedModeBanner: false,
         themeMode: SettingsService.themeModes[settings.themeModeName.value]!,
         theme: lightTheme,
         darkTheme: darkTheme,

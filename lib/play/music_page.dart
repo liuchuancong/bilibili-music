@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
+import 'package:ripple_wave/ripple_wave.dart';
 import 'package:marquee_list/marquee_list.dart';
-import 'package:bilibilimusic/play/painter.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/play/blur_back_ground.dart';
 import 'package:bilibilimusic/services/audio_service.dart';
@@ -21,7 +21,7 @@ class MusicPage extends StatefulWidget {
 }
 
 class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixin {
-  late AnimationController controller, waveController;
+  late AnimationController waveController;
 
   late Animation animation;
 
@@ -31,9 +31,8 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
   @override
   void initState() {
     setTransparentStatusBar();
-    controller = AnimationController(vsync: this, duration: const Duration(seconds: 15));
     waveController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat();
     audioController.lyricStatus.listen((p0) {
@@ -58,7 +57,6 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
 
   @override
   void dispose() {
-    controller.dispose();
     waveController.dispose();
     super.dispose();
   }
@@ -172,52 +170,28 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
 
   Widget _buildImage() {
     double expandedSize = Get.width;
-    return AnimatedBuilder(
-      animation: controller,
-      builder: (BuildContext context, Widget? child) {
-        return Stack(
-          alignment: Alignment.center,
-          children: <Widget>[
-            CustomPaint(
-              painter: RingOfCirclesPainter(Colors.white, waveController.value),
-              child: Transform(
-                alignment: Alignment.center,
-                transform: Matrix4.rotationZ(-controller.value * 2 * pi),
-                child: GestureDetector(
-                  onTap: setLyricState,
-                  child: SizedBox(
-                      width: expandedSize * 0.8,
-                      height: expandedSize * 0.8,
-                      child: Center(
-                          child: SizedBox(
-                        width: 200,
-                        height: 200,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(200),
-                          child: CachedNetworkImage(
-                            imageUrl: audioController.currentMusicInfo.value['cover']!,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ))),
-                ),
+    return GestureDetector(
+      onTap: setLyricState,
+      child: SizedBox(
+        width: expandedSize * 0.8,
+        height: expandedSize * 0.8,
+        child: RippleWave(
+          childTween: Tween(begin: 1, end: 1.0),
+          color: Colors.white.withOpacity(0.5),
+          repeat: true,
+          waveCount: 4,
+          animationController: waveController,
+          child: SizedBox(
+            width: 200,
+            height: 200,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(200),
+              child: CachedNetworkImage(
+                imageUrl: audioController.currentMusicInfo.value['cover']!,
+                fit: BoxFit.cover,
               ),
             ),
-          ],
-        );
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.grey[300], // 可以选择你喜欢的颜色
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5), // 更改颜色和不透明度以达到你想要的阴影效果
-              spreadRadius: 1,
-              blurRadius: 10,
-              offset: const Offset(0, 3), // 改变偏移量来调整阴影位置
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 
 class MyTheme {
@@ -18,14 +17,13 @@ class MyTheme {
       colorSchemeSeed: primaryColor,
       colorScheme: colorScheme,
       brightness: Brightness.light,
+      tabBarTheme: const TabBarTheme(dividerColor: Colors.transparent),
+      appBarTheme: const AppBarTheme(scrolledUnderElevation: 0.0),
       fontFamily: fontFamily,
     );
   }
 
   get darkThemeData {
-    if (Platform.isWindows) {
-      fontFamily = 'PingFang';
-    }
     return ThemeData(
       useMaterial3: true,
       colorSchemeSeed: primaryColor,
@@ -33,6 +31,8 @@ class MyTheme {
       colorScheme: colorScheme?.copyWith(
         error: const Color.fromARGB(255, 255, 99, 71),
       ),
+      tabBarTheme: const TabBarTheme(dividerColor: Colors.transparent),
+      appBarTheme: const AppBarTheme(scrolledUnderElevation: 0.0),
       brightness: Brightness.dark,
       fontFamily: fontFamily,
     );

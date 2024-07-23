@@ -10,7 +10,7 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
   AudioPlayerHandler() {
     audioController.audioPlayer.playbackEventStream.map(_transformEvent).pipe(playbackState);
     audioController.currentMusicDuration.listen((p0) {
-      Timer(const Duration(seconds: 2), () {
+      Timer(const Duration(seconds: 1), () {
         Map info = {
           'album': '',
           'title': audioController.currentMusicInfo['title'],

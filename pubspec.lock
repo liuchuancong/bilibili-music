@@ -286,6 +286,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_animate:
+    dependency: "direct main"
+    description:
+      name: flutter_animate
+      sha256: "7c8a6594a9252dad30cc2ef16e33270b6248c4dedc3b3d06c86c4f3f4dc05ae5"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "4.5.0"
   flutter_cache_manager:
     dependency: "direct main"
     description:
@@ -387,6 +395,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.20"
+  flutter_shaders:
+    dependency: transitive
+    description:
+      name: flutter_shaders
+      sha256: "02750b545c01ff4d8e9bbe8f27a7731aa3778402506c67daa1de7f5fc3f4befe"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.1.2"
   flutter_smart_dialog:
     dependency: "direct main"
     description:
@@ -429,6 +445,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.14.12"
+  font_awesome_flutter:
+    dependency: "direct main"
+    description:
+      name: font_awesome_flutter
+      sha256: "275ff26905134bcb59417cf60ad979136f1f8257f2f449914b2c3e05bbb4cd6f"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "10.7.0"
   get:
     dependency: "direct main"
     description:
@@ -773,6 +797,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.1.0"
+  ripple_wave:
+    dependency: "direct main"
+    description:
+      name: ripple_wave
+      sha256: "3aeae006adf309e66ae26e4b8562bdbffb63657d64a6546da52dabd63f005c8b"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.1.4"
   rxdart:
     dependency: transitive
     description:
@@ -1002,6 +1034,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.7.0"
+  toggle_switch:
+    dependency: "direct main"
+    description:
+      name: toggle_switch
+      sha256: dca04512d7c23ed320d6c5ede1211a404f177d54d353bf785b07d15546a86ce5
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.3.0"
   typed_data:
     dependency: transitive
     description:
