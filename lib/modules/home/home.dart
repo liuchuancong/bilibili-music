@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:flutter/material.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/routes/route_path.dart';
 import 'package:bilibilimusic/widgets/empty_view.dart';

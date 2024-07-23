@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:ripple_wave/ripple_wave.dart';
