@@ -58,13 +58,15 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
     return PlaybackState(
       controls: [
         MediaControl.skipToPrevious,
+        MediaControl.rewind,
         if (audioController.audioPlayer.playing) MediaControl.pause else MediaControl.play,
-        MediaControl.stop,
+        MediaControl.fastForward,
         MediaControl.skipToNext,
       ],
       systemActions: const {
         MediaAction.skipToPrevious,
-        MediaAction.seekForward,
+        MediaAction.pause,
+        MediaAction.play,
         MediaAction.skipToNext,
       },
       androidCompactActionIndices: const [0, 1, 3],

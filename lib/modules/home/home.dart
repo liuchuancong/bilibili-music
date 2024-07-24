@@ -1,11 +1,11 @@
 import 'package:get/get.dart';
 import 'package:bilibilimusic/common/index.dart';
+import 'package:bilibilimusic/plugins/utils.dart';
 import 'package:bilibilimusic/routes/route_path.dart';
 import 'package:bilibilimusic/widgets/empty_view.dart';
 import 'package:bilibilimusic/widgets/menu_button.dart';
 import 'package:bilibilimusic/modules/search/search_page.dart';
 import 'package:bilibilimusic/modules/home/home_controller.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class HomePage extends GetView<HomeController> {
   const HomePage({super.key});
@@ -54,25 +54,35 @@ class AlbumGridView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraint) {
-      final width = constraint.maxWidth;
-      int crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
-      return Obx(() => controller.settingsService.videoAlbum.isNotEmpty
-          ? MasonryGridView.count(
-              padding: const EdgeInsets.all(8),
-              physics: const BouncingScrollPhysics(),
-              crossAxisCount: crossAxisCount,
-              itemCount: controller.settingsService.videoAlbum.length,
-              itemBuilder: (context, index) {
-                return RoomCard(bilibiliVideo: controller.settingsService.videoAlbum[index]);
-              },
-            )
-          : const EmptyView(
-              icon: Icons.search,
-              title: "暂无数据",
-              subtitle: "请尝试搜索关注",
-            ));
-    });
+    return Obx(() => controller.settingsService.videoAlbum.isNotEmpty
+        ? Column(
+            children: [
+              Container(
+                color: Colors.blue,
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ElevatedButton(onPressed: () {}, child: const Text('按钮1')),
+                    ElevatedButton(onPressed: () {}, child: const Text('按钮2')),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: controller.settingsService.videoAlbum.length,
+                  itemBuilder: (context, index) {
+                    return RoomCard(bilibiliVideo: controller.settingsService.videoAlbum[index]);
+                  },
+                ),
+              ),
+            ],
+          )
+        : const EmptyView(
+            icon: Icons.search,
+            title: "暂无数据",
+            subtitle: "请尝试搜索关注",
+          ));
   }
 }
 
@@ -81,24 +91,47 @@ class MuiscGridView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraint) {
-      final width = constraint.maxWidth;
-      int crossAxisCount = width > 1280 ? 4 : (width > 960 ? 3 : (width > 640 ? 2 : 1));
-      return Obx(() => controller.settingsService.musicAlbum.isNotEmpty
-          ? MasonryGridView.count(
-              padding: const EdgeInsets.all(8),
-              physics: const BouncingScrollPhysics(),
-              crossAxisCount: crossAxisCount,
-              itemCount: controller.settingsService.musicAlbum.length,
-              itemBuilder: (context, index) {
-                return RoomCard(bilibiliVideo: controller.settingsService.musicAlbum[index]);
-              },
-            )
-          : const EmptyView(
-              icon: Icons.search,
-              title: "暂无数据",
-              subtitle: "请尝试搜索关注",
-            ));
-    });
+    return Obx(() => controller.settingsService.musicAlbum.isNotEmpty
+        ? Column(
+            children: [
+              Container(
+                color: Colors.transparent,
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    IconButton(onPressed: () {}, icon: const Icon(Icons.select_all)),
+                    IconButton(onPressed: () {}, icon: const Icon(Icons.check_box_outline_blank)),
+                    IconButton(
+                        onPressed: () {
+                          Utils.showEditDialog();
+                        },
+                        icon: const Icon(Icons.add)),
+                    IconButton(
+                      onPressed: () {
+                        Utils.showBottomSheet();
+                      },
+                      icon: const Icon(Icons.more_horiz),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: controller.settingsService.musicAlbum.length,
+                  itemBuilder: (context, index) {
+                    return RoomCard(bilibiliVideo: controller.settingsService.musicAlbum[index]);
+                  },
+                ),
+              ),
+            ],
+          )
+        : const EmptyView(
+            icon: Icons.search,
+            title: "暂无数据",
+            subtitle: "请尝试搜索关注",
+          ));
   }
 }

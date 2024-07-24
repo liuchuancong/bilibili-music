@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'dart:developer';
 import 'package:get/get.dart';
 import 'search_controller.dart';
@@ -66,7 +67,7 @@ class SearchPage extends GetView<SearchMusicController> {
                       },
                     )
                   : const EmptyView(
-                      icon: Icons.error_outline,
+                      icon: Icons.search,
                       title: "暂无搜索结果",
                       subtitle: "请尝试更换关键词或稍后再试",
                     ),
@@ -83,6 +84,7 @@ class RoomCard extends StatelessWidget {
     required this.bilibiliVideo,
     this.dense = false,
   });
+
   final BilibiliVideo bilibiliVideo;
   final bool dense;
 
@@ -110,79 +112,100 @@ class RoomCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(15.0),
         onTap: () => onTap(),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: Stack(
           children: [
-            Stack(
-              children: [
-                AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: Card(
-                    margin: const EdgeInsets.all(0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    color: Theme.of(context).focusColor,
-                    elevation: 0,
-                    child: CachedNetworkImage(
+            SizedBox(
+              height: 100,
+              child: Card(
+                margin: const EdgeInsets.all(0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                clipBehavior: Clip.antiAlias,
+                color: Theme.of(context).focusColor,
+                elevation: 0,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    CachedNetworkImage(
                       imageUrl:
                           bilibiliVideo.pic!.startsWith("http") ? bilibiliVideo.pic! : "http:${bilibiliVideo.pic}",
                       cacheManager: CustomCacheManager.instance,
                       fit: BoxFit.fill,
-                      errorWidget: (context, error, stackTrace) => Center(
+                      errorWidget: (context, error, stackTrace) => const Center(
                         child: Icon(
                           Icons.live_tv_rounded,
-                          size: dense ? 38 : 62,
+                          size: 20,
                         ),
                       ),
                     ),
-                  ),
+                    BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
+                      child: Container(
+                        color: Colors.black.withOpacity(0), // Adjust the opacity as needed
+                      ),
+                    ),
+                  ],
                 ),
-                Positioned(
-                  right: dense ? 0 : 2,
-                  top: dense ? 0 : 2,
-                  child: CountChip(
-                    icon: Icons.video_collection_rounded,
-                    count: readableCount(bilibiliVideo.play.toString()),
-                    dense: dense,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                ),
-              ],
+              ),
             ),
-            ListTile(
-              dense: dense,
-              minLeadingWidth: 34,
-              contentPadding: const EdgeInsets.only(left: 8, right: 10),
-              horizontalTitleGap: 8,
-              leading: CircleAvatar(
-                foregroundImage: bilibiliVideo.upic!.isNotEmpty ? getRoomAvatar(bilibiliVideo.upic) : null,
-                radius: dense ? 17 : null,
-                backgroundColor: Theme.of(context).disabledColor,
-              ),
-              title: SizedBox(
-                height: 50,
-                child: Text(
-                  bilibiliVideo.title ?? '',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15.0),
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.black.withOpacity(0.6),
+                      Colors.transparent,
+                    ],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                  ),
+                ),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    foregroundImage: bilibiliVideo.upic!.isNotEmpty ? getRoomAvatar(bilibiliVideo.upic) : null,
+                    backgroundColor: Theme.of(context).disabledColor,
+                  ),
+                  title: SizedBox(
+                    height: 50,
+                    child: Text(
+                      bilibiliVideo.title ?? '',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  subtitle: Text(
+                    '${bilibiliVideo.author} - ${transformData(bilibiliVideo.pubdate!)}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
-              subtitle: Text(
-                '${bilibiliVideo.author} - ${transformData(bilibiliVideo.pubdate!)}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: dense ? 12 : 14,
-                ),
+            ),
+            Positioned(
+              right: 2,
+              bottom: 2,
+              child: CountChip(
+                icon: Icons.play_arrow_rounded,
+                count: readableCount(bilibiliVideo.play.toString()),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -195,13 +218,11 @@ class CountChip extends StatelessWidget {
     super.key,
     required this.icon,
     required this.count,
-    this.dense = false,
     this.color = Colors.black,
   });
 
   final IconData icon;
   final String count;
-  final bool dense;
   final Color color;
 
   @override
@@ -212,22 +233,19 @@ class CountChip extends StatelessWidget {
       shadowColor: Colors.transparent,
       elevation: 0,
       child: Padding(
-        padding: EdgeInsets.all(dense ? 4 : 6),
+        padding: const EdgeInsets.all(4),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
-              color: Colors.white.withOpacity(0.8),
-              size: dense ? 18 : 20,
+              color: Colors.white,
+              size: 14,
             ),
             Text(
               count,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white.withOpacity(0.8),
-                    fontSize: dense ? 15 : 18,
-                  ),
+              style: const TextStyle(color: Colors.white, fontSize: 12),
             ),
           ],
         ),

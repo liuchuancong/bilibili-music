@@ -66,6 +66,95 @@ class Utils {
     return result ?? false;
   }
 
+  static Future<Map<String, String?>?> showEditDialog({
+    String title = '',
+    String author = '',
+    String pic = '',
+    String upic = '',
+    String titleHint = 'Enter title',
+    String authorHint = 'Enter author',
+    String picHint = 'Enter pic',
+    String upicHint = 'Enter upic',
+    String confirm = 'OK',
+    String cancel = 'Cancel',
+  }) async {
+    final TextEditingController titleController = TextEditingController(text: title);
+    final TextEditingController authorController = TextEditingController(text: author);
+    final TextEditingController picController = TextEditingController(text: pic);
+    final TextEditingController upicController = TextEditingController(text: upic);
+
+    var result = await Get.dialog(
+      AlertDialog(
+        title: const Text('Edit Details'),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleController,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  hintText: titleHint,
+                  contentPadding: const EdgeInsets.all(12),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: authorController,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  hintText: authorHint,
+                  contentPadding: const EdgeInsets.all(12),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: picController,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  hintText: picHint,
+                  contentPadding: const EdgeInsets.all(12),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: upicController,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  hintText: upicHint,
+                  contentPadding: const EdgeInsets.all(12),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(Get.context!).pop();
+            },
+            child: Text(cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(Get.context!).pop({
+                'title': titleController.text,
+                'author': authorController.text,
+                'pic': picController.text,
+                'upic': upicController.text,
+              });
+            },
+            child: Text(confirm),
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
+
+    return result as Map<String, String?>?;
+  }
+
   static void showRightDialog({
     required String title,
     Function()? onDismiss,
@@ -211,5 +300,50 @@ class Utils {
       ),
     );
     return result;
+  }
+
+  static void showBottomSheet() {
+    Get.bottomSheet(
+      Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Center(child: Text('分享')),
+                onTap: () {
+                  Get.closeAllBottomSheets();
+                },
+              ),
+              ListTile(
+                title: const Center(child: Text('删除')),
+                onTap: () {
+                  Get.closeAllBottomSheets();
+                },
+              ),
+              ListTile(
+                title: const Center(child: Text('编辑')),
+                onTap: () {
+                  Get.closeAllBottomSheets();
+                },
+              ),
+              ListTile(
+                title: const Center(child: Text('取消')),
+                onTap: () {
+                  Get.closeAllBottomSheets();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+      isDismissible: true,
+    );
   }
 }
