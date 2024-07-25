@@ -12,9 +12,10 @@ class BilibiliVideo {
   int? favorites;
   String? bvid;
   int? aid;
-  int? play;
+  int? play = 0;
   List<LiveMediaInfo> medias = [];
   VideoStatus? status = VideoStatus.published;
+  int? sort = 0;
   BilibiliVideo({
     this.title,
     this.author,

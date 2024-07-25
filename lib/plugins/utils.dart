@@ -1,7 +1,15 @@
+import 'dart:convert';
 import 'package:get/get.dart';
+import 'package:crypto/crypto.dart';
 import 'package:bilibilimusic/common/index.dart';
 
 class Utils {
+  static int getRandomId() {
+    const uuid = Uuid();
+    final hashValue = sha256.convert(utf8.encode(uuid.v8())).toString();
+    return int.parse(hashValue.substring(0, 12), radix: 16) & 0xffffffff;
+  }
+
   static Future<bool> showAlertDialog(
     String content, {
     String title = '',
@@ -69,23 +77,21 @@ class Utils {
   static Future<Map<String, String?>?> showEditDialog({
     String title = '',
     String author = '',
-    String pic = '',
-    String upic = '',
-    String titleHint = 'Enter title',
-    String authorHint = 'Enter author',
-    String picHint = 'Enter pic',
-    String upicHint = 'Enter upic',
-    String confirm = 'OK',
-    String cancel = 'Cancel',
+    String titleHint = '请输入标题',
+    String authorHint = '请输入作者',
+    String confirm = '确定',
+    String cancel = '取消',
+    bool isEdit = false,
   }) async {
     final TextEditingController titleController = TextEditingController(text: title);
     final TextEditingController authorController = TextEditingController(text: author);
-    final TextEditingController picController = TextEditingController(text: pic);
-    final TextEditingController upicController = TextEditingController(text: upic);
 
     var result = await Get.dialog(
       AlertDialog(
-        title: const Text('Edit Details'),
+        title: Text(
+          isEdit ? '编辑专辑' : '添加专辑',
+          style: const TextStyle(fontSize: 16),
+        ),
         content: Padding(
           padding: const EdgeInsets.only(top: 12),
           child: Column(
@@ -108,24 +114,6 @@ class Utils {
                   contentPadding: const EdgeInsets.all(12),
                 ),
               ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: picController,
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  hintText: picHint,
-                  contentPadding: const EdgeInsets.all(12),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: upicController,
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  hintText: upicHint,
-                  contentPadding: const EdgeInsets.all(12),
-                ),
-              ),
             ],
           ),
         ),
@@ -138,11 +126,17 @@ class Utils {
           ),
           TextButton(
             onPressed: () {
+              if (titleController.text.isEmpty) {
+                SmartDialog.showToast('标题不能为空');
+                return;
+              }
               Navigator.of(Get.context!).pop({
                 'title': titleController.text,
-                'author': authorController.text,
-                'pic': picController.text,
-                'upic': upicController.text,
+                'author': isEdit
+                    ? authorController.text
+                    : authorController.text.isNotEmpty
+                        ? authorController.text
+                        : '佚名'
               });
             },
             child: Text(confirm),
@@ -302,8 +296,8 @@ class Utils {
     return result;
   }
 
-  static void showBottomSheet() {
-    Get.bottomSheet(
+  static Future<String?> showBottomSheet() async {
+    var result = await Get.bottomSheet(
       Container(
         width: double.infinity,
         decoration: const BoxDecoration(
@@ -316,27 +310,27 @@ class Utils {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                title: const Center(child: Text('分享')),
+                title: const Center(child: Text('置顶')),
                 onTap: () {
-                  Get.closeAllBottomSheets();
-                },
-              ),
-              ListTile(
-                title: const Center(child: Text('删除')),
-                onTap: () {
-                  Get.closeAllBottomSheets();
+                  Navigator.of(Get.context!).pop('1');
                 },
               ),
               ListTile(
                 title: const Center(child: Text('编辑')),
                 onTap: () {
-                  Get.closeAllBottomSheets();
+                  Navigator.of(Get.context!).pop('2');
+                },
+              ),
+              ListTile(
+                title: const Center(child: Text('删除')),
+                onTap: () {
+                  Navigator.of(Get.context!).pop('3');
                 },
               ),
               ListTile(
                 title: const Center(child: Text('取消')),
                 onTap: () {
-                  Get.closeAllBottomSheets();
+                  Navigator.of(Get.context!).pop('4');
                 },
               ),
             ],
@@ -345,5 +339,6 @@ class Utils {
       ),
       isDismissible: true,
     );
+    return result;
   }
 }

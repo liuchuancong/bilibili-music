@@ -15,27 +15,29 @@ class EmptyView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = Theme.of(context).disabledColor;
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height),
-        child: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 144, color: color),
-              const SizedBox(height: 24),
-              Text.rich(
-                TextSpan(children: [
-                  TextSpan(text: "$title\n", style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: color)),
-                  TextSpan(text: "\n$subtitle", style: Theme.of(context).textTheme.titleSmall?.copyWith(color: color)),
-                ]),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-            ],
+    return SafeArea(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height - 280),
+          child: Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 80, color: color),
+                const SizedBox(height: 24),
+                Text.rich(
+                  TextSpan(children: [
+                    TextSpan(text: "$title\n", style: Theme.of(context).textTheme.titleMedium?.copyWith(color: color)),
+                    TextSpan(
+                        text: "\n$subtitle", style: Theme.of(context).textTheme.titleSmall?.copyWith(color: color)),
+                  ]),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -78,6 +78,7 @@ dependencies:
   flutter_animate: ^4.5.0
   toggle_switch: ^2.3.0
   font_awesome_flutter: ^10.7.0
+  uuid: ^4.4.2
   ripple_wave: ^0.1.4
 dev_dependencies:
   flutter_test:

@@ -15,3 +15,4 @@ export 'package:bilibilimusic/utils/index.dart';
 export 'package:bilibilimusic/play/bottom_music_control.dart';
 
 export './base/base_controller.dart';
+export 'package:uuid/uuid.dart';

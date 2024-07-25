@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:bilibilimusic/style/theme.dart';
@@ -220,10 +221,32 @@ class SettingsService extends GetxController {
   final videoAlbum =
       ((PrefUtil.getStringList('videoAlbum') ?? []).map((e) => BilibiliVideo.fromJson(jsonDecode(e))).toList()).obs;
 
-  void addVideoAlbum(BilibiliVideo video) {
-    if (!isExistVideoAlbum(video)) {
+  void addVideoAlbum(BilibiliVideo video, List<LiveMediaInfo> medias) {
+    if (!videoAlbum.any((element) => element.id == video.id)) {
+      video.medias = medias;
       videoAlbum.add(video);
+    }
+    PrefUtil.setStringList('videoAlbum', videoAlbum.map((e) => jsonEncode(e.toJson())).toList());
+  }
+
+  void moveVideoToTop(BilibiliVideo video) {
+    if (videoAlbum.any((element) => element.id == video.id)) {
+      videoAlbum.removeWhere((element) => element.id == video.id);
+      videoAlbum.insert(0, video);
       PrefUtil.setStringList('videoAlbum', videoAlbum.map((e) => jsonEncode(e.toJson())).toList());
+    }
+  }
+
+  void editVideoAlbum(BilibiliVideo video) {
+    if (videoAlbum.any((element) => element.id == video.id)) {
+      final itemIndex = videoAlbum.indexWhere((item) => item.id == video.id);
+      videoAlbum[itemIndex].title = video.title;
+      if (video.author!.isNotEmpty) {
+        videoAlbum[itemIndex].author = video.author;
+      }
+      videoAlbum.value = List.from(videoAlbum);
+      PrefUtil.setStringList('videoAlbum', videoAlbum.map((e) => jsonEncode(e.toJson())).toList());
+      update();
     }
   }
 
@@ -286,6 +309,14 @@ class SettingsService extends GetxController {
     PrefUtil.setStringList('musicAlbum', musicAlbum.map((e) => jsonEncode(e.toJson())).toList());
   }
 
+  void moveMusicToTop(BilibiliVideo video) {
+    if (musicAlbum.any((element) => element.id == video.id)) {
+      musicAlbum.removeWhere((element) => element.id == video.id);
+      musicAlbum.insert(0, video);
+      PrefUtil.setStringList('musicAlbum', musicAlbum.map((e) => jsonEncode(e.toJson())).toList());
+    }
+  }
+
   void toggleCollectMusic(BilibiliVideo video, List<LiveMediaInfo> medias) {
     if (!musicAlbum.any((element) => element.id == video.id)) {
       video.medias = medias;
@@ -298,6 +329,19 @@ class SettingsService extends GetxController {
 
   bool isExistMusicAlbum(BilibiliVideo video) {
     return musicAlbum.any((element) => element.id == video.id);
+  }
+
+  void editMusicAlbum(BilibiliVideo video) {
+    if (musicAlbum.any((element) => element.id == video.id)) {
+      final itemIndex = musicAlbum.indexWhere((item) => item.id == video.id);
+      musicAlbum[itemIndex].title = video.title;
+      if (video.author!.isNotEmpty) {
+        musicAlbum[itemIndex].author = video.author;
+      }
+      musicAlbum.value = List.from(musicAlbum);
+      PrefUtil.setStringList('musicAlbum', musicAlbum.map((e) => jsonEncode(e.toJson())).toList());
+      update();
+    }
   }
 
   void removeMusicAlbum(BilibiliVideo video) {

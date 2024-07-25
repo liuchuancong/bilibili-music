@@ -1,6 +1,10 @@
 import 'package:intl/intl.dart';
 
 String readableCount(String info) {
+  if (info.isEmpty) {
+    return '0';
+  }
+
   try {
     int count = int.parse(info);
     if (count > 10000) {

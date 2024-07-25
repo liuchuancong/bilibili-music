@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import 'search_controller.dart';
 import 'package:bilibilimusic/common/index.dart';
+import 'package:bilibilimusic/plugins/utils.dart';
+import 'package:bilibilimusic/services/index.dart';
 import 'package:bilibilimusic/widgets/empty_view.dart';
 import 'package:bilibilimusic/routes/app_navigation.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
@@ -82,11 +84,11 @@ class RoomCard extends StatelessWidget {
   const RoomCard({
     super.key,
     required this.bilibiliVideo,
-    this.dense = false,
+    this.isVideo = true,
   });
 
   final BilibiliVideo bilibiliVideo;
-  final bool dense;
+  final bool isVideo;
 
   void onTap() async {
     AppNavigator.toLiveRoomDetailList(bilibiliVideo: bilibiliVideo);
@@ -127,22 +129,27 @@ class RoomCard extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    CachedNetworkImage(
-                      imageUrl:
-                          bilibiliVideo.pic!.startsWith("http") ? bilibiliVideo.pic! : "http:${bilibiliVideo.pic}",
-                      cacheManager: CustomCacheManager.instance,
-                      fit: BoxFit.fill,
-                      errorWidget: (context, error, stackTrace) => const Center(
-                        child: Icon(
-                          Icons.live_tv_rounded,
-                          size: 20,
-                        ),
-                      ),
-                    ),
+                    bilibiliVideo.status == VideoStatus.published
+                        ? CachedNetworkImage(
+                            imageUrl: bilibiliVideo.pic!.startsWith("http")
+                                ? bilibiliVideo.pic!
+                                : "http:${bilibiliVideo.pic}",
+                            cacheManager: CustomCacheManager.instance,
+                            fit: BoxFit.fill,
+                            errorWidget: (context, error, stackTrace) => const Center(
+                              child: Icon(
+                                Icons.music_note_rounded,
+                                size: 20,
+                              ),
+                            ),
+                          )
+                        : Container(),
                     BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
                       child: Container(
-                        color: Colors.black.withOpacity(0), // Adjust the opacity as needed
+                        color: bilibiliVideo.status == VideoStatus.published
+                            ? Colors.black.withOpacity(0)
+                            : Colors.black, // Adjust the opacity as needed
                       ),
                     ),
                   ],
@@ -167,10 +174,15 @@ class RoomCard extends StatelessWidget {
                   ),
                 ),
                 child: ListTile(
-                  leading: CircleAvatar(
-                    foregroundImage: bilibiliVideo.upic!.isNotEmpty ? getRoomAvatar(bilibiliVideo.upic) : null,
-                    backgroundColor: Theme.of(context).disabledColor,
-                  ),
+                  leading: bilibiliVideo.status == VideoStatus.published
+                      ? CircleAvatar(
+                          foregroundImage: bilibiliVideo.upic!.isNotEmpty ? getRoomAvatar(bilibiliVideo.upic) : null,
+                          backgroundColor: Theme.of(context).disabledColor,
+                        )
+                      : const Icon(
+                          Icons.music_note_sharp,
+                          color: Colors.white,
+                        ),
                   title: SizedBox(
                     height: 50,
                     child: Text(
@@ -194,6 +206,11 @@ class RoomCard extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
+                  trailing: IconButton(
+                      onPressed: () {
+                        handleMore();
+                      },
+                      icon: const Icon(Icons.arrow_forward_ios_outlined, color: Colors.white)),
                 ),
               ),
             ),
@@ -210,6 +227,59 @@ class RoomCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  handleMore() async {
+    var result = await Utils.showBottomSheet();
+    final settings = Get.find<SettingsService>();
+    if (result == '1') {
+      if (isVideo) {
+        settings.moveVideoToTop(bilibiliVideo);
+      } else {
+        settings.moveMusicToTop(bilibiliVideo);
+      }
+    } else if (result == '2') {
+      if (isVideo) {
+        editVideoAlbum();
+      } else {
+        editMuiscAlbum();
+      }
+    } else if (result == '3') {
+      if (isVideo) {
+        settings.removeVideoAlbum(bilibiliVideo);
+      } else {
+        settings.removeMusicAlbum(bilibiliVideo);
+      }
+    }
+  }
+
+  editVideoAlbum() async {
+    final settings = Get.find<SettingsService>();
+    Map<String, String?>? result =
+        await Utils.showEditDialog(isEdit: true, title: bilibiliVideo.title!, author: bilibiliVideo.author!);
+    if (result != null) {
+      settings.editVideoAlbum(BilibiliVideo(
+        id: bilibiliVideo.id,
+        title: result['title'],
+        author: result['author'],
+      ));
+    }
+  }
+
+  editMuiscAlbum() async {
+    final settings = Get.find<SettingsService>();
+    Map<String, String?>? result =
+        await Utils.showEditDialog(isEdit: true, title: bilibiliVideo.title!, author: bilibiliVideo.author!);
+
+    if (result != null) {
+      settings.editMusicAlbum(
+        BilibiliVideo(
+          id: bilibiliVideo.id,
+          title: result['title'],
+          author: result['author'],
+        ),
+      );
+    }
   }
 }
 
@@ -244,7 +314,7 @@ class CountChip extends StatelessWidget {
               size: 14,
             ),
             Text(
-              count,
+              count.isEmpty ? '0' : count,
               style: const TextStyle(color: Colors.white, fontSize: 12),
             ),
           ],
