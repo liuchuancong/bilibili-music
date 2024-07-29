@@ -40,6 +40,11 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
         setState(() {});
       }
     });
+    audioController.lyricStatus.listen((p0) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
     lyricModel = LyricsModelBuilder.create().bindLyricToMain(audioController.normalLyric.value).getModel();
     super.initState();
   }
@@ -185,10 +190,12 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
             height: 200,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(200),
-              child: CachedNetworkImage(
-                imageUrl: audioController.currentMusicInfo.value['cover']!,
-                fit: BoxFit.cover,
-              ),
+              child: audioController.currentMusicInfo.value['cover']!.isNotEmpty
+                  ? CachedNetworkImage(
+                      imageUrl: audioController.currentMusicInfo.value['cover']!,
+                      fit: BoxFit.cover,
+                    )
+                  : const Icon(Icons.data_usage_rounded),
             ),
           ),
         ),

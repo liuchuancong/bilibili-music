@@ -20,7 +20,7 @@ class VideoControllerPanel extends StatefulWidget {
 }
 
 class _VideoControllerPanelState extends State<VideoControllerPanel> {
-  double barHeight = 70.0;
+  double barHeight = 80.0;
 
   // Video controllers
   VideoController get controller => widget.controller;

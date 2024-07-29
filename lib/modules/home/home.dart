@@ -99,6 +99,7 @@ class AlbumGridView extends GetView<HomeController> {
                     return RoomCard(
                       bilibiliVideo: controller.settingsService.videoAlbum[index],
                       isVideo: true,
+                      showTrailing: true,
                     );
                   },
                 ),
@@ -163,6 +164,7 @@ class MuiscGridView extends GetView<HomeController> {
                     return RoomCard(
                       bilibiliVideo: controller.settingsService.musicAlbum[index],
                       isVideo: false,
+                      showTrailing: true,
                     );
                   },
                 ),

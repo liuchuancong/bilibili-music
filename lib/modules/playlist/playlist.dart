@@ -3,6 +3,7 @@ import 'playlist_controller.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/routes/app_navigation.dart';
 import 'package:bilibilimusic/models/live_media_info.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class PlayListPage extends GetView<PlayListController> {
   const PlayListPage({super.key});
@@ -20,8 +21,8 @@ class PlayListPage extends GetView<PlayListController> {
           Obx(() => IconButton(
                 icon: Icon(
                   controller.settingsService.isExistVideoAlbum(controller.bilibiliVideo)
-                      ? Icons.videocam_off_outlined
-                      : Icons.videocam_outlined,
+                      ? FontAwesomeIcons.videoSlash
+                      : FontAwesomeIcons.video,
                 ),
                 onPressed: () {
                   controller.settingsService.toggleCollectVideo(
@@ -30,8 +31,8 @@ class PlayListPage extends GetView<PlayListController> {
               )),
           Obx(() => IconButton(
                 icon: Icon(controller.settingsService.isExistMusicAlbum(controller.bilibiliVideo)
-                    ? Icons.music_off_outlined
-                    : Icons.music_note_outlined),
+                    ? FontAwesomeIcons.circleMinus
+                    : FontAwesomeIcons.circlePlus),
                 onPressed: () {
                   controller.settingsService.toggleCollectMusic(
                       controller.bilibiliVideo, controller.list.value.map((item) => item as LiveMediaInfo).toList());
@@ -48,36 +49,52 @@ class PlayListPage extends GetView<PlayListController> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      if (controller.list.isNotEmpty) {
-                        controller.settingsService.setCurrentMedia(controller.list[0]);
-                        AppNavigator.toLiveRoomDetail(mediaInfo: controller.list[0]);
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8), // 调整内边距
-                      textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700), // 调整文本大小
-                    ),
-                    child: const Text('播放全部视频'),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (controller.list.isNotEmpty) {
-                        controller.settingsService
-                            .setCurreentMusicList(controller.list.value.map((item) => item as LiveMediaInfo).toList());
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8), // 调整内边距
-                      textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700), // 调整文本大小
-                    ),
-                    child: const Text('播放全部音乐'),
-                  ),
-                  // 更多按钮...
+                  IconButton(
+                      icon: const Icon(FontAwesomeIcons.film),
+                      onPressed: () {
+                        if (controller.list.isNotEmpty) {
+                          controller.settingsService.setCurrentMedia(controller.list[0]);
+                          AppNavigator.toLiveRoomDetail(mediaInfo: controller.list[0]);
+                        }
+                      }),
+                  IconButton(
+                      icon: const Icon(FontAwesomeIcons.headphonesSimple),
+                      onPressed: () {
+                        if (controller.list.isNotEmpty) {
+                          controller.settingsService.setCurreentMusicList(
+                              controller.list.value.map((item) => item as LiveMediaInfo).toList());
+                        }
+                      }),
+                  if (controller.showSelectBox.value)
+                    Obx(() => IconButton(
+                        icon: controller.isCheckAll.value
+                            ? const Icon(FontAwesomeIcons.squareCheck)
+                            : const Icon(FontAwesomeIcons.square),
+                        onPressed: () {
+                          if (controller.list.isNotEmpty) {
+                            controller.handleCheckAll();
+                          }
+                        })),
+                  IconButton(
+                      icon: const Icon(Icons.select_all_outlined),
+                      onPressed: () {
+                        if (controller.list.isNotEmpty) {
+                          controller.showSelectBox.toggle();
+                          if (controller.showSelectBox.value) {
+                            controller.isCheckAll.value = false;
+                          }
+                        }
+                      }),
+                  IconButton(
+                      icon: const Icon(FontAwesomeIcons.penToSquare),
+                      onPressed: () {
+                        if (controller.list.isNotEmpty) {
+                          controller.showSelectBox.toggle();
+                          if (controller.showSelectBox.value) {
+                            controller.isCheckAll.value = false;
+                          }
+                        }
+                      }),
                 ],
               ),
             ),
@@ -87,7 +104,8 @@ class PlayListPage extends GetView<PlayListController> {
               child: ListView.builder(
                 itemCount: controller.list.length,
                 itemBuilder: (context, index) {
-                  LiveMediaInfo mediaInfo = controller.list[index];
+                  PlayItems playItems = controller.list[index];
+                  LiveMediaInfo mediaInfo = playItems.liveMediaInfo;
                   return Obx(
                     () => Card(
                       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
@@ -96,6 +114,18 @@ class PlayListPage extends GetView<PlayListController> {
                           : null,
                       elevation: 4,
                       child: ListTile(
+                        leading: controller.showSelectBox.value
+                            ? Obx(() => IconButton(
+                                onPressed: () {
+                                  controller.handleToggleItem(index);
+                                },
+                                icon: Icon(
+                                  playItems.selected ? FontAwesomeIcons.squareCheck : FontAwesomeIcons.square,
+                                  color: controller.settingsService.isCurrentMediia(mediaInfo)
+                                      ? Colors.white
+                                      : Colors.black,
+                                )))
+                            : null,
                         title: Text(
                           mediaInfo.part,
                           style: TextStyle(

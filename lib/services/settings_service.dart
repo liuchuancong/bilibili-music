@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:convert';
-import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:bilibilimusic/style/theme.dart';
@@ -10,6 +9,7 @@ import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
+import 'package:bilibilimusic/services/audio_service.dart';
 import 'package:bilibilimusic/models/live_media_info.dart';
 import 'package:bilibilimusic/services/bilibili_account_service.dart';
 
@@ -358,6 +358,9 @@ class SettingsService extends GetxController {
   setCurreentMusicList(List<LiveMediaInfo> medias) {
     currentMediaList.value = medias;
     currentMediaIndex.value = 0;
+    final AudioController audioController = Get.find<AudioController>();
+    setCurrentMedia(medias[0]);
+    audioController.startPlay(medias[0]);
     PrefUtil.setStringList('currentMediaList', currentMediaList.map((e) => jsonEncode(e.toJson())).toList());
     PrefUtil.setInt('currentMediaIndex', 0);
   }

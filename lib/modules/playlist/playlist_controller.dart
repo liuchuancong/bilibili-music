@@ -10,21 +10,52 @@ class PlayListController extends BasePageController {
   final BilibiliVideo bilibiliVideo;
   PlayListController({required this.bilibiliVideo});
   SettingsService settingsService = Get.find<SettingsService>();
-
+  var showSelectBox = false.obs;
+  var isCheckAll = false.obs;
+  var currentSelectItems = [].obs;
   final AudioController audioController = Get.find<AudioController>();
   @override
-  Future<List<LiveMediaInfo>> getData(int page, int pageSize) async {
+  Future<List<PlayItems>> getData(int page, int pageSize) async {
+    List<PlayItems> playitems = [];
+    if (bilibiliVideo.status == VideoStatus.customized) {
+      for (var i = 0; i < bilibiliVideo.medias.length; i++) {
+        playitems.add(PlayItems(liveMediaInfo: bilibiliVideo.medias[i], index: i, selected: false));
+      }
+      return playitems;
+    }
     var result = await BiliBiliSite().getRoomListDetail(bilibiliVideo.bvid!);
-    return result;
+    for (var i = 0; i < result.length; i++) {
+      playitems.add(PlayItems(liveMediaInfo: result[i], index: i, selected: false));
+    }
+    return playitems;
   }
 
   @override
   void onInit() {
     settingsService.currentMediaIndex.value = 0;
     list.listen((p0) {
-      settingsService.currentMediaList.value = list.value as List<LiveMediaInfo>;
+      settingsService.currentMediaList.value = list.value.map((item) => (item as PlayItems).liveMediaInfo).toList();
     });
     loadData();
     super.onInit();
+  }
+
+  handleCheckAll() {
+    isCheckAll.toggle();
+    if (isCheckAll.value) {
+      for (var item in list.value) {
+        item.selected = true;
+      }
+    } else {
+      for (var item in list.value) {
+        item.selected = false;
+      }
+    }
+    list.value = List.from(list);
+  }
+
+  handleToggleItem(int index) {
+    list[index].selected = list[index].selected ? false : true;
+    list.value = List.from(list);
   }
 }

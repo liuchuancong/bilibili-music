@@ -113,3 +113,14 @@ class LiveMediaInfoData {
     );
   }
 }
+
+class PlayItems {
+  LiveMediaInfo liveMediaInfo;
+  int index;
+  bool selected;
+  PlayItems({
+    required this.liveMediaInfo,
+    required this.index,
+    this.selected = false,
+  });
+}

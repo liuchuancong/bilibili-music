@@ -85,11 +85,12 @@ class RoomCard extends StatelessWidget {
     super.key,
     required this.bilibiliVideo,
     this.isVideo = true,
+    this.showTrailing = false,
   });
 
   final BilibiliVideo bilibiliVideo;
   final bool isVideo;
-
+  final bool showTrailing;
   void onTap() async {
     AppNavigator.toLiveRoomDetailList(bilibiliVideo: bilibiliVideo);
   }
@@ -206,11 +207,14 @@ class RoomCard extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                  trailing: IconButton(
-                      onPressed: () {
-                        handleMore();
-                      },
-                      icon: const Icon(Icons.arrow_forward_ios_outlined, color: Colors.white)),
+                  trailing: showTrailing
+                      ? IconButton(
+                          onPressed: () {
+                            handleMore();
+                          },
+                          icon: const Icon(Icons.arrow_forward_ios_outlined, color: Colors.white),
+                        )
+                      : null,
                 ),
               ),
             ),
