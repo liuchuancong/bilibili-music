@@ -25,8 +25,8 @@ class PlayListPage extends GetView<PlayListController> {
                       : FontAwesomeIcons.video,
                 ),
                 onPressed: () {
-                  controller.settingsService.toggleCollectVideo(
-                      controller.bilibiliVideo, controller.list.value.map((item) => item as LiveMediaInfo).toList());
+                  var list = controller.list.value.map((item) => item.liveMediaInfo as LiveMediaInfo).toList();
+                  controller.settingsService.toggleCollectVideo(controller.bilibiliVideo, list);
                 },
               )),
           Obx(() => IconButton(
@@ -34,8 +34,8 @@ class PlayListPage extends GetView<PlayListController> {
                     ? FontAwesomeIcons.circleMinus
                     : FontAwesomeIcons.circlePlus),
                 onPressed: () {
-                  controller.settingsService.toggleCollectMusic(
-                      controller.bilibiliVideo, controller.list.value.map((item) => item as LiveMediaInfo).toList());
+                  var list = controller.list.value.map((item) => item.liveMediaInfo as LiveMediaInfo).toList();
+                  controller.settingsService.toggleCollectMusic(controller.bilibiliVideo, list);
                 },
               )),
         ],
@@ -53,16 +53,17 @@ class PlayListPage extends GetView<PlayListController> {
                       icon: const Icon(FontAwesomeIcons.film),
                       onPressed: () {
                         if (controller.list.isNotEmpty) {
-                          controller.settingsService.setCurrentMedia(controller.list[0]);
-                          AppNavigator.toLiveRoomDetail(mediaInfo: controller.list[0]);
+                          var list = controller.list.value.map((item) => item.liveMediaInfo as LiveMediaInfo).toList();
+                          controller.settingsService.setCurrentMedia(list[0]);
+                          AppNavigator.toLiveRoomDetail(mediaInfo: list[0]);
                         }
                       }),
                   IconButton(
                       icon: const Icon(FontAwesomeIcons.headphonesSimple),
                       onPressed: () {
                         if (controller.list.isNotEmpty) {
-                          controller.settingsService.setCurreentMusicList(
-                              controller.list.value.map((item) => item as LiveMediaInfo).toList());
+                          var list = controller.list.value.map((item) => item.liveMediaInfo as LiveMediaInfo).toList();
+                          controller.settingsService.setCurreentMusicList(list);
                         }
                       }),
                   if (controller.showSelectBox.value)
@@ -146,8 +147,9 @@ class PlayListPage extends GetView<PlayListController> {
                                     controller.settingsService.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black,
                               ),
                               onPressed: () {
-                                controller.audioController.startPlayAtIndex(
-                                    index, controller.list.value.map((item) => item as LiveMediaInfo).toList());
+                                var list =
+                                    controller.list.value.map((item) => item.liveMediaInfo as LiveMediaInfo).toList();
+                                controller.audioController.startPlayAtIndex(index, list);
                               },
                             ),
                             IconButton(
@@ -159,8 +161,9 @@ class PlayListPage extends GetView<PlayListController> {
                               onPressed: () {
                                 if (controller.list.isNotEmpty) {
                                   controller.audioController.pause();
-                                  controller.settingsService.startPlayVideoAtIndex(
-                                      index, controller.list.value.map((item) => item as LiveMediaInfo).toList());
+                                  var list =
+                                      controller.list.value.map((item) => item.liveMediaInfo as LiveMediaInfo).toList();
+                                  controller.settingsService.startPlayVideoAtIndex(index, list);
                                   AppNavigator.toLiveRoomDetail(mediaInfo: mediaInfo);
                                 }
                               },
