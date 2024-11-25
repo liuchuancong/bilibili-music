@@ -355,6 +355,36 @@ class SettingsService extends GetxController {
     }
   }
 
+  void addMusicToAlbum(int? id, List<LiveMediaInfo> medias) {
+    var album = musicAlbum.firstWhere((element) => element.id == id);
+    var index = musicAlbum.indexWhere((element) => element.id == id);
+    List<LiveMediaInfo> insertMedias = album.medias;
+    for (var media in medias) {
+      int index = insertMedias
+          .indexWhere((element) => element.cid == media.cid && element.aid == media.aid && element.bvid == media.bvid);
+      if (index == -1) {
+        insertMedias.add(media);
+      }
+    }
+    musicAlbum[index].medias = insertMedias;
+    PrefUtil.setStringList('musicAlbum', musicAlbum.map((e) => jsonEncode(e.toJson())).toList());
+  }
+
+  void deleteMusicFromAlbum(int? id, List<LiveMediaInfo> medias) {
+    var album = musicAlbum.firstWhere((element) => element.id == id);
+    var index = musicAlbum.indexWhere((element) => element.id == id);
+    List<LiveMediaInfo> insertMedias = album.medias;
+    for (var media in medias) {
+      int index = insertMedias
+          .indexWhere((element) => element.cid == media.cid && element.aid == media.aid && element.bvid == media.bvid);
+      if (index != -1) {
+        insertMedias.removeAt(index);
+      }
+    }
+    musicAlbum[index].medias = insertMedias;
+    PrefUtil.setStringList('musicAlbum', musicAlbum.map((e) => jsonEncode(e.toJson())).toList());
+  }
+
   bool isInMusicAlbum(BilibiliVideo video) {
     return musicAlbum.any((element) => element.id == video.id);
   }

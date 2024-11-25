@@ -32,10 +32,6 @@ class PlayListController extends BasePageController {
 
   @override
   void onInit() {
-    settingsService.currentMediaIndex.value = 0;
-    list.listen((p0) {
-      settingsService.currentMediaList.value = list.value.map((item) => (item as PlayItems).liveMediaInfo).toList();
-    });
     loadData();
     super.onInit();
   }

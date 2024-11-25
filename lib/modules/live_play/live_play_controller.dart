@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/core/bilibili_site.dart';
+import 'package:bilibilimusic/services/audio_service.dart';
 import 'package:bilibilimusic/models/live_media_info.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
 import 'package:bilibilimusic/modules/live_play/widgets/video_player/video_controller.dart';
@@ -15,12 +16,26 @@ class LivePlayController extends StateController {
   var success = false.obs;
   int lastExitTime = 0;
   int position = 0;
-
+  final AudioController audioController = Get.find<AudioController>();
   late LiveMediaInfoData videoInfoData;
   @override
   void onInit() {
     onInitPlayer();
+    if (audioController.isPlaying.value) {
+      audioController.pause();
+    }
     super.onInit();
+  }
+
+  @override
+  void onClose() async {
+    if (videoController != null && !videoController!.hasDestory.value) {
+      position = 0;
+      await videoController!.destory();
+      success.value = false;
+    }
+    audioController.play();
+    super.onClose();
   }
 
   Future onInitPlayer() async {

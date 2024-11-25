@@ -83,6 +83,7 @@ class AppPages {
     ),
     GetPage(
       name: RoutePath.kmusicPage,
+      preventDuplicates: true,
       page: MusicPage.new,
     ),
     GetPage(

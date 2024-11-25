@@ -74,6 +74,7 @@ class AudioController extends GetxController {
     // 监听播放列表变化
 
     if (playlist.isNotEmpty) {
+      developer.log(playlist[currentIndex].toJson().toString(), name: 'playlist');
       currentMusicInfo.value = {
         'album': '',
         'title': playlist[currentIndex].part,
@@ -95,6 +96,7 @@ class AudioController extends GetxController {
     lyricStatus.value = LyricStatus.loading;
     normalLyric.value = '';
     getLyric(mediaInfo);
+    developer.log(mediaInfo.toJson().toString(), name: 'startPlay');
     if (tryTimes >= 3) {
       SmartDialog.showToast("当前歌曲加载失败,正在播放下一首");
       next();
@@ -132,8 +134,14 @@ class AudioController extends GetxController {
     await startPlay(mediaInfo);
   }
 
+  LiveMediaInfo get currentMediaInfo => settingsService.currentMediaList[settingsService.currentMediaIndex.value];
+
   Future<void> play() async {
     _audioPlayer.play();
+  }
+
+  Future<void> pause() async {
+    _audioPlayer.pause();
   }
 
   Future<void> seek(Duration position) async {
@@ -143,45 +151,15 @@ class AudioController extends GetxController {
   Future<void> getLyric(LiveMediaInfo mediaInfo) async {
     lyricStatus.value = LyricStatus.loading;
     normalLyric.value = '';
-    Map musicInfo = await BiliBiliSite().getAudioLyric(mediaInfo.aid, mediaInfo.cid, mediaInfo.bvid);
-    currentMusicInfo.value = {
-      'album': musicInfo['album'],
-      'title': musicInfo['title'],
-      'author': musicInfo['author'],
-      'cover': musicInfo['cover'],
-      'lyric': musicInfo['lyric'],
-    };
-    developer.log(musicInfo.toString(), name: 'lyric');
-    if (musicInfo['title'].isEmpty) {
+    try {
+      String lyric = await BiliBiliSite().getLyrics(mediaInfo.part);
+      lyricStatus.value = LyricStatus.loadSuccess;
+      normalLyric.value = lyric;
+    } catch (_) {
       lyricStatus.value = LyricStatus.loadFailed;
       normalLyric.value = '';
-    } else {
-      if (musicInfo['lyric'].isEmpty) {
-        try {
-          String lyric = await BiliBiliSite().getLyrics(musicInfo['title']);
-          lyricStatus.value = LyricStatus.loadSuccess;
-          normalLyric.value = lyric;
-        } catch (_) {
-          lyricStatus.value = LyricStatus.loadFailed;
-          normalLyric.value = '';
-        }
-      } else {
-        try {
-          String lyric = await BiliBiliSite().getBilibiliLyrics(musicInfo['lyric']);
-          normalLyric.value = lyric;
-          lyricStatus.value = LyricStatus.loadSuccess;
-        } catch (e) {
-          try {
-            String lyric = await BiliBiliSite().getLyrics(musicInfo['title']);
-            normalLyric.value = lyric;
-            lyricStatus.value = LyricStatus.loadSuccess;
-          } catch (_) {
-            lyricStatus.value = LyricStatus.loadFailed;
-            normalLyric.value = ' ';
-          }
-        }
-      }
     }
+    developer.log(normalLyric.toString(), name: 'lyric');
   }
 
   Map<String, String> getHeaders(LiveMediaInfo mediaInfo) {
@@ -207,10 +185,6 @@ class AudioController extends GetxController {
       "Referer": "https://www.bilibili.com/video/${mediaInfo.bvid}",
     };
     return header;
-  }
-
-  Future<void> pause() async {
-    _audioPlayer.pause();
   }
 
   Future<void> stop() async {

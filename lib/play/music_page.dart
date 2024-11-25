@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:ripple_wave/ripple_wave.dart';
 import 'package:marquee_list/marquee_list.dart';
 import 'package:bilibilimusic/common/index.dart';
+import 'package:bilibilimusic/routes/app_navigation.dart';
 import 'package:bilibilimusic/play/blur_back_ground.dart';
 import 'package:bilibilimusic/services/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -87,7 +88,20 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
                 color: Colors.white,
               ),
             ),
-          )
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: IconButton(
+              padding: const EdgeInsets.all(18.0),
+              onPressed: () {
+                AppNavigator.toLiveRoomDetail(mediaInfo: audioController.currentMediaInfo);
+              },
+              icon: const Icon(
+                Icons.slow_motion_video_sharp,
+                color: Colors.white,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -204,29 +218,28 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
   }
 
   Widget _buildTitle() {
-    return Obx(() => Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            MarqueeList(
-              key: ValueKey(audioController.playlist[audioController.currentIndex].cid),
-              scrollDirection: Axis.horizontal,
-              scrollDuration: const Duration(seconds: 2),
-              children: [
-                Text(
-                  audioController.currentMusicInfo.value['title']!,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        MarqueeList(
+          scrollDirection: Axis.horizontal,
+          scrollDuration: const Duration(seconds: 2),
+          children: [
+            Obx(() => Text(
+                  audioController.currentMediaInfo.part,
                   style: const TextStyle(
                     fontSize: 20.0,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
-                ),
-              ],
-            ),
-            Text(audioController.currentMusicInfo.value['author']!,
-                style: _bodyText2Style(context), maxLines: 1, overflow: TextOverflow.ellipsis)
+                )),
           ],
-        ));
+        ),
+        Obx(() => Text(audioController.currentMediaInfo.name,
+            style: _bodyText2Style(context), maxLines: 1, overflow: TextOverflow.ellipsis))
+      ],
+    );
   }
 
   Widget _buildSeekBar() {

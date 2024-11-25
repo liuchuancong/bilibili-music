@@ -264,6 +264,7 @@ class BiliBiliSite {
       queryParameters: sign,
       header: header,
     );
+    log(result.toString(), name: 'getAudioLyric');
     if (result["code"] == 0) {
       if (result["data"]["bgm_info"] != null && result["data"]["bgm_info"]["music_id"] != null) {
         return await getMusicInfo(result["data"]["bgm_info"]['music_id']);
