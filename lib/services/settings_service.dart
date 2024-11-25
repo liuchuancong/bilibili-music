@@ -281,6 +281,10 @@ class SettingsService extends GetxController {
     return currentMediaList[0];
   }
 
+  LiveMediaInfo getCurrentVideoInfo() {
+    return currentMediaList[currentMediaIndex.value];
+  }
+
   LiveMediaInfo getPreviousVideoInfo() {
     if (currentMediaIndex.value - 1 >= 0) {
       setCurrentMediaIndex(currentMediaIndex.value - 1);

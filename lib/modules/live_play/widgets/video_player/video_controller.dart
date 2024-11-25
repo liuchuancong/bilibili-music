@@ -92,7 +92,6 @@ class VideoController with ChangeNotifier {
           "Referer": "https://www.bilibili.com/video/${mediaInfo.bvid}",
         });
     betterPlayerController.setupDataSource(dataSource);
-
     betterPlayerController.addEventsListener(mobileStateListener);
   }
 
@@ -108,7 +107,7 @@ class VideoController with ChangeNotifier {
       hasError.value = false;
     } else if (event.betterPlayerEventType == BetterPlayerEventType.finished) {
       isPlaying.value = false;
-      livePlayController.playNext();
+      livePlayController.replay();
     }
   }
 

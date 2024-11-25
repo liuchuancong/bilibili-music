@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:bilibilimusic/utils/text_util.dart';
 import 'package:bilibilimusic/utils/cache_manager.dart';
-import 'package:bilibilimusic/models/live_media_info.dart';
 import 'package:bilibilimusic/models/live_play_quality.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -31,63 +30,6 @@ class LivePlayPage extends GetWidget<LivePlayController> {
         children: <Widget>[
           buildVideoPlayer(),
           const ResolutionsRow(),
-          const Divider(height: 1),
-          Expanded(
-            child: Obx(
-              () => ListView.builder(
-                itemCount: settings.currentMediaList.length,
-                itemBuilder: (context, index) {
-                  LiveMediaInfo mediaInfo = settings.currentMediaList[index];
-                  return Obx(
-                    () => Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                      color: controller.settingsService.isCurrentMediia(mediaInfo)
-                          ? Get.theme.colorScheme.primary.withOpacity(0.8)
-                          : null,
-                      elevation: 4,
-                      child: ListTile(
-                        title: Text(
-                          mediaInfo.part,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: controller.settingsService.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black,
-                          ),
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            IconButton(
-                              icon: Icon(
-                                Icons.video_library_outlined,
-                                color:
-                                    controller.settingsService.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black,
-                              ),
-                              onPressed: () {
-                                controller.playByVideoInfo(mediaInfo);
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.add,
-                                color:
-                                    controller.settingsService.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black,
-                              ),
-                              onPressed: () {
-                                controller.playByVideoInfo(mediaInfo);
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -100,55 +42,10 @@ class LivePlayPage extends GetWidget<LivePlayController> {
           flex: 5,
           child: buildVideoPlayer(),
         ),
-        Flexible(
+        const Flexible(
           flex: 3,
           child: Column(children: [
-            const ResolutionsRow(),
-            const Divider(height: 1),
-            Expanded(
-              child: Obx(
-                () => ListView.builder(
-                  itemCount: settings.currentMediaList.length,
-                  itemBuilder: (context, index) {
-                    LiveMediaInfo mediaInfo = settings.currentMediaList[index];
-                    return GestureDetector(
-                      onTap: () {
-                        controller.playByVideoInfo(mediaInfo);
-                      },
-                      child: Obx(
-                        () => Card(
-                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                          color: settings.isCurrentMediia(mediaInfo) ? Get.theme.colorScheme.primary : null,
-                          elevation: 4,
-                          child: ListTile(
-                            title: Text(
-                              mediaInfo.part,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: settings.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black,
-                              ),
-                            ),
-                            subtitle: Text(formatDuration(mediaInfo.duration),
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: settings.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black)),
-                            trailing: IconButton(
-                                icon: Icon(
-                                  Icons.keyboard_arrow_right_sharp,
-                                  color: settings.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black,
-                                ),
-                                onPressed: () {
-                                  controller.playByVideoInfo(mediaInfo);
-                                }),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
+            ResolutionsRow(),
           ]),
         ),
       ]),
@@ -162,7 +59,7 @@ class LivePlayPage extends GetWidget<LivePlayController> {
       child: Scaffold(
         appBar: AppBar(),
         body: SafeArea(
-          child: settings.device.value == 'phone' ? buildPhoneView() : buildPadView(),
+          child: buildPhoneView(),
         ),
       ),
     );

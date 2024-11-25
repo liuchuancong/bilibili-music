@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/gestures.dart';
 import 'package:bilibilimusic/common/index.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:bilibilimusic/modules/live_play/widgets/video_player/video_controller.dart';
 
@@ -46,7 +47,6 @@ class _VideoControllerPanelState extends State<VideoControllerPanel> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.enableController();
-      barHeight = controller.settingsService.device.value == 'phone' ? 80.0 : 70.0;
     });
   }
 
@@ -394,13 +394,11 @@ class BottomActionBar extends StatelessWidget {
               children: [
                 Row(
                   children: <Widget>[
-                    SwitchButton(controller: controller, isLeft: true),
                     SeekToButton(isLeft: true, controller: controller),
                     PlayPauseButton(
                       controller: controller,
                     ),
                     SeekToButton(isLeft: false, controller: controller),
-                    SwitchButton(controller: controller, isLeft: false),
                     controller.settingsService.device.value != 'phone'
                         ? TimeSliderButton(controller: controller)
                         : Container(),
@@ -507,7 +505,7 @@ class MuteButton extends StatelessWidget {
             alignment: Alignment.center,
             padding: const EdgeInsets.all(12),
             child: Icon(
-              controller.isMuted.value ? Icons.volume_mute_sharp : Icons.volume_up_rounded,
+              controller.isMuted.value ? FontAwesomeIcons.volumeXmark : Icons.volume_up_rounded,
               color: Colors.white,
             ),
           )),

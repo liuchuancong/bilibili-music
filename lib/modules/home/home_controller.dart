@@ -4,22 +4,13 @@ import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/services/index.dart';
 import 'package:bilibilimusic/services/audio_service.dart';
 
-class HomeController extends GetxController with GetTickerProviderStateMixin {
+class HomeController extends GetxController {
   final SettingsService settingsService = Get.find<SettingsService>();
-
   final AudioController audioController = Get.find<AudioController>();
-  late TabController tabController;
-  final tabIndex = 0.obs;
-  HomeController() {
-    tabController = TabController(length: 2, vsync: this);
-  }
 
   @override
   void onInit() {
     setUI();
-    tabController.addListener(() {
-      tabIndex.value = tabController.index;
-    });
     super.onInit();
   }
 

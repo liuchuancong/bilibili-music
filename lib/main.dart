@@ -4,7 +4,6 @@ import 'package:bilibilimusic/common/index.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:bilibilimusic/routes/app_pages.dart';
 import 'package:bilibilimusic/routes/route_path.dart';
-import 'package:bilibilimusic/routes/app_navigation.dart';
 import 'package:bilibilimusic/services/audio_service.dart';
 import 'package:bilibilimusic/services/audio_background.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
@@ -78,7 +77,7 @@ class _MyAppState extends State<MyApp> {
         themeMode: SettingsService.themeModes[settings.themeModeName.value]!,
         theme: lightTheme,
         darkTheme: darkTheme,
-        navigatorObservers: [FlutterSmartDialog.observer, MyPageRouteObserver()],
+        navigatorObservers: [FlutterSmartDialog.observer],
         builder: FlutterSmartDialog.init(),
         initialRoute: RoutePath.kInitial,
         defaultTransition: Transition.native,

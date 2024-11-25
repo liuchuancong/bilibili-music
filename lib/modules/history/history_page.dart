@@ -14,18 +14,6 @@ class HistoryPage extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: TabBar(
-          controller: controller.tabController,
-          isScrollable: true,
-          tabAlignment: TabAlignment.center,
-          labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          labelPadding: const EdgeInsets.symmetric(horizontal: 12),
-          indicatorSize: TabBarIndicatorSize.label,
-          tabs: const [
-            Tab(text: '视频'),
-            Tab(text: '音乐'),
-          ],
-        ),
         leading: const MenuButton(),
         scrolledUnderElevation: 0,
         centerTitle: true,
@@ -37,10 +25,7 @@ class HistoryPage extends GetView<HomeController> {
               icon: const Icon(Icons.search))
         ],
       ),
-      body: TabBarView(
-        controller: controller.tabController,
-        children: const [AlbumGridView(), MuiscGridView()],
-      ),
+      body: const MuiscGridView(),
       bottomNavigationBar: const BottomMusicControl(),
     );
   }

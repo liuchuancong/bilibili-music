@@ -15,21 +15,6 @@ class HomePage extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: TabBar(
-          controller: controller.tabController,
-          isScrollable: true,
-          tabAlignment: TabAlignment.center,
-          indicator: const UnderlineTabIndicator(
-            borderSide: BorderSide(width: 0, color: Colors.transparent),
-          ),
-          labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          labelPadding: const EdgeInsets.symmetric(horizontal: 12),
-          indicatorSize: TabBarIndicatorSize.label,
-          tabs: const [
-            Tab(text: '视频'),
-            Tab(text: '音乐'),
-          ],
-        ),
         leading: const MenuButton(),
         scrolledUnderElevation: 0,
         centerTitle: true,
@@ -41,75 +26,8 @@ class HomePage extends GetView<HomeController> {
               icon: const Icon(Icons.search))
         ],
       ),
-      body: TabBarView(
-        controller: controller.tabController,
-        children: const [AlbumGridView(), MuiscGridView()],
-      ),
+      body: const MuiscGridView(),
       bottomNavigationBar: const BottomMusicControl(),
-    );
-  }
-}
-
-class AlbumGridView extends GetView<HomeController> {
-  const AlbumGridView({super.key});
-
-  addVideoAlbum() async {
-    Map<String, String?>? result = await Utils.showEditDialog();
-    if (result != null) {
-      controller.settingsService.addVideoAlbum(
-        BilibiliVideo(
-          id: Utils.getRandomId(),
-          title: result['title'],
-          author: result['author'],
-          pubdate: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-          status: VideoStatus.customized,
-          play: 0,
-          favorites: 0,
-        ),
-        [],
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          color: Colors.transparent,
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              IconButton(
-                  onPressed: () {
-                    addVideoAlbum();
-                  },
-                  icon: const Icon(Icons.add)),
-            ],
-          ),
-        ),
-        Obx(() => controller.settingsService.videoAlbum.isNotEmpty
-            ? Expanded(
-                child: ListView.builder(
-                  itemCount: controller.settingsService.videoAlbum.length,
-                  itemBuilder: (context, index) {
-                    return RoomCard(
-                      bilibiliVideo: controller.settingsService.videoAlbum[index],
-                      isVideo: true,
-                      showTrailing: true,
-                    );
-                  },
-                ),
-              )
-            : const EmptyView(
-                icon: Icons.search,
-                title: "暂无数据",
-                subtitle: "请尝试搜索关注",
-              )),
-      ],
     );
   }
 }

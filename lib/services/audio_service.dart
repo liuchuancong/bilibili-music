@@ -94,6 +94,7 @@ class AudioController extends GetxController {
   Future<void> startPlay(LiveMediaInfo mediaInfo, {bool isAutoPlay = true}) async {
     lyricStatus.value = LyricStatus.loading;
     normalLyric.value = '';
+    getLyric(mediaInfo);
     if (tryTimes >= 3) {
       SmartDialog.showToast("当前歌曲加载失败,正在播放下一首");
       next();
@@ -104,7 +105,6 @@ class AudioController extends GetxController {
       LiveMediaInfoData? videoInfoData =
           await BiliBiliSite().getAudioDetail(mediaInfo.aid, mediaInfo.cid, mediaInfo.bvid);
       if (videoInfoData != null) {
-        getLyric(mediaInfo);
         try {
           await _audioPlayer.setUrl(videoInfoData.url, headers: getHeaders(mediaInfo));
           tryTimes = 0; // 重置重试计数器
@@ -151,7 +151,7 @@ class AudioController extends GetxController {
       'cover': musicInfo['cover'],
       'lyric': musicInfo['lyric'],
     };
-    developer.log(musicInfo.toString());
+    developer.log(musicInfo.toString(), name: 'lyric');
     if (musicInfo['title'].isEmpty) {
       lyricStatus.value = LyricStatus.loadFailed;
       normalLyric.value = '';

@@ -84,7 +84,7 @@ class RoomCard extends StatelessWidget {
   const RoomCard({
     super.key,
     required this.bilibiliVideo,
-    this.isVideo = true,
+    this.isVideo = false,
     this.showTrailing = false,
   });
 
@@ -237,36 +237,11 @@ class RoomCard extends StatelessWidget {
     var result = await Utils.showBottomSheet();
     final settings = Get.find<SettingsService>();
     if (result == '1') {
-      if (isVideo) {
-        settings.moveVideoToTop(bilibiliVideo);
-      } else {
-        settings.moveMusicToTop(bilibiliVideo);
-      }
+      settings.moveMusicToTop(bilibiliVideo);
     } else if (result == '2') {
-      if (isVideo) {
-        editVideoAlbum();
-      } else {
-        editMuiscAlbum();
-      }
+      editMuiscAlbum();
     } else if (result == '3') {
-      if (isVideo) {
-        settings.removeVideoAlbum(bilibiliVideo);
-      } else {
-        settings.removeMusicAlbum(bilibiliVideo);
-      }
-    }
-  }
-
-  editVideoAlbum() async {
-    final settings = Get.find<SettingsService>();
-    Map<String, String?>? result =
-        await Utils.showEditDialog(isEdit: true, title: bilibiliVideo.title!, author: bilibiliVideo.author!);
-    if (result != null) {
-      settings.editVideoAlbum(BilibiliVideo(
-        id: bilibiliVideo.id,
-        title: result['title'],
-        author: result['author'],
-      ));
+      settings.removeMusicAlbum(bilibiliVideo);
     }
   }
 
@@ -274,7 +249,6 @@ class RoomCard extends StatelessWidget {
     final settings = Get.find<SettingsService>();
     Map<String, String?>? result =
         await Utils.showEditDialog(isEdit: true, title: bilibiliVideo.title!, author: bilibiliVideo.author!);
-
     if (result != null) {
       settings.editMusicAlbum(
         BilibiliVideo(

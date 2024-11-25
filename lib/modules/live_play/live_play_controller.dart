@@ -64,6 +64,22 @@ class LivePlayController extends StateController {
     }
   }
 
+  void replay() async {
+    if (videoController != null && !videoController!.hasDestory.value) {
+      position = 0;
+      videoController!.destory();
+      success.value = false;
+    }
+
+    var nextVideoInfo = settingsService.getCurrentVideoInfo();
+    var detail = await BiliBiliSite().getVideoDetail(nextVideoInfo.aid, nextVideoInfo.cid, nextVideoInfo.bvid);
+    if (detail != null) {
+      videoInfoData = detail;
+      success.value = true;
+      videoController = VideoController(mediaInfo: nextVideoInfo, videoInfoData: videoInfoData, initPosition: 0);
+    }
+  }
+
   void playPrevious() async {
     if (videoController != null && !videoController!.hasDestory.value) {
       position = 0;
