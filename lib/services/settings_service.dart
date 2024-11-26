@@ -99,6 +99,8 @@ class SettingsService extends GetxController {
     currentMediaIndex.listen((index) {
       PrefUtil.setInt('currentMediaIndex', index);
     });
+
+    initFavoriteMusic();
   }
 
   // Theme settings
@@ -185,6 +187,8 @@ class SettingsService extends GetxController {
   final preferResolution = (PrefUtil.getString('preferResolution') ?? resolutions[0]).obs;
 
   static const List<String> resolutions = ['原画', '蓝光8M', '蓝光4M', '超清', '流畅'];
+
+  final int favoriteId = 8888888888;
 
   void changePreferResolution(String name) {
     if (resolutions.indexWhere((e) => e == name) != -1) {
@@ -314,6 +318,52 @@ class SettingsService extends GetxController {
     PrefUtil.setStringList('musicAlbum', musicAlbum.map((e) => jsonEncode(e.toJson())).toList());
   }
 
+  void initFavoriteMusic() {
+    if (!musicAlbum.any((element) => element.id == favoriteId)) {
+      BilibiliVideo video = BilibiliVideo(
+        id: favoriteId,
+        title: '我喜欢的',
+        author: '我喜欢的音乐',
+        pubdate: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        status: VideoStatus.customized,
+      );
+      musicAlbum.insert(0, video);
+      PrefUtil.setStringList('musicAlbum', musicAlbum.map((e) => jsonEncode(e.toJson())).toList());
+    }
+  }
+
+  bool isInFavoriteMusic(LiveMediaInfo mediaInfo) {
+    var album = musicAlbum.firstWhere((element) => element.id == favoriteId);
+    List<LiveMediaInfo> insertMedias = album.medias;
+    int index = insertMedias.indexWhere(
+        (element) => element.cid == mediaInfo.cid && element.aid == mediaInfo.aid && element.bvid == mediaInfo.bvid);
+    return index != -1;
+  }
+
+  void addInFavoriteMusic(LiveMediaInfo mediaInfo) {
+    var album = musicAlbum.firstWhere((element) => element.id == favoriteId);
+    List<LiveMediaInfo> insertMedias = album.medias;
+    int index = insertMedias.indexWhere(
+        (element) => element.cid == mediaInfo.cid && element.aid == mediaInfo.aid && element.bvid == mediaInfo.bvid);
+    if (index == -1) {
+      insertMedias.add(mediaInfo);
+      album.medias = insertMedias;
+      PrefUtil.setStringList('musicAlbum', musicAlbum.map((e) => jsonEncode(e.toJson())).toList());
+    }
+  }
+
+  void removeInFavoriteMusic(LiveMediaInfo mediaInfo) {
+    var album = musicAlbum.firstWhere((element) => element.id == favoriteId);
+    List<LiveMediaInfo> insertMedias = album.medias;
+    int index = insertMedias.indexWhere(
+        (element) => element.cid == mediaInfo.cid && element.aid == mediaInfo.aid && element.bvid == mediaInfo.bvid);
+    if (index != -1) {
+      insertMedias.removeAt(index);
+      album.medias = insertMedias;
+      PrefUtil.setStringList('musicAlbum', musicAlbum.map((e) => jsonEncode(e.toJson())).toList());
+    }
+  }
+
   void moveMusicToTop(BilibiliVideo video) {
     if (musicAlbum.any((element) => element.id == video.id)) {
       musicAlbum.removeWhere((element) => element.id == video.id);
@@ -354,6 +404,13 @@ class SettingsService extends GetxController {
       musicAlbum.removeWhere((element) => element.id == video.id);
       PrefUtil.setStringList('musicAlbum', musicAlbum.map((e) => jsonEncode(e.toJson())).toList());
     }
+  }
+
+  bool isExitMusicAlbum(int? id, LiveMediaInfo media) {
+    var album = musicAlbum.firstWhere((element) => element.id == id);
+    int index = album.medias
+        .indexWhere((element) => element.cid == media.cid && element.aid == media.aid && element.bvid == media.bvid);
+    return index != -1;
   }
 
   void addMusicToAlbum(int? id, List<LiveMediaInfo> medias) {

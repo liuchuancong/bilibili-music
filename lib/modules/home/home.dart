@@ -10,31 +10,6 @@ import 'package:bilibilimusic/modules/home/home_controller.dart';
 
 class HomePage extends GetView<HomeController> {
   const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: const MenuButton(),
-        scrolledUnderElevation: 0,
-        centerTitle: true,
-        actions: [
-          IconButton(
-              onPressed: () {
-                Get.toNamed(RoutePath.kSearch);
-              },
-              icon: const Icon(Icons.search))
-        ],
-      ),
-      body: const MuiscGridView(),
-      bottomNavigationBar: const BottomMusicControl(),
-    );
-  }
-}
-
-class MuiscGridView extends GetView<HomeController> {
-  const MuiscGridView({super.key});
-
   addMusicAlbum() async {
     Map<String, String?>? result = await Utils.showEditDialog();
     if (result != null) {
@@ -55,25 +30,38 @@ class MuiscGridView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: const MenuButton(),
+        scrolledUnderElevation: 0,
+        centerTitle: true,
+        actions: [
+          IconButton(
+              onPressed: () {
+                Get.toNamed(RoutePath.kSearch);
+              },
+              icon: const Icon(Icons.search)),
+          IconButton(
+            onPressed: () {
+              addMusicAlbum();
+            },
+            icon: const Icon(Icons.add),
+          ),
+        ],
+      ),
+      body: const MuiscGridView(),
+      bottomNavigationBar: const BottomMusicControl(),
+    );
+  }
+}
+
+class MuiscGridView extends GetView<HomeController> {
+  const MuiscGridView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          color: Colors.transparent,
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              IconButton(
-                onPressed: () {
-                  addMusicAlbum();
-                },
-                icon: const Icon(Icons.add),
-              ),
-            ],
-          ),
-        ),
         Obx(() => controller.settingsService.musicAlbum.isNotEmpty
             ? Expanded(
                 child: ListView.builder(

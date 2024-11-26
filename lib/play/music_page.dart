@@ -5,8 +5,10 @@ import 'package:ripple_wave/ripple_wave.dart';
 import 'package:marquee_list/marquee_list.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/core/bilibili_site.dart';
+import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:bilibilimusic/routes/app_navigation.dart';
 import 'package:bilibilimusic/play/blur_back_ground.dart';
+import 'package:bilibilimusic/models/live_media_info.dart';
 import 'package:bilibilimusic/services/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:bilibilimusic/play/lyric/lyrics_reader_model.dart';
@@ -203,10 +205,59 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
                     color: Colors.white,
                   ),
                 ),
+                IconButton(
+                  padding: const EdgeInsets.only(top: 18.0, bottom: 18.0, right: 18.0),
+                  onPressed: () {
+                    showMusicAlubmSelectorDialog();
+                  },
+                  icon: const Icon(
+                    Icons.add_circle_outline_rounded,
+                    color: Colors.white,
+                  ),
+                ),
               ])),
         ],
       ),
     );
+  }
+
+  void showMusicAlubmSelectorDialog() {
+    showDialog(
+        context: Get.context!,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('添加到歌单'),
+            content: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: SingleChildScrollView(
+                child: Wrap(
+                  runSpacing: 12,
+                  spacing: 12,
+                  children: audioController.settingsService.musicAlbum
+                      .where((el) => el.status == VideoStatus.customized)
+                      .map(
+                        (BilibiliVideo item) => TextButton(
+                          onPressed: () {
+                            if (audioController.settingsService
+                                .isExitMusicAlbum(item.id, audioController.currentMediaInfo)) {
+                              SmartDialog.showToast('歌曲已在歌单中');
+                            } else {
+                              audioController.settingsService.addMusicToAlbum(item.id, audioController.playlist);
+                              SmartDialog.showToast('添加成功');
+                            }
+                            audioController.isFavorite.value =
+                                audioController.settingsService.isInFavoriteMusic(audioController.currentMediaInfo);
+                            Navigator.of(Get.context!).pop();
+                          },
+                          child: Text(item.title!),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+            ),
+          );
+        });
   }
 
   Widget _buildCenterSection() {
@@ -320,26 +371,50 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
   }
 
   Widget _buildTitle() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        MarqueeList(
-          scrollDirection: Axis.horizontal,
-          scrollDuration: const Duration(seconds: 2),
-          children: [
-            Obx(() => Text(
-                  audioController.currentMediaInfo.part,
-                  style: const TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                )),
-          ],
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const SizedBox(
+          width: 100,
         ),
-        Obx(() => Text(audioController.currentMediaInfo.name,
-            style: _bodyText2Style(context), maxLines: 1, overflow: TextOverflow.ellipsis))
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              MarqueeList(
+                scrollDirection: Axis.horizontal,
+                scrollDuration: const Duration(seconds: 2),
+                children: [
+                  Obx(() => Text(
+                        audioController.currentMediaInfo.part,
+                        style: const TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      )),
+                ],
+              ),
+              Obx(() => Text(audioController.currentMediaInfo.name,
+                  style: _bodyText2Style(context), maxLines: 1, overflow: TextOverflow.ellipsis))
+            ],
+          ),
+        ),
+        SizedBox(
+          width: 100,
+          child: IconButton(
+            icon: Obx(() => Icon(
+                  audioController.isFavorite.value ? Icons.favorite : Icons.favorite_border_rounded,
+                  size: 32,
+                  color: audioController.isFavorite.value ? Colors.red : Colors.white,
+                )),
+            onPressed: () {
+              audioController.toggleFavorite();
+            },
+          ),
+        ),
       ],
     );
   }

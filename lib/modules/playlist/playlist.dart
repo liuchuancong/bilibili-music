@@ -133,8 +133,12 @@ class PlayListPage extends GetView<PlayListController> {
                     : Icons.add_circle_outline_rounded,
               ),
               onPressed: () {
-                var list = controller.list.value.map((item) => item.liveMediaInfo as LiveMediaInfo).toList();
-                controller.settingsService.toggleCollectMusic(controller.bilibiliVideo, list);
+                if (controller.bilibiliVideo.id == controller.settingsService.favoriteId) {
+                  SmartDialog.showToast('系统预设歌单不可修改');
+                } else {
+                  var list = controller.list.value.map((item) => item.liveMediaInfo as LiveMediaInfo).toList();
+                  controller.settingsService.toggleCollectMusic(controller.bilibiliVideo, list);
+                }
               },
             ),
           ),
@@ -147,50 +151,61 @@ class PlayListPage extends GetView<PlayListController> {
             Container(
               padding: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 20),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      IconButton(
+                          icon: const Icon(FontAwesomeIcons.headphonesSimple),
+                          onPressed: () {
+                            if (controller.list.isNotEmpty) {
+                              var list =
+                                  controller.list.value.map((item) => item.liveMediaInfo as LiveMediaInfo).toList();
+                              controller.settingsService.setCurreentMusicList(list);
+                            }
+                          }),
+                      if (controller.showSelectBox.value)
+                        Obx(() => IconButton(
+                            icon: controller.isCheckAll.value
+                                ? const Icon(FontAwesomeIcons.squareCheck)
+                                : const Icon(FontAwesomeIcons.square),
+                            onPressed: () {
+                              if (controller.list.isNotEmpty) {
+                                controller.handleCheckAll();
+                              }
+                            })),
+                      IconButton(
+                          icon: const Icon(Icons.select_all_outlined),
+                          onPressed: () {
+                            if (controller.list.isNotEmpty) {
+                              controller.showSelectBox.toggle();
+                              if (controller.showSelectBox.value) {
+                                controller.isCheckAll.value = false;
+                              }
+                            }
+                          }),
+                      IconButton(
+                          icon: const Icon(FontAwesomeIcons.penToSquare),
+                          onPressed: () {
+                            if (controller.showSelectBox.value) {
+                              List<LiveMediaInfo> list = controller.list.value
+                                  .where((el) => el.selected)
+                                  .map((item) => item.liveMediaInfo as LiveMediaInfo)
+                                  .toList();
+                              if (list.isNotEmpty) {
+                                handleMusicAlbumSelector();
+                              } else {
+                                SmartDialog.showToast('请选择歌曲');
+                              }
+                            }
+                          }),
+                    ],
+                  ),
                   IconButton(
-                      icon: const Icon(FontAwesomeIcons.headphonesSimple),
+                      icon: const Icon(Icons.refresh_rounded),
                       onPressed: () {
-                        if (controller.list.isNotEmpty) {
-                          var list = controller.list.value.map((item) => item.liveMediaInfo as LiveMediaInfo).toList();
-                          controller.settingsService.setCurreentMusicList(list);
-                        }
-                      }),
-                  if (controller.showSelectBox.value)
-                    Obx(() => IconButton(
-                        icon: controller.isCheckAll.value
-                            ? const Icon(FontAwesomeIcons.squareCheck)
-                            : const Icon(FontAwesomeIcons.square),
-                        onPressed: () {
-                          if (controller.list.isNotEmpty) {
-                            controller.handleCheckAll();
-                          }
-                        })),
-                  IconButton(
-                      icon: const Icon(Icons.select_all_outlined),
-                      onPressed: () {
-                        if (controller.list.isNotEmpty) {
-                          controller.showSelectBox.toggle();
-                          if (controller.showSelectBox.value) {
-                            controller.isCheckAll.value = false;
-                          }
-                        }
-                      }),
-                  IconButton(
-                      icon: const Icon(FontAwesomeIcons.penToSquare),
-                      onPressed: () {
-                        if (controller.showSelectBox.value) {
-                          List<LiveMediaInfo> list = controller.list.value
-                              .where((el) => el.selected)
-                              .map((item) => item.liveMediaInfo as LiveMediaInfo)
-                              .toList();
-                          if (list.isNotEmpty) {
-                            handleMusicAlbumSelector();
-                          } else {
-                            SmartDialog.showToast('请选择歌曲');
-                          }
-                        }
+                        controller.refreshData();
                       }),
                 ],
               ),

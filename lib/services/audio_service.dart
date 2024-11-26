@@ -31,6 +31,7 @@ class AudioController extends GetxController {
   List<LiveMediaInfo> get playlist => settingsService.currentMediaList.value;
   final isPlaying = false.obs;
   final showLyric = false.obs;
+  final isFavorite = false.obs;
   int tryTimes = 0;
   int get currentIndex => settingsService.currentMediaIndex.value;
   final playMode = PlayMode.listLoop.obs; // 默认播放模式为列表循环
@@ -92,7 +93,18 @@ class AudioController extends GetxController {
     settingsService.currentMediaList.assignAll(urls);
   }
 
+  void toggleFavorite() {
+    isFavorite.value = settingsService.isInFavoriteMusic(currentMediaInfo);
+    if (isFavorite.value) {
+      settingsService.removeInFavoriteMusic(currentMediaInfo);
+    } else {
+      settingsService.addInFavoriteMusic(currentMediaInfo);
+    }
+    isFavorite.toggle();
+  }
+
   Future<void> startPlay(LiveMediaInfo mediaInfo, {bool isAutoPlay = true}) async {
+    isFavorite.value = settingsService.isInFavoriteMusic(mediaInfo);
     lyricStatus.value = LyricStatus.loading;
     normalLyric.value = '';
     getLyric(mediaInfo);

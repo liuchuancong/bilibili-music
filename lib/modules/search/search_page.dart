@@ -256,7 +256,11 @@ class RoomCard extends StatelessWidget {
     } else if (result == '2') {
       editMuiscAlbum();
     } else if (result == '3') {
-      settings.removeMusicAlbum(bilibiliVideo);
+      if (bilibiliVideo.id == settings.favoriteId) {
+        SmartDialog.showToast("系统预设不允许删除");
+      } else {
+        settings.removeMusicAlbum(bilibiliVideo);
+      }
     }
   }
 

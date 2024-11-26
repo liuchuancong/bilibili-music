@@ -114,6 +114,18 @@ class BottomMusicControl extends GetWidget<AudioController> {
                       ),
                       onPressed: controller.next,
                     ),
+                    Obx(
+                      () => IconButton(
+                        icon: Icon(
+                          controller.isFavorite.value ? Icons.favorite : Icons.favorite_border_rounded,
+                          size: 32,
+                          color: controller.isFavorite.value ? Colors.red : Colors.white,
+                        ),
+                        onPressed: () {
+                          controller.toggleFavorite();
+                        },
+                      ),
+                    ),
                   ],
                 ),
               ],
