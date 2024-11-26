@@ -148,9 +148,23 @@ class RoomCard extends StatelessWidget {
                     BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
                       child: Container(
+                        decoration: bilibiliVideo.status == VideoStatus.customized
+                            ? const BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+                                border: Border(top: BorderSide(color: Colors.black26, width: 1)),
+                                gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [
+                                  Colors.black,
+                                  Colors.black87,
+                                  Colors.black54,
+                                  Colors.black87,
+                                  Colors.black,
+                                ]),
+                              )
+                            : null,
                         color: bilibiliVideo.status == VideoStatus.published
                             ? Colors.black.withOpacity(0)
-                            : Colors.black, // Adjust the opacity as needed
+                            : null, // Adjust the opacity as needed
                       ),
                     ),
                   ],

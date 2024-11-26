@@ -19,6 +19,7 @@ class SettingsPage extends GetView<SettingsService> {
         scrolledUnderElevation: screenWidth > 640 ? 0 : null,
         title: const Text("设置"),
       ),
+      bottomNavigationBar: const BottomMusicControl(),
       body: ListView(
         physics: const BouncingScrollPhysics(),
         children: <Widget>[

@@ -76,22 +76,6 @@ class MenuButton extends GetView<SettingsService> {
             text: "设置",
           ),
         ),
-        const PopupMenuItem(
-          value: 2,
-          padding: EdgeInsets.symmetric(horizontal: 12),
-          child: MenuListTile(
-            leading: Icon(Icons.info_rounded),
-            text: "关于",
-          ),
-        ),
-        const PopupMenuItem(
-          value: 3,
-          padding: EdgeInsets.symmetric(horizontal: 12),
-          child: MenuListTile(
-            leading: Icon(Icons.history),
-            text: "历史记录",
-          ),
-        ),
       ],
     );
   }

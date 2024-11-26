@@ -90,10 +90,15 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^3.0.0
-
+  flutter_launcher_icons: ^0.13.1  # 添加插件
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
-
+# 应用图标
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: false
+  image_path: "assets/images/bilibili_2.png"  # 图标路径
+  adaptive_icon_background: "#FFFFFF"  # Android 适应性图标背景色
 # The following section is specific to Flutter packages.
 flutter:
 
