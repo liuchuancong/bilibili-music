@@ -8,7 +8,6 @@ import 'package:bilibilimusic/core/bilibili_site.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:bilibilimusic/routes/app_navigation.dart';
 import 'package:bilibilimusic/play/blur_back_ground.dart';
-import 'package:bilibilimusic/models/live_media_info.dart';
 import 'package:bilibilimusic/services/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:bilibilimusic/play/lyric/lyrics_reader_model.dart';
