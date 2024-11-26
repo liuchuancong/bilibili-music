@@ -3,10 +3,13 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'video_controller_panel.dart';
 import 'package:flutter/material.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:bilibilimusic/models/live_media_info.dart';
 import 'package:better_player_plus/better_player_plus.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
+import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:bilibilimusic/modules/live_play/live_play_controller.dart';
 
@@ -37,7 +40,11 @@ class VideoController with ChangeNotifier {
   var position = 0.obs;
   var volume = 0.0.obs;
   final isFullscreen = false.obs;
-
+  // Create a [Player] to control playback.
+  late Player player;
+  // CeoController] to handle video output from [Player].
+  late media_kit_video.VideoController mediaPlayerController;
+  late final GlobalKey<media_kit_video.VideoState> key = GlobalKey<media_kit_video.VideoState>();
   void enableController() {
     showControllerTimer?.cancel();
     showControllerTimer = Timer(const Duration(seconds: 3), () {
@@ -48,51 +55,89 @@ class VideoController with ChangeNotifier {
 
   void initVideoController() async {
     FlutterVolumeController.updateShowSystemUI(false);
-    BetterPlayerConfiguration betterPlayerConfiguration = BetterPlayerConfiguration(
-      aspectRatio: 16 / 9,
-      fit: BoxFit.contain,
-      handleLifecycle: true,
-      autoPlay: true,
-      controlsConfiguration: BetterPlayerControlsConfiguration(
-        playerTheme: BetterPlayerTheme.custom,
-        customControlsBuilder: (controller, onControlsVisibilityChanged) => VideoControllerPanel(controller: this),
-      ),
-    );
-    betterPlayerController = BetterPlayerController(betterPlayerConfiguration);
+    if (Platform.isWindows) {
+      player = Player();
+      if (player.platform is NativePlayer) {
+        (player.platform as dynamic).setProperty('cache', 'no'); // --cache=<yes|no|auto>
+        (player.platform as dynamic).setProperty('cache-secs', '0'); // --cache-secs=<seconds> with cache but why not.
+        (player.platform as dynamic).setProperty('demuxer-seekable-cache', 'no');
+        (player.platform as dynamic).setProperty('demuxer-max-back-bytes', '0'); // --demuxer-max-back-bytes=<bytesize>
+        (player.platform as dynamic).setProperty('demuxer-donate-buffer', 'no'); // --demuxer-donate-buffer==<yes|no>
+      }
+      mediaPlayerController =
+          media_kit_video.VideoController(player, configuration: const VideoControllerConfiguration());
+      mediaPlayerController.player.stream.playing.listen((bool playing) {
+        isPlaying.value = playing;
+      });
+      mediaPlayerController.player.stream.error.listen((event) {
+        if (event.toString().contains('Failed to open')) {
+          hasError.value = true;
+          isPlaying.value = false;
+        }
+      });
+    } else {
+      BetterPlayerConfiguration betterPlayerConfiguration = BetterPlayerConfiguration(
+        aspectRatio: 16 / 9,
+        fit: BoxFit.contain,
+        handleLifecycle: true,
+        autoPlay: true,
+        controlsConfiguration: BetterPlayerControlsConfiguration(
+          playerTheme: BetterPlayerTheme.custom,
+          customControlsBuilder: (controller, onControlsVisibilityChanged) => VideoControllerPanel(controller: this),
+        ),
+      );
+      betterPlayerController = BetterPlayerController(betterPlayerConfiguration);
+    }
     setupDataSource();
   }
 
   void setupDataSource() async {
-    BetterPlayerDataSource dataSource = BetterPlayerDataSource(BetterPlayerDataSourceType.network, videoInfoData.url,
+    var headers = {
+      "cookie": settingsService.bilibiliCookie.value,
+      "authority": "api.bilibili.com",
+      "accept":
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "accept-language": "zh-CN,zh;q=0.9",
+      "cache-control": "no-cache",
+      "dnt": "1",
+      "pragma": "no-cache",
+      "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": '"macOS"',
+      "sec-fetch-dest": "document",
+      "sec-fetch-mode": "navigate",
+      "sec-fetch-site": "none",
+      "sec-fetch-user": "?1",
+      "upgrade-insecure-requests": "1",
+      "user-agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+      "Referer": "https://www.bilibili.com/video/${mediaInfo.bvid}",
+    };
+    if (Platform.isWindows) {
+      // fix datasource empty error
+      if (videoInfoData.url.isEmpty) {
+        hasError.value = true;
+        return;
+      } else {
+        hasError.value = false;
+      }
+      player.pause();
+      player.open(Media(videoInfoData.url, httpHeaders: headers));
+    } else {
+      BetterPlayerDataSource dataSource = BetterPlayerDataSource(
+        BetterPlayerDataSourceType.network,
+        videoInfoData.url,
         notificationConfiguration: BetterPlayerNotificationConfiguration(
           showNotification: true,
           title: mediaInfo.title,
           author: mediaInfo.name,
           imageUrl: mediaInfo.pic,
         ),
-        headers: {
-          "cookie": settingsService.bilibiliCookie.value,
-          "authority": "api.bilibili.com",
-          "accept":
-              "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-          "accept-language": "zh-CN,zh;q=0.9",
-          "cache-control": "no-cache",
-          "dnt": "1",
-          "pragma": "no-cache",
-          "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
-          "sec-ch-ua-mobile": "?0",
-          "sec-ch-ua-platform": '"macOS"',
-          "sec-fetch-dest": "document",
-          "sec-fetch-mode": "navigate",
-          "sec-fetch-site": "none",
-          "sec-fetch-user": "?1",
-          "upgrade-insecure-requests": "1",
-          "user-agent":
-              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-          "Referer": "https://www.bilibili.com/video/${mediaInfo.bvid}",
-        });
-    betterPlayerController.setupDataSource(dataSource);
-    betterPlayerController.addEventsListener(mobileStateListener);
+        headers: headers,
+      );
+      betterPlayerController.setupDataSource(dataSource);
+      betterPlayerController.addEventsListener(mobileStateListener);
+    }
   }
 
   dynamic mobileStateListener(event) {
@@ -149,11 +194,15 @@ class VideoController with ChangeNotifier {
   }
 
   void togglePlayPause() {
-    var isPlaying = betterPlayerController.isPlaying();
-    if (isPlaying!) {
-      betterPlayerController.pause();
+    if (Platform.isWindows) {
+      mediaPlayerController.player.playOrPause();
     } else {
-      betterPlayerController.play();
+      var isPlaying = betterPlayerController.isPlaying();
+      if (isPlaying!) {
+        betterPlayerController.pause();
+      } else {
+        betterPlayerController.play();
+      }
     }
   }
 
@@ -197,28 +246,53 @@ class VideoController with ChangeNotifier {
   }
 
   void refresh() {
-    betterPlayerController.retryDataSource();
+    if (Platform.isWindows) {
+      betterPlayerController.retryDataSource();
+    } else {}
   }
 
   destory() async {
-    betterPlayerController.removeEventsListener(mobileStateListener);
-    betterPlayerController.dispose();
+    if (Platform.isWindows) {
+      if (key.currentState?.isFullscreen() ?? false) {
+        key.currentState?.exitFullscreen();
+      }
+      player.dispose();
+    } else {
+      betterPlayerController.removeEventsListener(mobileStateListener);
+      betterPlayerController.dispose();
+    }
+    isPlaying.value = false;
     hasDestory.value = true;
   }
 
   void toggleFullScreen() {
-    if (betterPlayerController.isFullScreen) {
-      betterPlayerController.exitFullScreen();
+    if (Platform.isAndroid || Platform.isIOS) {
+      if (betterPlayerController.isFullScreen) {
+        betterPlayerController.exitFullScreen();
+      } else {
+        betterPlayerController.enterFullScreen();
+      }
     } else {
-      betterPlayerController.enterFullScreen();
+      if (isFullscreen.value) {
+        key.currentState?.exitFullscreen();
+      } else {
+        key.currentState?.enterFullscreen();
+      }
     }
 
     isFullscreen.toggle();
   }
 
   exitFullScreen() {
-    betterPlayerController.exitFullScreen();
-    isFullscreen.value = false;
+    if (Platform.isAndroid || Platform.isIOS) {
+      betterPlayerController.exitFullScreen();
+      isFullscreen.value = false;
+    } else {
+      isFullscreen.value = false;
+      if (key.currentState?.isFullscreen() ?? false) {
+        key.currentState?.exitFullscreen();
+      }
+    }
   }
 
   // volumn & brightness
@@ -227,7 +301,7 @@ class VideoController with ChangeNotifier {
   }
 
   Future<double> brightness() async {
-    return await brightnessController.current;
+    return await brightnessController.application;
   }
 
   void setVolumn(double value) async {
@@ -236,7 +310,7 @@ class VideoController with ChangeNotifier {
 
   void setBrightness(double value) async {
     if (Platform.isAndroid || Platform.isIOS) {
-      await brightnessController.setScreenBrightness(value);
+      await brightnessController.setApplicationScreenBrightness(value);
     }
   }
 }

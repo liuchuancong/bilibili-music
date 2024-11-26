@@ -70,6 +70,7 @@ class AudioController extends GetxController {
       if (state.processingState == ProcessingState.completed) {
         next();
       }
+      developer.log(state.toString(), name: 'audioPlayerState');
     });
 
     // 监听播放列表变化
@@ -133,7 +134,9 @@ class AudioController extends GetxController {
         await retryStartPlay(mediaInfo);
       }
       if (isAutoPlay) {
-        await _audioPlayer.play();
+        Timer(const Duration(seconds: 1), () {
+          _audioPlayer.play();
+        });
       }
     } catch (_) {
       await retryStartPlay(mediaInfo);

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:bilibilimusic/style/theme.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:audio_service/audio_service.dart';
@@ -11,6 +12,7 @@ import 'package:bilibilimusic/services/bilibili_account_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  MediaKit.ensureInitialized();
   PrefUtil.prefs = await SharedPreferences.getInstance();
   // 初始化服务
   initService();

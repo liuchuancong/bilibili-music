@@ -53,8 +53,25 @@ dependencies:
   flutter_cache_manager: ^3.3.1
   cached_network_image: ^3.3.0
   just_audio: ^0.9.39
+  just_audio_windows: any
   just_audio_background: ^0.0.1-beta.13
   better_player_plus: ^1.0.7
+    # 视频播放
+  media_kit:
+    git:
+      url: https://github.com/media-kit/media-kit.git
+      ref: main
+      path: ./media_kit
+  media_kit_video:
+    git:
+      url: https://github.com/media-kit/media-kit.git
+      ref: main
+      path: ./media_kit_video
+  media_kit_libs_video:
+    git:
+      url: https://github.com/media-kit/media-kit.git
+      ref: main
+      path: ./libs/universal/media_kit_libs_video
   flex_color_picker: ^3.3.0
   share_handler: ^0.0.19
   flutter_smart_dialog: ^4.9.5 #各种弹窗 Toast/Dialog/Popup
@@ -64,7 +81,7 @@ dependencies:
   marquee_list: ^1.0.0
   parallax_cards: ^1.0.2
   crypto: ^3.0.3
-  screen_brightness: ^0.2.2+1
+  screen_brightness: ^2.0.0+2
   flutter_volume_controller: ^1.2.7
   audio_video_progress_bar: ^2.0.3
   date_format: ^2.0.7
@@ -80,6 +97,22 @@ dependencies:
   font_awesome_flutter: ^10.7.0
   uuid: ^4.4.2
   ripple_wave: ^0.1.4
+dependency_overrides: 
+  media_kit:
+    git:
+      url: https://github.com/media-kit/media-kit.git
+      ref: main
+      path: ./media_kit
+  media_kit_video:
+    git:
+      url: https://github.com/media-kit/media-kit.git
+      ref: main
+      path: ./media_kit_video
+  media_kit_libs_video:
+    git:
+      url: https://github.com/media-kit/media-kit.git
+      ref: main
+      path: ./libs/universal/media_kit_libs_video
 dev_dependencies:
   flutter_test:
     sdk: flutter
