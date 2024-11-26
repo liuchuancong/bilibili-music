@@ -83,6 +83,7 @@ class PlayListPage extends GetView<PlayListController> {
                                 .toList();
                             settings.addMusicToAlbum(item.id, list);
                             Navigator.of(Get.context!).pop();
+                            SmartDialog.showToast('添加成功');
                           },
                           child: Text(item.title!),
                         ),
@@ -103,7 +104,14 @@ class PlayListPage extends GetView<PlayListController> {
       // 删除
       List<LiveMediaInfo> list =
           controller.list.value.where((el) => el.selected).map((item) => item.liveMediaInfo as LiveMediaInfo).toList();
-      controller.settingsService.deleteMusicFromAlbum(controller.bilibiliVideo.id, list);
+      List<LiveMediaInfo> sourcelist =
+          controller.settingsService.deleteMusicFromAlbum(controller.bilibiliVideo.id, list);
+      List<PlayItems> playitems = [];
+      for (var i = 0; i < sourcelist.length; i++) {
+        playitems.add(PlayItems(liveMediaInfo: sourcelist[i], index: i, selected: false));
+      }
+      controller.list.value = playitems;
+      SmartDialog.showToast('删除成功');
     }
   }
 
@@ -172,8 +180,16 @@ class PlayListPage extends GetView<PlayListController> {
                   IconButton(
                       icon: const Icon(FontAwesomeIcons.penToSquare),
                       onPressed: () {
-                        if (controller.list.isNotEmpty) {
-                          handleMusicAlbumSelector();
+                        if (controller.showSelectBox.value) {
+                          List<LiveMediaInfo> list = controller.list.value
+                              .where((el) => el.selected)
+                              .map((item) => item.liveMediaInfo as LiveMediaInfo)
+                              .toList();
+                          if (list.isNotEmpty) {
+                            handleMusicAlbumSelector();
+                          } else {
+                            SmartDialog.showToast('请选择歌曲');
+                          }
                         }
                       }),
                 ],
@@ -193,45 +209,33 @@ class PlayListPage extends GetView<PlayListController> {
                       color:
                           controller.settingsService.isCurrentMediia(mediaInfo) ? Get.theme.colorScheme.primary : null,
                       elevation: 4,
-                      child: ListTile(
-                        leading: controller.showSelectBox.value
-                            ? Obx(() => IconButton(
-                                onPressed: () {
-                                  controller.handleToggleItem(index);
-                                },
-                                icon: Icon(
-                                  playItems.selected ? FontAwesomeIcons.squareCheck : FontAwesomeIcons.square,
-                                  color: controller.settingsService.isCurrentMediia(mediaInfo)
-                                      ? Colors.white
-                                      : Colors.black,
-                                )))
-                            : null,
-                        title: Text(
-                          mediaInfo.part,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: controller.settingsService.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black,
-                          ),
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            IconButton(
-                              icon: Icon(
-                                Icons.play_circle_outline,
-                                color:
-                                    controller.settingsService.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black,
-                              ),
-                              onPressed: () {
-                                var list =
-                                    controller.list.value.map((item) => item.liveMediaInfo as LiveMediaInfo).toList();
-                                controller.audioController.startPlayAtIndex(index, list);
-                              },
+                      child: InkWell(
+                        onTap: () {
+                          var list = controller.list.value.map((item) => item.liveMediaInfo as LiveMediaInfo).toList();
+                          controller.audioController.startPlayAtIndex(index, list);
+                        },
+                        child: ListTile(
+                          leading: controller.showSelectBox.value
+                              ? Obx(() => IconButton(
+                                  onPressed: () {
+                                    controller.handleToggleItem(index);
+                                  },
+                                  icon: Icon(
+                                    playItems.selected ? FontAwesomeIcons.squareCheck : FontAwesomeIcons.square,
+                                    color: controller.settingsService.isCurrentMediia(mediaInfo)
+                                        ? Colors.white
+                                        : Colors.black,
+                                  )))
+                              : null,
+                          title: Text(
+                            mediaInfo.part,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color:
+                                  controller.settingsService.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black,
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),

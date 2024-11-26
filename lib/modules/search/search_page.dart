@@ -181,7 +181,7 @@ class RoomCard extends StatelessWidget {
                           backgroundColor: Theme.of(context).disabledColor,
                         )
                       : const Icon(
-                          Icons.music_note_sharp,
+                          Icons.album_rounded,
                           color: Colors.white,
                         ),
                   title: SizedBox(
@@ -218,15 +218,16 @@ class RoomCard extends StatelessWidget {
                 ),
               ),
             ),
-            Positioned(
-              right: 2,
-              bottom: 2,
-              child: CountChip(
-                icon: Icons.play_arrow_rounded,
-                count: readableCount(bilibiliVideo.play.toString()),
-                color: Theme.of(context).colorScheme.onSurface,
+            if (bilibiliVideo.status != VideoStatus.customized)
+              Positioned(
+                right: 2,
+                bottom: 2,
+                child: CountChip(
+                  icon: Icons.play_arrow_rounded,
+                  count: readableCount(bilibiliVideo.play.toString()),
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
-            ),
           ],
         ),
       ),

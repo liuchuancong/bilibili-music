@@ -51,40 +51,6 @@ class SettingsPage extends GetView<SettingsService> {
               MaterialPageRoute(builder: (context) => const BackupPage()),
             ),
           ),
-          const SectionTitle(title: "视频"),
-          Obx(() => SwitchListTile(
-                title: const Text("后台播放"),
-                subtitle: const Text("当暂时切出APP时，允许后台播放"),
-                value: controller.enableBackgroundPlay.value,
-                activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.enableBackgroundPlay.value = value,
-              )),
-          Obx(() => SwitchListTile(
-                title: const Text("屏幕常亮"),
-                subtitle: const Text("当视频处于播放页，屏幕保持常亮"),
-                value: controller.enableScreenKeepOn.value,
-                activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.enableScreenKeepOn.value = value,
-              )),
-          Obx(() => SwitchListTile(
-                title: const Text("自动全屏"),
-                subtitle: const Text("当进入直播播放页，自动进入全屏"),
-                value: controller.enableFullScreenDefault.value,
-                activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.enableFullScreenDefault.value = value,
-              )),
-          ListTile(
-            title: const Text("首选清晰度"),
-            subtitle: const Text("当进入直播播放页，首选的视频清晰度"),
-            onTap: showPreferResolutionSelectorDialog,
-          ),
-          Obx(() => SwitchListTile(
-                title: const Text("自动检查更新"),
-                subtitle: const Text("在每次进入软件时，自动检查更新"),
-                value: controller.enableAutoCheckUpdate.value,
-                activeColor: Theme.of(context).colorScheme.primary,
-                onChanged: (bool value) => controller.enableAutoCheckUpdate.value = value,
-              )),
           ListTile(
             title: const Text("定时关闭时间"),
             subtitle: const Text("定时关闭app"),
@@ -172,29 +138,6 @@ class SettingsPage extends GetView<SettingsService> {
       context,
       actionsPadding: const EdgeInsets.all(16),
       constraints: const BoxConstraints(minHeight: 480, minWidth: 375, maxWidth: 420),
-    );
-  }
-
-  void showPreferResolutionSelectorDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          title: const Text("首选清晰度"),
-          children: SettingsService.resolutions.map<Widget>((name) {
-            return RadioListTile<String>(
-              activeColor: Theme.of(context).colorScheme.primary,
-              groupValue: controller.preferResolution.value,
-              value: name,
-              title: Text(name),
-              onChanged: (value) {
-                controller.changePreferResolution(value!);
-                Navigator.of(context).pop();
-              },
-            );
-          }).toList(),
-        );
-      },
     );
   }
 

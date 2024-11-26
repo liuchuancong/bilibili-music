@@ -1,8 +1,10 @@
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:ripple_wave/ripple_wave.dart';
 import 'package:marquee_list/marquee_list.dart';
 import 'package:bilibilimusic/common/index.dart';
+import 'package:bilibilimusic/core/bilibili_site.dart';
 import 'package:bilibilimusic/routes/app_navigation.dart';
 import 'package:bilibilimusic/play/blur_back_ground.dart';
 import 'package:bilibilimusic/services/audio_service.dart';
@@ -41,11 +43,6 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
         setState(() {});
       }
     });
-    audioController.lyricStatus.listen((p0) {
-      if (mounted) {
-        setState(() {});
-      }
-    });
     lyricModel = LyricsModelBuilder.create().bindLyricToMain(audioController.normalLyric.value).getModel();
     super.initState();
   }
@@ -70,6 +67,100 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
     audioController.showLyric.toggle();
   }
 
+  void showLyricDialog() {
+    showDialog(
+      context: Get.context!,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 8),
+                    child: Text('选择歌词', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      Navigator.of(Get.context!).pop();
+                    },
+                  )
+                ],
+              ),
+              const Divider(height: 1, color: Colors.black)
+            ],
+          ),
+          content: FutureBuilder<List<LyricResults>>(
+              future: BiliBiliSite().getSearchLyrics(audioController.currentMediaInfo.part),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  log(snapshot.toString(), name: 'lyric_dialog');
+                  if (snapshot.hasError || snapshot.data == null || snapshot.data!.isEmpty) {
+                    return SizedBox(
+                      height: 300,
+                      width: MediaQuery.of(context).size.width,
+                      child: const Center(
+                        child: Text('暂无歌词'),
+                      ),
+                    );
+                  }
+                  return SizedBox(
+                    height: 300,
+                    width: MediaQuery.of(context).size.width,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: snapshot.data!
+                            .map((e) => ListTile(
+                                  title: Text(
+                                    e.title.isNotEmpty ? e.title : audioController.currentMediaInfo.part,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    e.artist.isNotEmpty ? e.artist : '未知歌手',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    audioController.normalLyric.value = e.lyrics;
+                                    lyricModel = LyricsModelBuilder.create()
+                                        .bindLyricToMain(audioController.normalLyric.value)
+                                        .getModel();
+                                    setState(() {});
+                                    Navigator.of(context).pop();
+                                  },
+                                ))
+                            .toList(),
+                      ),
+                    ),
+                  );
+                } else {
+                  return SizedBox(
+                    height: 300,
+                    width: MediaQuery.of(context).size.width,
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 3,
+                      ),
+                    ),
+                  );
+                }
+              }),
+        );
+      },
+    );
+  }
+
   Widget _buildTopBar() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -90,18 +181,29 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
             ),
           ),
           Align(
-            alignment: Alignment.centerRight,
-            child: IconButton(
-              padding: const EdgeInsets.all(18.0),
-              onPressed: () {
-                AppNavigator.toLiveRoomDetail(mediaInfo: audioController.currentMediaInfo);
-              },
-              icon: const Icon(
-                Icons.slow_motion_video_sharp,
-                color: Colors.white,
-              ),
-            ),
-          ),
+              alignment: Alignment.centerRight,
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                IconButton(
+                  padding: const EdgeInsets.only(top: 18.0, bottom: 18.0, right: 18.0),
+                  onPressed: () {
+                    showLyricDialog();
+                  },
+                  icon: const Icon(
+                    Icons.lyrics_outlined,
+                    color: Colors.white,
+                  ),
+                ),
+                IconButton(
+                  padding: const EdgeInsets.only(top: 18.0, bottom: 18.0, right: 18.0),
+                  onPressed: () {
+                    AppNavigator.toLiveRoomDetail(mediaInfo: audioController.currentMediaInfo);
+                  },
+                  icon: const Icon(
+                    Icons.slow_motion_video_sharp,
+                    color: Colors.white,
+                  ),
+                ),
+              ])),
         ],
       ),
     );
@@ -337,7 +439,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
             size: 32,
             color: Colors.white,
           ),
-          onPressed: audioController.previous,
+          onPressed: audioController.showMenuMedias,
         ),
       ],
     );

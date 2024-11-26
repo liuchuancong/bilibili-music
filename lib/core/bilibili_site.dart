@@ -360,6 +360,21 @@ class BiliBiliSite {
     }
     return lyrics;
   }
+
+  Future<List<LyricResults>> getSearchLyrics(String bgmInfo) async {
+    List<dynamic> lyricResults = await HttpClient.instance.getJson("https://api.lrc.cx/jsonapi?title=$bgmInfo");
+    List<LyricResults> list = [];
+    for (var i = 0; i < lyricResults.length; i++) {
+      list.add(LyricResults(
+        album: lyricResults[i]['album'] ?? '',
+        id: lyricResults[i]['id'] ?? '',
+        artist: lyricResults[i]['artist'] ?? '',
+        lyrics: lyricResults[i]['lyrics'] ?? '',
+        title: lyricResults[i]['title'] ?? '',
+      ));
+    }
+    return list;
+  }
 }
 
 class VideoSaerchResult {
@@ -369,4 +384,24 @@ class VideoSaerchResult {
     required this.hasMore,
     required this.items,
   });
+}
+
+class LyricResults {
+  final String album;
+  final String id;
+  final String artist;
+  final String lyrics;
+  final String title;
+  LyricResults({
+    required this.album,
+    required this.id,
+    required this.artist,
+    required this.lyrics,
+    required this.title,
+  });
+
+  @override
+  String toString() {
+    return 'LyricResults{album: $album, id: $id, artist: $artist, lyrics: $lyrics, title: $title}';
+  }
 }

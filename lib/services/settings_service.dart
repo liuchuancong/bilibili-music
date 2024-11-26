@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:bilibilimusic/style/theme.dart';
@@ -370,7 +371,7 @@ class SettingsService extends GetxController {
     PrefUtil.setStringList('musicAlbum', musicAlbum.map((e) => jsonEncode(e.toJson())).toList());
   }
 
-  void deleteMusicFromAlbum(int? id, List<LiveMediaInfo> medias) {
+  List<LiveMediaInfo> deleteMusicFromAlbum(int? id, List<LiveMediaInfo> medias) {
     var album = musicAlbum.firstWhere((element) => element.id == id);
     var index = musicAlbum.indexWhere((element) => element.id == id);
     List<LiveMediaInfo> insertMedias = album.medias;
@@ -383,6 +384,7 @@ class SettingsService extends GetxController {
     }
     musicAlbum[index].medias = insertMedias;
     PrefUtil.setStringList('musicAlbum', musicAlbum.map((e) => jsonEncode(e.toJson())).toList());
+    return insertMedias;
   }
 
   bool isInMusicAlbum(BilibiliVideo video) {
@@ -404,6 +406,7 @@ class SettingsService extends GetxController {
       final json = toJson();
       file.writeAsStringSync(jsonEncode(json));
     } catch (e) {
+      log(e.toString(), name: 'SettingsService');
       return false;
     }
     return true;

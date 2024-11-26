@@ -38,7 +38,7 @@ class AudioController extends GetxController {
   final currentMusicPosition = const Duration(seconds: 0).obs;
   final normalLyric = ''.obs;
   final lyricStatus = LyricStatus.loading.obs;
-
+  final ScrollController _scrollController = ScrollController();
   final currentMusicInfo = {
     'album': '',
     'title': '',
@@ -251,9 +251,81 @@ class AudioController extends GetxController {
     }
   }
 
+  Future<void> showMenuMedias() async {
+    List<LiveMediaInfo> list = settingsService.currentMediaList.value;
+    Timer(const Duration(milliseconds: 500), () {
+      _scrollController.jumpTo(settingsService.currentMediaIndex.value * 32.0 - 200);
+    });
+
+    showDialog(
+        context: Get.context!,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 8),
+                      child: Text('正在播放', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        Navigator.of(Get.context!).pop();
+                      },
+                    )
+                  ],
+                ),
+                const Divider(height: 1, color: Colors.black)
+              ],
+            ),
+            content: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.8,
+              height: 400,
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: list
+                      .map((item) => InkWell(
+                            onTap: () {
+                              if (settingsService.currentMediaIndex.value == list.indexOf(item)) {
+                                SmartDialog.showToast("当前正在播放");
+                              } else {
+                                settingsService.currentMediaIndex.value = list.indexOf(item);
+                                startPlay(item);
+                              }
+                              Navigator.of(Get.context!).pop();
+                            },
+                            child: SizedBox(
+                              width: double.infinity,
+                              height: 32,
+                              child: Text(item.part,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: settingsService.isCurrentMediia(item)
+                                          ? Theme.of(context).colorScheme.primary
+                                          : Colors.black)),
+                            ),
+                          ))
+                      .toList(),
+                ),
+              ),
+            ),
+          );
+        });
+  }
+
   @override
   void onClose() {
     _audioPlayer.dispose();
+    _scrollController.dispose(); // 避免内存泄漏
     super.onClose();
   }
 

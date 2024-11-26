@@ -83,6 +83,11 @@ class LiveMediaInfo {
       'bvid': bvid,
     };
   }
+
+  @override
+  String toString() {
+    return 'LiveMediaInfo{aid: $aid, videos: $videos, pubdate: $pubdate, favorite: $favorite, cid: $cid, page: $page, from: $from, part: $part, duration: $duration, vid: $vid, weblink: $weblink, firstFrame: $firstFrame, tname: $tname, pic: $pic, title: $title, face: $face, name: $name, bvid: $bvid}';
+  }
 }
 
 class LiveMediaInfoData {

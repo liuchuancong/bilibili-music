@@ -95,9 +95,9 @@ class FileRecoverUtils {
 
     final file = File(result.files.single.path!);
     if (settings.recover(file)) {
-      SnackBarUtil.success("创建备份成功");
+      SnackBarUtil.success("恢复备份成功");
     } else {
-      SnackBarUtil.error("创建备份失败");
+      SnackBarUtil.error("恢复备份失败");
     }
   }
 
