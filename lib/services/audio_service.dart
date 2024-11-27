@@ -40,6 +40,8 @@ class AudioController extends GetxController {
   final normalLyric = ''.obs;
   final lyricStatus = LyricStatus.loading.obs;
   final ScrollController _scrollController = ScrollController();
+
+  bool hasloaded = false;
   final currentMusicInfo = {
     'album': '',
     'title': '',
@@ -55,6 +57,10 @@ class AudioController extends GetxController {
     _audioPlayer.positionStream.listen((position) {
       // 监听播放进度
       currentMusicPosition.value = position;
+      if (hasloaded) {
+        settingsService.currentMusicPosition.value = position.inSeconds;
+      }
+      developer.log(position.inSeconds.toString(), name: 'audioPlayerPosition');
     });
 
     _audioPlayer.durationStream.listen((duration) {
@@ -77,9 +83,11 @@ class AudioController extends GetxController {
 
     if (playlist.isNotEmpty) {
       developer.log(playlist[currentIndex].toJson().toString(), name: 'playlist');
-      Timer(const Duration(seconds: 2), () {
-        startPlay(playlist[currentIndex]);
-      });
+      if (settingsService.enableAutoPlay.value) {
+        Timer(const Duration(seconds: 2), () {
+          startPlay(playlist[currentIndex], isFirstLoad: true);
+        });
+      }
     }
   }
 
@@ -97,7 +105,7 @@ class AudioController extends GetxController {
     isFavorite.toggle();
   }
 
-  Future<void> startPlay(LiveMediaInfo mediaInfo, {bool isAutoPlay = true}) async {
+  Future<void> startPlay(LiveMediaInfo mediaInfo, {bool isAutoPlay = true, bool isFirstLoad = false}) async {
     isFavorite.value = settingsService.isInFavoriteMusic(mediaInfo);
     lyricStatus.value = LyricStatus.loading;
     normalLyric.value = '';
@@ -127,8 +135,12 @@ class AudioController extends GetxController {
         await retryStartPlay(mediaInfo);
       }
       if (isAutoPlay) {
-        Timer(const Duration(seconds: 1), () {
-          _audioPlayer.play();
+        Timer(const Duration(seconds: 1), () async {
+          await _audioPlayer.play();
+          if (isFirstLoad) {
+            hasloaded = true;
+            await _audioPlayer.seek(Duration(seconds: settingsService.currentMusicPosition.value));
+          }
         });
       }
     } catch (_) {

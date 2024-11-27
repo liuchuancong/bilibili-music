@@ -44,12 +44,8 @@ class SettingsService extends GetxController {
       PrefUtil.setString('webKeys', value);
     });
 
-    enableBackgroundPlay.listen((value) {
-      PrefUtil.setBool('enableBackgroundPlay', value);
-    });
-
-    enableScreenKeepOn.listen((value) {
-      PrefUtil.setBool('enableScreenKeepOn', value);
+    enableAutoPlay.listen((value) {
+      PrefUtil.setBool('enableAutoPlay', value);
     });
     enableFullScreenDefault.listen((value) {
       PrefUtil.setBool('enableFullScreenDefault', value);
@@ -88,8 +84,8 @@ class SettingsService extends GetxController {
       PrefUtil.setBool('enableAutoCheckUpdate', value);
     });
 
-    historyRooms.listen((rooms) {
-      PrefUtil.setStringList('historyRooms', historyRooms.map<String>((e) => jsonEncode(e.toJson())).toList());
+    musicAlbum.listen((value) {
+      PrefUtil.setStringList('musicAlbum', value.map((e) => jsonEncode(e.toJson())).toList());
     });
 
     currentMediaList.listen((List<LiveMediaInfo> medias) {
@@ -98,6 +94,10 @@ class SettingsService extends GetxController {
 
     currentMediaIndex.listen((index) {
       PrefUtil.setInt('currentMediaIndex', index);
+    });
+
+    currentMusicPosition.listen((value) {
+      PrefUtil.setInt('currentMusicPosition', value);
     });
 
     initFavoriteMusic();
@@ -160,19 +160,13 @@ class SettingsService extends GetxController {
 
   final enableAutoCheckUpdate = (PrefUtil.getBool('enableAutoCheckUpdate') ?? true).obs;
 
-  final enableBackgroundPlay = (PrefUtil.getBool('enableBackgroundPlay') ?? false).obs;
-
-  final enableScreenKeepOn = (PrefUtil.getBool('enableScreenKeepOn') ?? true).obs;
+  final enableAutoPlay = (PrefUtil.getBool('enableAutoPlay') ?? true).obs;
 
   final enableFullScreenDefault = (PrefUtil.getBool('enableFullScreenDefault') ?? false).obs;
 
   final enableAutoShutDownTime = (PrefUtil.getBool('enableAutoShutDownTime') ?? false).obs;
 
   final autoShutDownTime = (PrefUtil.getInt('autoShutDownTime') ?? 120).obs;
-
-  final historyRooms =
-      ((PrefUtil.getStringList('historyRooms') ?? []).map((e) => BilibiliVideo.fromJson(jsonDecode(e))).toList()).obs;
-  // cookie
 
   final bilibiliCookie = (PrefUtil.getString('bilibiliCookie') ?? '').obs;
 
@@ -205,6 +199,13 @@ class SettingsService extends GetxController {
   // 当前媒体播放列表
   var currentMediaIndex = (PrefUtil.getInt('currentMediaIndex') ?? 0).obs;
 
+  var currentMusicPosition = (PrefUtil.getInt('currentMusicPosition') ?? 0).obs;
+
+  void setCurrentMusicPosition(int position) {
+    currentMusicPosition.value = position;
+    PrefUtil.setInt('currentMusicPosition', position);
+  }
+
   void setCurrentMediaIndex(int index) {
     currentMediaIndex.value = index;
   }
@@ -221,60 +222,6 @@ class SettingsService extends GetxController {
   Future<void> startPlayVideoAtIndex(int index, List<LiveMediaInfo> currentPlaylist) async {
     currentMediaList.assignAll(currentPlaylist);
     currentMediaIndex.value = index;
-  }
-
-  final videoAlbum =
-      ((PrefUtil.getStringList('videoAlbum') ?? []).map((e) => BilibiliVideo.fromJson(jsonDecode(e))).toList()).obs;
-
-  void addVideoAlbum(BilibiliVideo video, List<LiveMediaInfo> medias) {
-    if (!videoAlbum.any((element) => element.id == video.id)) {
-      video.medias = medias;
-      videoAlbum.add(video);
-    }
-    PrefUtil.setStringList('videoAlbum', videoAlbum.map((e) => jsonEncode(e.toJson())).toList());
-  }
-
-  void moveVideoToTop(BilibiliVideo video) {
-    if (videoAlbum.any((element) => element.id == video.id)) {
-      videoAlbum.removeWhere((element) => element.id == video.id);
-      videoAlbum.insert(0, video);
-      PrefUtil.setStringList('videoAlbum', videoAlbum.map((e) => jsonEncode(e.toJson())).toList());
-    }
-  }
-
-  void editVideoAlbum(BilibiliVideo video) {
-    if (videoAlbum.any((element) => element.id == video.id)) {
-      final itemIndex = videoAlbum.indexWhere((item) => item.id == video.id);
-      videoAlbum[itemIndex].title = video.title;
-      if (video.author!.isNotEmpty) {
-        videoAlbum[itemIndex].author = video.author;
-      }
-      videoAlbum.value = List.from(videoAlbum);
-      PrefUtil.setStringList('videoAlbum', videoAlbum.map((e) => jsonEncode(e.toJson())).toList());
-      update();
-    }
-  }
-
-  void removeVideoAlbum(BilibiliVideo video) {
-    if (isExistVideoAlbum(video)) {
-      videoAlbum.remove(video);
-      PrefUtil.setStringList('videoAlbum', videoAlbum.map((e) => jsonEncode(e.toJson())).toList());
-    }
-  }
-
-  void toggleCollectVideo(BilibiliVideo video, List<LiveMediaInfo> medias) {
-    if (!isExistVideoAlbum(video)) {
-      video.medias = medias;
-      videoAlbum.add(video);
-      PrefUtil.setStringList('videoAlbum', videoAlbum.map((e) => jsonEncode(e.toJson())).toList());
-    } else {
-      videoAlbum.removeWhere((element) => element.id == video.id);
-      PrefUtil.setStringList('videoAlbum', videoAlbum.map((e) => jsonEncode(e.toJson())).toList());
-    }
-  }
-
-  bool isExistVideoAlbum(BilibiliVideo video) {
-    return videoAlbum.any((element) => element.id == video.id);
   }
 
   LiveMediaInfo getNextVideoInfo() {
@@ -499,19 +446,20 @@ class SettingsService extends GetxController {
     themeModeName.value = json['themeMode'] ?? "System";
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
     themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
-    enableBackgroundPlay.value = json['enableBackgroundPlay'] ?? false;
-    enableScreenKeepOn.value = json['enableScreenKeepOn'] ?? true;
+    enableAutoPlay.value = json['enableAutoPlay'] ?? true;
     enableAutoCheckUpdate.value = json['enableAutoCheckUpdate'] ?? true;
     enableFullScreenDefault.value = json['enableFullScreenDefault'] ?? false;
     autoShutDownTime.value = json['autoShutDownTime'] ?? 120;
     enableAutoShutDownTime.value = json['enableAutoShutDownTime'] ?? false;
     preferResolution.value = json['preferResolution'] ?? resolutions[0];
-    videoAlbum.value = (json['videoAlbum'] ?? []).map((e) => BilibiliVideo.fromJson(jsonDecode(e))).toList();
-    historyRooms.value = (json['historyRooms'] ?? []).map((e) => BilibiliVideo.fromJson(jsonDecode(e))).toList();
     device.value = json['device'] ?? 'phone';
     webKeyTimeStamp.value = json['webKeyTimeStamp'] ?? 0;
     webKeys.value = json['webKeys'] ?? '';
-
+    musicAlbum.value = (json['musicAlbum'] ?? []).map((e) => BilibiliVideo.fromJson(jsonDecode(e))).toList();
+    currentMediaList.value =
+        (json['currentMediaList'] ?? []).map((e) => LiveMediaInfo.fromJson(jsonDecode(e))).toList();
+    currentMediaIndex.value = json['currentMediaIndex'] ?? 0;
+    currentMusicPosition.value = json['currentMusicPosition'] ?? 0;
     changeThemeMode(themeModeName.value);
     changeThemeColorSwitch(themeColorSwitch.value);
     changePreferResolution(preferResolution.value);
@@ -521,13 +469,10 @@ class SettingsService extends GetxController {
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
-    json['videoAlbum'] = videoAlbum.map<String>((e) => jsonEncode(e.toJson())).toList();
-    json['historyRooms'] = historyRooms.map<String>((e) => jsonEncode(e.toJson())).toList();
     json['themeMode'] = themeModeName.value;
     json['autoShutDownTime'] = autoShutDownTime.value;
     json['enableAutoShutDownTime'] = enableAutoShutDownTime.value;
-    json['enableBackgroundPlay'] = enableBackgroundPlay.value;
-    json['enableScreenKeepOn'] = enableScreenKeepOn.value;
+    json['enableAutoPlay'] = enableAutoPlay.value;
     json['enableAutoCheckUpdate'] = enableAutoCheckUpdate.value;
     json['enableFullScreenDefault'] = enableFullScreenDefault.value;
     json['preferResolution'] = preferResolution.value;
@@ -536,7 +481,10 @@ class SettingsService extends GetxController {
     json['device'] = device.value;
     json['webKeyTimeStamp'] = webKeyTimeStamp.value;
     json['webKeys'] = webKeys.value;
-
+    json['musicAlbum'] = musicAlbum.map((e) => jsonEncode(e.toJson())).toList();
+    json['currentMediaList'] = currentMediaList.map((e) => jsonEncode(e.toJson())).toList();
+    json['currentMediaIndex'] = currentMediaIndex.value;
+    json['currentMusicPosition'] = currentMusicPosition.value;
     return json;
   }
 }

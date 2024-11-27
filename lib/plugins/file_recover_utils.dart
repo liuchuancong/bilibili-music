@@ -70,7 +70,7 @@ class FileRecoverUtils {
       DateTime.now(),
       [yyyy, '-', mm, '-', dd, 'T', HH, '_', nn, '_', ss],
     );
-    final file = File('$selectedDirectory/purelive_$dateStr.txt');
+    final file = File('$selectedDirectory/bilibilimusic_backup_$dateStr.txt');
     if (settings.backup(file)) {
       SnackBarUtil.success("创建备份成功");
       // 首次同步备份目录
