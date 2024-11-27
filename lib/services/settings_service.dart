@@ -100,6 +100,10 @@ class SettingsService extends GetxController {
       PrefUtil.setInt('currentMusicPosition', value);
     });
 
+    currentMusicDuration.listen((value) {
+      PrefUtil.setInt('currentMusicDuration', value);
+    });
+
     initFavoriteMusic();
   }
 
@@ -200,6 +204,13 @@ class SettingsService extends GetxController {
   var currentMediaIndex = (PrefUtil.getInt('currentMediaIndex') ?? 0).obs;
 
   var currentMusicPosition = (PrefUtil.getInt('currentMusicPosition') ?? 0).obs;
+
+  var currentMusicDuration = (PrefUtil.getInt('currentMusicDuration') ?? 0).obs;
+
+  void setCurrentMusicDuration(int duration) {
+    currentMusicDuration.value = duration;
+    PrefUtil.setInt('currentMusicDuration', duration);
+  }
 
   void setCurrentMusicPosition(int position) {
     currentMusicPosition.value = position;
@@ -460,6 +471,7 @@ class SettingsService extends GetxController {
         (json['currentMediaList'] ?? []).map((e) => LiveMediaInfo.fromJson(jsonDecode(e))).toList();
     currentMediaIndex.value = json['currentMediaIndex'] ?? 0;
     currentMusicPosition.value = json['currentMusicPosition'] ?? 0;
+    currentMusicDuration.value = json['currentMusicDuration'] ?? 0;
     changeThemeMode(themeModeName.value);
     changeThemeColorSwitch(themeColorSwitch.value);
     changePreferResolution(preferResolution.value);
@@ -485,6 +497,7 @@ class SettingsService extends GetxController {
     json['currentMediaList'] = currentMediaList.map((e) => jsonEncode(e.toJson())).toList();
     json['currentMediaIndex'] = currentMediaIndex.value;
     json['currentMusicPosition'] = currentMusicPosition.value;
+    json['currentMusicDuration'] = currentMusicDuration.value;
     return json;
   }
 }

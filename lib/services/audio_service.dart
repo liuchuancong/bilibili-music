@@ -67,6 +67,7 @@ class AudioController extends GetxController {
       // 监听总时长
       if (duration != null) {
         currentMusicDuration.value = duration;
+        settingsService.currentMusicDuration.value = duration.inSeconds;
       }
     });
 
@@ -83,11 +84,9 @@ class AudioController extends GetxController {
 
     if (playlist.isNotEmpty) {
       developer.log(playlist[currentIndex].toJson().toString(), name: 'playlist');
-      if (settingsService.enableAutoPlay.value) {
-        Timer(const Duration(seconds: 2), () {
-          startPlay(playlist[currentIndex], isFirstLoad: true);
-        });
-      }
+      Timer(const Duration(seconds: 2), () {
+        startPlay(playlist[currentIndex], isFirstLoad: true, isAutoPlay: settingsService.enableAutoPlay.value);
+      });
     }
   }
 
@@ -137,6 +136,13 @@ class AudioController extends GetxController {
       if (isAutoPlay) {
         Timer(const Duration(seconds: 1), () async {
           await _audioPlayer.play();
+          if (isFirstLoad) {
+            hasloaded = true;
+            await _audioPlayer.seek(Duration(seconds: settingsService.currentMusicPosition.value));
+          }
+        });
+      } else {
+        Timer(const Duration(seconds: 1), () async {
           if (isFirstLoad) {
             hasloaded = true;
             await _audioPlayer.seek(Duration(seconds: settingsService.currentMusicPosition.value));
