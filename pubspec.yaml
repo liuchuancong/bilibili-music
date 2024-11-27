@@ -99,6 +99,8 @@ dependencies:
   font_awesome_flutter: ^10.7.0
   uuid: ^4.4.2
   ripple_wave: ^0.1.4
+  server_nano_nano: 1.0.2
+  network_info_plus: ^6.1.0
 dependency_overrides: 
   media_kit:
     git:

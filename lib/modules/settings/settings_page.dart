@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import 'package:bilibilimusic/style/theme.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/services/index.dart';
+import 'package:bilibilimusic/routes/route_path.dart';
+import 'package:bilibilimusic/plugins/local_http.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:bilibilimusic/widgets/section_listtile.dart';
 import 'package:bilibilimusic/modules/backup/backup_page.dart';
@@ -59,9 +61,15 @@ class SettingsPage extends GetView<SettingsService> {
           ),
           const SectionTitle(title: "备份与恢复"),
           ListTile(
+            leading: const Icon(Icons.sync_rounded, size: 32),
+            title: const Text("数据同步"),
+            onTap: () {
+              showImportSetDialog();
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.backup_rounded, size: 32),
             title: const Text("备份与恢复"),
-            subtitle: const Text("创建备份与恢复"),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const BackupPage()),
@@ -148,6 +156,85 @@ class SettingsPage extends GetView<SettingsService> {
       context,
       actionsPadding: const EdgeInsets.all(16),
       constraints: const BoxConstraints(minHeight: 480, minWidth: 375, maxWidth: 420),
+    );
+  }
+
+  Future<String?> showEditTextDialog() async {
+    final TextEditingController urlEditingController = TextEditingController();
+    urlEditingController.text = 'http://192.168.';
+    var result = await Get.dialog(
+        AlertDialog(
+          title: const Text('请输入同步地址'),
+          content: SizedBox(
+            width: 400.0,
+            height: 100.0,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Column(
+                children: [
+                  TextField(
+                    controller: urlEditingController,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      //prefixText: title,
+                      contentPadding: EdgeInsets.all(12),
+                      hintText: '同步地址:格式http://ip:port',
+                    ),
+                    autofocus: true,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(Get.context!).pop();
+              },
+              child: const Text("取消"),
+            ),
+            TextButton(
+              onPressed: () async {
+                if (urlEditingController.text.isEmpty) {
+                  SmartDialog.showToast('请输入下载链接');
+                  return;
+                }
+                LocalHttpServer().importSyncData(urlEditingController.text);
+                Navigator.of(Get.context!).pop();
+              },
+              child: const Text("确定"),
+            ),
+          ],
+        ),
+        barrierDismissible: false);
+    return result;
+  }
+
+  void showImportSetDialog() {
+    List<String> list = ["导入数据", "导出数据"];
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: const Text('数据同步'),
+          children: list.map<Widget>((name) {
+            return RadioListTile<String>(
+              activeColor: Theme.of(context).colorScheme.primary,
+              groupValue: '',
+              value: name,
+              title: Text(name),
+              onChanged: (value) {
+                Navigator.of(context).pop();
+                if (value == "导入数据") {
+                  showEditTextDialog();
+                } else if (value == "导出数据") {
+                  Get.toNamed(RoutePath.kSync);
+                }
+              },
+            );
+          }).toList(),
+        );
+      },
     );
   }
 

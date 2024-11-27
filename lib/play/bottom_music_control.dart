@@ -46,7 +46,9 @@ class BottomMusicControl extends GetWidget<AudioController> {
                       leading: controller.playlist.isNotEmpty
                           ? CircleAvatar(
                               child: ClipOval(
-                                child: CachedNetworkImage(imageUrl: controller.playlist[controller.currentIndex].face),
+                                child: Obx(() => controller.currentMusicInfo.value['cover']!.isNotEmpty
+                                    ? CachedNetworkImage(imageUrl: controller.currentMusicInfo.value['cover']!)
+                                    : CachedNetworkImage(imageUrl: controller.playlist[controller.currentIndex].face)),
                               ),
                             )
                           : const Icon(

@@ -2,7 +2,9 @@ import 'route_path.dart';
 import 'package:get/get.dart';
 import 'package:bilibilimusic/play/music_page.dart';
 import 'package:bilibilimusic/modules/home/home.dart';
+import 'package:bilibilimusic/modules/sync/sync_page.dart';
 import 'package:bilibilimusic/modules/home/home_bing.dart';
+import 'package:bilibilimusic/modules/sync/sync_binding.dart';
 import 'package:bilibilimusic/modules/playlist/playlist.dart';
 import 'package:bilibilimusic/modules/search/search_page.dart';
 import 'package:bilibilimusic/modules/account/account_bing.dart';
@@ -77,6 +79,13 @@ class AppPages {
       name: RoutePath.kmusicPage,
       preventDuplicates: true,
       page: MusicPage.new,
+    ),
+    GetPage(
+      name: RoutePath.kSync,
+      page: () => const SyncPage(),
+      bindings: [
+        SyncBinding(),
+      ],
     ),
   ];
 }
