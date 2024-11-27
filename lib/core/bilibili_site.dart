@@ -262,7 +262,6 @@ class BiliBiliSite {
       queryParameters: sign,
       header: header,
     );
-    log(result.toString(), name: 'getAudioLyric');
     if (result["code"] == 0) {
       if (result["data"]["bgm_info"] != null && result["data"]["bgm_info"]["music_id"] != null) {
         return await getMusicInfo(result["data"]["bgm_info"]['music_id']);
@@ -334,12 +333,15 @@ class BiliBiliSite {
 
   Future<String> getLyrics(String title, String author) async {
     var lyrics = await HttpClient.instance.getFile("https://api.lrc.cx/lyrics?title=$title&artist=$author");
-    String lrcText = utf8.decode(lyrics.data);
-    var lines = lrcText.split("\n");
-    if (lines.length < 10) {
-      return await getOtherLyrics(title, author);
+    if (lyrics.statusCode == 200) {
+      String lrcText = utf8.decode(lyrics.data);
+      var lines = lrcText.split("\n");
+      if (lines.length < 10) {
+        return await getOtherLyrics(title, author);
+      }
+      return lrcText;
     }
-    return lrcText;
+    return "";
   }
 
   Future<String> getBilibiliLyrics(String url) async {

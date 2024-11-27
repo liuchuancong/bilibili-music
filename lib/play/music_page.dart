@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
@@ -28,6 +29,8 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
 
   late Animation animation;
 
+  bool hasDisposed = false;
+
   final AudioController audioController = Get.find<AudioController>();
   late LyricsReaderModel lyricModel;
   var lyricUI = UINetease();
@@ -39,6 +42,15 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
       vsync: this,
     )..repeat();
     lyricModel = LyricsModelBuilder.create().bindLyricToMain(audioController.normalLyric.value).getModel();
+
+    audioController.normalLyric.addListener(() {
+      Timer(const Duration(milliseconds: 500), () {
+        setState(() {
+          lyricModel = LyricsModelBuilder.create().bindLyricToMain(audioController.normalLyric.value).getModel();
+        });
+      });
+    });
+
     super.initState();
   }
 
@@ -54,7 +66,10 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
 
   @override
   void dispose() {
-    waveController.dispose();
+    if (!hasDisposed) {
+      hasDisposed = true;
+      waveController.dispose();
+    }
     super.dispose();
   }
 

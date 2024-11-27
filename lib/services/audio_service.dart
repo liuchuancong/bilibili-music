@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'dart:async';
 import 'package:get/get.dart';
@@ -138,6 +139,7 @@ class AudioController extends GetxController {
             videoInfoData.url,
             initialPosition:
                 isMusicFirstLoad.value ? Duration(seconds: settingsService.currentMusicPosition.value) : Duration.zero,
+            headers: Platform.isAndroid ? getHeaders(mediaInfo) : null,
           );
           tryTimes = 0; // 重置重试计数器
           isMusicFirstLoad.value = false;
@@ -185,9 +187,21 @@ class AudioController extends GetxController {
       Map<String, dynamic> lyric = await BiliBiliSite().getAudioLyric(mediaInfo.aid, mediaInfo.cid, mediaInfo.bvid);
       String title = lyric['title'] ?? mediaInfo.part;
       String author = lyric['author'] ?? '';
-      developer.log(lyric.toString(), name: 'lyric');
 
+      // 定义正则表达式，用于匹配整个结构
+      String pattern = r'\([^)]*\)|（[^）]*）';
+      final regex = RegExp(pattern, dotAll: true);
+
+      title = title.replaceAll(regex, '');
+      title = title.replaceAll(RegExp(r'$[^)]*$'), '').replaceAll(RegExp(r'\s*$[^)]*$\s*'), '');
       String lyricContent = await BiliBiliSite().getLyrics(title, author);
+      developer.log(lyric.toString(), name: 'getAudioLyric');
+      // 匹配歌词的正则表达式
+      if (lyricContent.isEmpty) {
+        if (lyric['lyric'] != null) {
+          lyricContent = await BiliBiliSite().getBilibiliLyrics(lyric['lyric']);
+        }
+      }
       currentMusicInfo.value = {
         'album': lyric['album'] ?? '',
         'title': title,
@@ -195,8 +209,15 @@ class AudioController extends GetxController {
         'cover': lyric['cover'] ?? '',
         'lyric': lyricContent,
       };
-      lyricStatus.value = LyricStatus.loadSuccess;
-      normalLyric.value = lyricContent;
+      if (currentMediaInfo.aid == mediaInfo.aid &&
+          currentMediaInfo.cid == mediaInfo.cid &&
+          currentMediaInfo.bvid == mediaInfo.bvid) {
+        lyricStatus.value = LyricStatus.loadSuccess;
+        normalLyric.value = lyricContent;
+      } else {
+        lyricStatus.value = LyricStatus.loadSuccess;
+        normalLyric.value = '';
+      }
     } catch (_) {
       lyricStatus.value = LyricStatus.loadFailed;
       normalLyric.value = '';
@@ -260,8 +281,8 @@ class AudioController extends GetxController {
           newIndex = Random().nextInt(settingsService.currentMediaList.length);
           break;
       }
+      await startPlay(settingsService.currentMediaList[newIndex]);
       settingsService.currentMediaIndex.value = newIndex;
-      await startPlay(settingsService.currentMediaList[settingsService.currentMediaIndex.value]);
     }
   }
 
@@ -287,8 +308,8 @@ class AudioController extends GetxController {
           newIndex = Random().nextInt(settingsService.currentMediaList.length);
           break;
       }
+      await startPlay(settingsService.currentMediaList[newIndex]);
       settingsService.currentMediaIndex.value = newIndex;
-      await startPlay(settingsService.currentMediaList[settingsService.currentMediaIndex.value]);
     }
   }
 
@@ -336,7 +357,9 @@ class AudioController extends GetxController {
                               if (settingsService.currentMediaIndex.value == list.indexOf(item)) {
                                 SmartDialog.showToast("当前正在播放");
                               } else {
-                                settingsService.currentMediaIndex.value = list.indexOf(item);
+                                int currentIndex = settingsService.currentMediaList.indexWhere((element) =>
+                                    element.aid == item.aid && element.cid == item.cid && element.bvid == item.bvid);
+                                settingsService.currentMediaIndex.value = currentIndex;
                                 startPlay(item);
                               }
                               Navigator.of(Get.context!).pop();
