@@ -21,7 +21,7 @@ void main(List<String> args) async {
   if (Platform.isWindows) {
     await WindowsSingleInstance.ensureSingleInstance(args, "bilibili_music_live_instance_checker");
     await windowManager.ensureInitialized();
-    WindowOptions windowOptions = const WindowOptions(size: Size(400, 720), center: false);
+    WindowOptions windowOptions = const WindowOptions(size: Size(480, 820), center: false);
     windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
       await windowManager.focus();
@@ -101,19 +101,19 @@ class _MyAppState extends State<MyApp> with WindowListener {
         context: Get.context!,
         builder: (_) {
           return AlertDialog(
-            title: const Text('确定关闭此应用吗?'),
+            title: const Text('确定关闭此应用吗?', style: TextStyle(fontSize: 16)),
             actions: [
               TextButton(
-                child: const Text('确定'),
+                child: const Text('确定', style: TextStyle(fontSize: 14)),
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.of(Get.context!).pop();
+                  windowManager.destroy();
                 },
               ),
               TextButton(
-                child: const Text('取消'),
+                child: const Text('取消', style: TextStyle(fontSize: 14)),
                 onPressed: () {
-                  Navigator.of(context).pop();
-                  windowManager.destroy();
+                  Navigator.of(Get.context!).pop();
                 },
               ),
             ],
