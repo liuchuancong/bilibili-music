@@ -98,7 +98,8 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
             ],
           ),
           content: FutureBuilder<List<LyricResults>>(
-              future: BiliBiliSite().getSearchLyrics(audioController.currentMediaInfo.part),
+              future: BiliBiliSite().getSearchLyrics(
+                  audioController.currentMusicInfo.value['title']!, audioController.currentMusicInfo.value['author']!),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
                   log(snapshot.toString(), name: 'lyric_dialog');

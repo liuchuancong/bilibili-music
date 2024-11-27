@@ -153,7 +153,6 @@ class BiliBiliSite {
       },
       header: header,
     );
-
     if (result["code"] == 0) {
       List<int> acceptQuality = [];
       for (var item in result["data"]["accept_quality"]) {
@@ -217,6 +216,8 @@ class BiliBiliSite {
           baseUrl = audio.last["baseUrl"];
         }
       }
+
+      getAudioLyric(avid, cid, bvid);
       log(baseUrl, name: 'baseUrl');
       return LiveMediaInfoData(
         url: baseUrl,
@@ -315,7 +316,7 @@ class BiliBiliSite {
       queryParameters: sign,
       header: header,
     );
-
+    log(result.toString(), name: 'getMusicInfo');
     if (result["code"] == 0) {
       return {
         'album': result['data']['album'],
@@ -334,12 +335,12 @@ class BiliBiliSite {
     };
   }
 
-  Future<String> getLyrics(String bgmInfo) async {
-    var lyrics = await HttpClient.instance.getFile("https://api.lrc.cx/lyrics?title=$bgmInfo");
+  Future<String> getLyrics(String title, String author) async {
+    var lyrics = await HttpClient.instance.getFile("https://api.lrc.cx/lyrics?title=$title&artist=$author");
     String lrcText = utf8.decode(lyrics.data);
     var lines = lrcText.split("\n");
     if (lines.length < 10) {
-      return await getOtherLyrics(bgmInfo);
+      return await getOtherLyrics(title, author);
     }
     return lrcText;
   }
@@ -349,8 +350,9 @@ class BiliBiliSite {
     return utf8.decode(lyrics.data);
   }
 
-  Future<String> getOtherLyrics(String bgmInfo) async {
-    List<dynamic> lyricResults = await HttpClient.instance.getJson("https://api.lrc.cx/jsonapi?title=$bgmInfo");
+  Future<String> getOtherLyrics(String title, String author) async {
+    List<dynamic> lyricResults =
+        await HttpClient.instance.getJson("https://api.lrc.cx/jsonapi?title=$title&artist=$author");
     var lyrics = '';
     for (var i = 0; i < lyricResults.length; i++) {
       if (lyricResults[i]['lyrics'].toString().split("\n").length > 10) {
@@ -361,8 +363,9 @@ class BiliBiliSite {
     return lyrics;
   }
 
-  Future<List<LyricResults>> getSearchLyrics(String bgmInfo) async {
-    List<dynamic> lyricResults = await HttpClient.instance.getJson("https://api.lrc.cx/jsonapi?title=$bgmInfo");
+  Future<List<LyricResults>> getSearchLyrics(String title, String author) async {
+    List<dynamic> lyricResults =
+        await HttpClient.instance.getJson("https://api.lrc.cx/jsonapi?title=$title&artist=$author");
     List<LyricResults> list = [];
     for (var i = 0; i < lyricResults.length; i++) {
       list.add(LyricResults(

@@ -77,13 +77,6 @@ class AudioController extends GetxController {
 
     if (playlist.isNotEmpty) {
       developer.log(playlist[currentIndex].toJson().toString(), name: 'playlist');
-      currentMusicInfo.value = {
-        'album': '',
-        'title': playlist[currentIndex].part,
-        'author': playlist[currentIndex].name,
-        'cover': playlist[currentIndex].pic,
-        'lyric': '',
-      };
       Timer(const Duration(seconds: 2), () {
         startPlay(playlist[currentIndex]);
       });
@@ -167,14 +160,25 @@ class AudioController extends GetxController {
     lyricStatus.value = LyricStatus.loading;
     normalLyric.value = '';
     try {
-      String lyric = await BiliBiliSite().getLyrics(mediaInfo.part);
+      Map<String, dynamic> lyric = await BiliBiliSite().getAudioLyric(mediaInfo.aid, mediaInfo.cid, mediaInfo.bvid);
+      String title = lyric['title'] ?? mediaInfo.part;
+      String author = lyric['author'] ?? '';
+      developer.log(lyric.toString(), name: 'lyric');
+
+      String lyricContent = await BiliBiliSite().getLyrics(title, author);
+      currentMusicInfo.value = {
+        'album': lyric['album'] ?? '',
+        'title': title,
+        'author': author,
+        'cover': lyric['cover'] ?? '',
+        'lyric': lyricContent,
+      };
       lyricStatus.value = LyricStatus.loadSuccess;
-      normalLyric.value = lyric;
+      normalLyric.value = lyricContent;
     } catch (_) {
       lyricStatus.value = LyricStatus.loadFailed;
       normalLyric.value = '';
     }
-    developer.log(normalLyric.toString(), name: 'lyric');
   }
 
   Map<String, String> getHeaders(LiveMediaInfo mediaInfo) {
