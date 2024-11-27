@@ -1,20 +1,32 @@
+import 'dart:io';
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:bilibilimusic/style/theme.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:audio_service/audio_service.dart';
+import 'package:window_manager/window_manager.dart';
 import 'package:bilibilimusic/routes/app_pages.dart';
 import 'package:bilibilimusic/routes/route_path.dart';
 import 'package:bilibilimusic/services/audio_service.dart';
 import 'package:bilibilimusic/services/audio_background.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
 import 'package:bilibilimusic/services/bilibili_account_service.dart';
+import 'package:windows_single_instance/windows_single_instance.dart';
 
-void main() async {
+void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   MediaKit.ensureInitialized();
   PrefUtil.prefs = await SharedPreferences.getInstance();
   // 初始化服务
+  if (Platform.isWindows) {
+    await WindowsSingleInstance.ensureSingleInstance(args, "bilibili_music_live_instance_checker");
+    await windowManager.ensureInitialized();
+    WindowOptions windowOptions = const WindowOptions(size: Size(400, 720), center: false);
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
+    });
+  }
   initService();
   await AudioService.init(
     builder: () => AudioPlayerHandler(),
@@ -64,8 +76,65 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with WindowListener {
   final settings = Get.find<SettingsService>();
+
+  @override
+  void initState() {
+    super.initState();
+    if (Platform.isWindows) {
+      windowManager.addListener(this);
+      _init();
+    }
+  }
+
+  @override
+  void onWindowFocus() {
+    setState(() {});
+  }
+
+  @override
+  void onWindowClose() async {
+    bool isPreventClose = await windowManager.isPreventClose();
+    if (isPreventClose) {
+      showDialog(
+        context: Get.context!,
+        builder: (_) {
+          return AlertDialog(
+            title: const Text('确定关闭此应用吗?'),
+            actions: [
+              TextButton(
+                child: const Text('确定'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: const Text('取消'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  windowManager.destroy();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  void _init() async {
+    // Add this line to override the default close handler
+    await windowManager.setPreventClose(true);
+    await windowManager.setTitle('Bilibili Music');
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    windowManager.removeListener(this);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

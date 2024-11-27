@@ -92,6 +92,8 @@ dependencies:
   url_launcher: ^6.1.12
   collection: ^1.18.0
   audio_service: ^0.18.15
+  window_manager: ^0.4.3
+  windows_single_instance: ^1.0.1
   flutter_animate: ^4.5.0
   toggle_switch: ^2.3.0
   font_awesome_flutter: ^10.7.0
@@ -132,6 +134,10 @@ flutter_launcher_icons:
   ios: false
   image_path: "assets/images/bilibili_2.png"  # 图标路径
   adaptive_icon_background: "#FFFFFF"  # Android 适应性图标背景色
+  windows:
+    generate: true
+    image_path: assets/images/bilibili_2.png
+    icon_size: 48 # min:48, max:256, default: 48
 # The following section is specific to Flutter packages.
 flutter:
 
