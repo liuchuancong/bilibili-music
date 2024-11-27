@@ -93,39 +93,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
     setState(() {});
   }
 
-  @override
-  void onWindowClose() async {
-    bool isPreventClose = await windowManager.isPreventClose();
-    if (isPreventClose) {
-      showDialog(
-        context: Get.context!,
-        builder: (_) {
-          return AlertDialog(
-            title: const Text('确定关闭此应用吗?', style: TextStyle(fontSize: 16)),
-            actions: [
-              TextButton(
-                child: const Text('确定', style: TextStyle(fontSize: 14)),
-                onPressed: () {
-                  Navigator.of(Get.context!).pop();
-                  windowManager.destroy();
-                },
-              ),
-              TextButton(
-                child: const Text('取消', style: TextStyle(fontSize: 14)),
-                onPressed: () {
-                  Navigator.of(Get.context!).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
-
   void _init() async {
-    // Add this line to override the default close handler
-    await windowManager.setPreventClose(true);
     await windowManager.setTitle('Bilibili Music');
     setState(() {});
   }
