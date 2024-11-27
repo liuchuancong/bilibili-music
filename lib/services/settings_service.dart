@@ -454,6 +454,8 @@ class SettingsService extends GetxController {
   }
 
   void fromJson(Map<String, dynamic> json) {
+    final AudioController audioController = Get.find<AudioController>();
+    audioController.pause();
     themeModeName.value = json['themeMode'] ?? "System";
     bilibiliCookie.value = json['bilibiliCookie'] ?? '';
     themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
@@ -466,9 +468,10 @@ class SettingsService extends GetxController {
     device.value = json['device'] ?? 'phone';
     webKeyTimeStamp.value = json['webKeyTimeStamp'] ?? 0;
     webKeys.value = json['webKeys'] ?? '';
-    musicAlbum.value = (json['musicAlbum'] ?? []).map((e) => BilibiliVideo.fromJson(jsonDecode(e))).toList();
+    musicAlbum.value =
+        (json['musicAlbum'] as List).map<BilibiliVideo>((e) => BilibiliVideo.fromJson(jsonDecode(e))).toList();
     currentMediaList.value =
-        (json['currentMediaList'] ?? []).map((e) => LiveMediaInfo.fromJson(jsonDecode(e))).toList();
+        (json['currentMediaList'] as List).map<LiveMediaInfo>((e) => LiveMediaInfo.fromJson(jsonDecode(e))).toList();
     currentMediaIndex.value = json['currentMediaIndex'] ?? 0;
     currentMusicPosition.value = json['currentMusicPosition'] ?? 0;
     currentMusicDuration.value = json['currentMusicDuration'] ?? 0;
@@ -477,6 +480,7 @@ class SettingsService extends GetxController {
     changePreferResolution(preferResolution.value);
     changeShutDownConfig(autoShutDownTime.value, enableAutoShutDownTime.value);
     setBilibiliCookit(bilibiliCookie.value);
+    audioController.startPlay(currentMediaList[currentMediaIndex.value]);
   }
 
   Map<String, dynamic> toJson() {

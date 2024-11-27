@@ -83,8 +83,14 @@ class AudioController extends GetxController {
     // 监听播放列表变化
 
     if (playlist.isNotEmpty) {
-      developer.log(playlist[currentIndex].toJson().toString(), name: 'playlist');
       Timer(const Duration(seconds: 2), () {
+        currentMusicInfo.value = {
+          'album': '',
+          'title': playlist[currentIndex].part,
+          'author': '',
+          'cover': playlist[currentIndex].face,
+          'lyric': '',
+        };
         startPlay(playlist[currentIndex], isFirstLoad: true, isAutoPlay: settingsService.enableAutoPlay.value);
       });
     }
@@ -119,9 +125,13 @@ class AudioController extends GetxController {
     try {
       LiveMediaInfoData? videoInfoData =
           await BiliBiliSite().getAudioDetail(mediaInfo.aid, mediaInfo.cid, mediaInfo.bvid);
+
+      developer.log(videoInfoData.toString(), name: 'videoInfoData');
       if (videoInfoData != null) {
         try {
-          await _audioPlayer.setUrl(videoInfoData.url, headers: getHeaders(mediaInfo));
+          await _audioPlayer.setUrl(videoInfoData.url,
+              headers: getHeaders(mediaInfo),
+              initialPosition: Duration(seconds: settingsService.currentMusicPosition.value));
           tryTimes = 0; // 重置重试计数器
         } on PlayerException {
           await retryStartPlay(mediaInfo);
@@ -138,14 +148,12 @@ class AudioController extends GetxController {
           await _audioPlayer.play();
           if (isFirstLoad) {
             hasloaded = true;
-            await _audioPlayer.seek(Duration(seconds: settingsService.currentMusicPosition.value));
           }
         });
       } else {
         Timer(const Duration(seconds: 1), () async {
           if (isFirstLoad) {
             hasloaded = true;
-            await _audioPlayer.seek(Duration(seconds: settingsService.currentMusicPosition.value));
           }
         });
       }

@@ -117,6 +117,22 @@ class LiveMediaInfoData {
       acceptQuality: json['accept_quality'].cast<int>(),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'url': url,
+      'quality': quality,
+      'format': format,
+      'size': size,
+      'time': time,
+      'accept_quality': acceptQuality,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'LiveMediaInfoData{url: $url, quality: $quality, format: $format, size: $size, time: $time, acceptQuality: $acceptQuality}';
+  }
 }
 
 class PlayItems {

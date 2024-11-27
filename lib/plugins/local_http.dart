@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/plugins/http_client.dart';
@@ -31,10 +32,12 @@ class LocalHttpServer {
 
   Future<void> importSyncData(String url) async {
     try {
-      var result = await HttpClient.instance.getText(url);
+      var result = await HttpClient.instance.getJson(url);
+      log(result.toString());
       settings.fromJson(json.decode(result));
       SmartDialog.showToast('导入成功');
     } catch (e) {
+      log(e.toString());
       SmartDialog.showToast('导入失败');
     }
   }
