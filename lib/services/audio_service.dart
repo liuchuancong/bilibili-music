@@ -40,8 +40,6 @@ class AudioController extends GetxController {
   final normalLyric = ''.obs;
   final lyricStatus = LyricStatus.loading.obs;
   final ScrollController _scrollController = ScrollController();
-
-  bool hasloaded = false;
   final currentMusicInfo = {
     'album': '',
     'title': '',
@@ -49,7 +47,7 @@ class AudioController extends GetxController {
     'cover': '',
     'lyric': '',
   }.obs;
-
+  final isMusicFirstLoad = true.obs;
   @override
   void onInit() {
     super.onInit();
@@ -57,10 +55,9 @@ class AudioController extends GetxController {
     _audioPlayer.positionStream.listen((position) {
       // 监听播放进度
       currentMusicPosition.value = position;
-      if (hasloaded) {
+      if (!isMusicFirstLoad.value) {
         settingsService.currentMusicPosition.value = position.inSeconds;
       }
-      developer.log(position.inSeconds.toString(), name: 'audioPlayerPosition');
     });
 
     _audioPlayer.durationStream.listen((duration) {
@@ -91,9 +88,19 @@ class AudioController extends GetxController {
           'cover': playlist[currentIndex].face,
           'lyric': '',
         };
-        startPlay(playlist[currentIndex], isFirstLoad: true, isAutoPlay: settingsService.enableAutoPlay.value);
+        startPlay(
+          playlist[currentIndex],
+          isAutoPlay: settingsService.enableAutoPlay.value,
+        );
       });
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _audioPlayer.stop();
+    _audioPlayer.dispose();
   }
 
   void setPlaylist(List<LiveMediaInfo> urls) {
@@ -110,12 +117,11 @@ class AudioController extends GetxController {
     isFavorite.toggle();
   }
 
-  Future<void> startPlay(LiveMediaInfo mediaInfo, {bool isAutoPlay = true, bool isFirstLoad = false}) async {
+  Future<void> startPlay(LiveMediaInfo mediaInfo, {bool isAutoPlay = true}) async {
     isFavorite.value = settingsService.isInFavoriteMusic(mediaInfo);
     lyricStatus.value = LyricStatus.loading;
     normalLyric.value = '';
     getLyric(mediaInfo);
-    developer.log(mediaInfo.toJson().toString(), name: 'startPlay');
     if (tryTimes >= 3) {
       SmartDialog.showToast("当前歌曲加载失败,正在播放下一首");
       next();
@@ -126,18 +132,17 @@ class AudioController extends GetxController {
       LiveMediaInfoData? videoInfoData =
           await BiliBiliSite().getAudioDetail(mediaInfo.aid, mediaInfo.cid, mediaInfo.bvid);
 
-      developer.log(videoInfoData.toString(), name: 'videoInfoData');
       if (videoInfoData != null) {
         try {
-          await _audioPlayer.setUrl(videoInfoData.url,
-              headers: getHeaders(mediaInfo),
-              initialPosition: Duration(seconds: settingsService.currentMusicPosition.value));
+          await _audioPlayer.setUrl(
+            videoInfoData.url,
+            initialPosition:
+                isMusicFirstLoad.value ? Duration(seconds: settingsService.currentMusicPosition.value) : Duration.zero,
+          );
           tryTimes = 0; // 重置重试计数器
-        } on PlayerException {
-          await retryStartPlay(mediaInfo);
-        } on PlayerInterruptedException {
-          await retryStartPlay(mediaInfo);
-        } catch (_) {
+          isMusicFirstLoad.value = false;
+        } catch (e) {
+          developer.log(e.toString(), name: 'retryStartPlay');
           await retryStartPlay(mediaInfo);
         }
       } else {
@@ -146,15 +151,6 @@ class AudioController extends GetxController {
       if (isAutoPlay) {
         Timer(const Duration(seconds: 1), () async {
           await _audioPlayer.play();
-          if (isFirstLoad) {
-            hasloaded = true;
-          }
-        });
-      } else {
-        Timer(const Duration(seconds: 1), () async {
-          if (isFirstLoad) {
-            hasloaded = true;
-          }
         });
       }
     } catch (_) {

@@ -216,9 +216,6 @@ class BiliBiliSite {
           baseUrl = audio.last["baseUrl"];
         }
       }
-
-      getAudioLyric(avid, cid, bvid);
-      log(baseUrl, name: 'baseUrl');
       return LiveMediaInfoData(
         url: baseUrl,
         quality: result["data"]["quality"],
@@ -272,7 +269,7 @@ class BiliBiliSite {
       }
       return {
         'album': '',
-        'title': result["data"]['bgm_info']['music_title'],
+        'title': "",
         'author': '',
         'cover': '',
         'lyric': '',

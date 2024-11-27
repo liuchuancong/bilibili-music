@@ -38,13 +38,6 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat();
-    audioController.lyricStatus.listen((p0) {
-      if (mounted) {
-        setState(() {
-          lyricModel = LyricsModelBuilder.create().bindLyricToMain(audioController.normalLyric.value).getModel();
-        });
-      }
-    });
     lyricModel = LyricsModelBuilder.create().bindLyricToMain(audioController.normalLyric.value).getModel();
     super.initState();
   }

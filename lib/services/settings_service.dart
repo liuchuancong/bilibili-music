@@ -480,6 +480,7 @@ class SettingsService extends GetxController {
     changePreferResolution(preferResolution.value);
     changeShutDownConfig(autoShutDownTime.value, enableAutoShutDownTime.value);
     setBilibiliCookit(bilibiliCookie.value);
+    audioController.isMusicFirstLoad.value = true;
     audioController.startPlay(currentMediaList[currentMediaIndex.value]);
   }
 
