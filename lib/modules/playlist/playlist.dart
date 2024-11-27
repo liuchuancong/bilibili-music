@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'playlist_controller.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
+import 'package:bilibilimusic/services/audio_service.dart';
 import 'package:bilibilimusic/models/live_media_info.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -112,6 +113,12 @@ class PlayListPage extends GetView<PlayListController> {
       }
       controller.list.value = playitems;
       SmartDialog.showToast('删除成功');
+      controller.refreshData();
+      if (controller.bilibiliVideo.id == controller.settingsService.favoriteId) {
+        final AudioController audioController = Get.find<AudioController>();
+        audioController.isFavorite.value = controller.settingsService.isInFavoriteMusic(
+            controller.settingsService.currentMediaList[controller.settingsService.currentMediaIndex.value]);
+      }
     }
   }
 
