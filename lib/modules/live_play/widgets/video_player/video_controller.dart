@@ -184,11 +184,15 @@ class VideoController with ChangeNotifier {
   }
 
   Future<void> toggleMute() async {
-    if (isMuted.value) {
-      betterPlayerController.setVolume(volume.value);
+    if (Platform.isWindows) {
+      mediaPlayerController.player.setVolume(isMuted.value ? 100 : 0);
     } else {
-      volume.value = betterPlayerController.videoPlayerController!.value.volume;
-      betterPlayerController.setVolume(0.0);
+      if (isMuted.value) {
+        betterPlayerController.setVolume(volume.value);
+      } else {
+        volume.value = betterPlayerController.videoPlayerController!.value.volume;
+        betterPlayerController.setVolume(0.0);
+      }
     }
     isMuted.toggle();
   }
@@ -207,34 +211,56 @@ class VideoController with ChangeNotifier {
   }
 
   void skipBack() async {
-    var isPlaying = betterPlayerController.isPlaying();
-    if (isPlaying!) {
-      Duration? videoDuration = await betterPlayerController.videoPlayerController!.position;
-      Duration rewindDuration = Duration(seconds: (videoDuration!.inSeconds - 5));
-      if (rewindDuration < betterPlayerController.videoPlayerController!.value.duration!) {
-        betterPlayerController.seekTo(const Duration(seconds: 0));
+    if (Platform.isWindows) {
+      Duration? videoPosition = await betterPlayerController.videoPlayerController!.position;
+      if (videoPosition!.inSeconds > 5) {
+        mediaPlayerController.player.seek(videoPosition - const Duration(seconds: 5));
       } else {
-        betterPlayerController.seekTo(rewindDuration);
+        mediaPlayerController.player.seek(const Duration(seconds: 0));
+      }
+    } else {
+      var isPlaying = betterPlayerController.isPlaying();
+      if (isPlaying!) {
+        Duration? videoDuration = await betterPlayerController.videoPlayerController!.position;
+        Duration rewindDuration = Duration(seconds: (videoDuration!.inSeconds - 5));
+        if (rewindDuration < betterPlayerController.videoPlayerController!.value.duration!) {
+          betterPlayerController.seekTo(const Duration(seconds: 0));
+        } else {
+          betterPlayerController.seekTo(rewindDuration);
+        }
       }
     }
   }
 
   void skipForward() async {
-    var isPlaying = betterPlayerController.isPlaying();
-    if (isPlaying!) {
-      Duration? videoDuration = await betterPlayerController.videoPlayerController!.position;
-      Duration forwardDuration = Duration(seconds: (videoDuration!.inSeconds + 5));
-      if (forwardDuration > betterPlayerController.videoPlayerController!.value.duration!) {
-        betterPlayerController.seekTo(const Duration(seconds: 0));
-        betterPlayerController.pause();
+    if (Platform.isWindows) {
+      Duration? videoPosition = await betterPlayerController.videoPlayerController!.position;
+      if (videoPosition!.inSeconds < duration.value - 5) {
+        mediaPlayerController.player.seek(videoPosition + const Duration(seconds: 5));
       } else {
-        betterPlayerController.seekTo(forwardDuration);
+        mediaPlayerController.player.seek(Duration(seconds: duration.value));
+      }
+    } else {
+      var isPlaying = betterPlayerController.isPlaying();
+      if (isPlaying!) {
+        Duration? videoDuration = await betterPlayerController.videoPlayerController!.position;
+        Duration forwardDuration = Duration(seconds: (videoDuration!.inSeconds + 5));
+        if (forwardDuration < betterPlayerController.videoPlayerController!.value.duration!) {
+          betterPlayerController.seekTo(forwardDuration);
+        } else {
+          betterPlayerController.seekTo(const Duration(seconds: 0));
+          betterPlayerController.pause();
+        }
       }
     }
   }
 
   refreshView() {
-    betterPlayerController.retryDataSource();
+    if (Platform.isWindows) {
+      // do nothing
+    } else {
+      betterPlayerController.retryDataSource();
+    }
   }
 
   @override
@@ -247,8 +273,9 @@ class VideoController with ChangeNotifier {
 
   void refresh() {
     if (Platform.isWindows) {
+    } else {
       betterPlayerController.retryDataSource();
-    } else {}
+    }
   }
 
   destory() async {
