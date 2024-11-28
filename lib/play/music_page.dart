@@ -407,8 +407,13 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
                       )),
                 ],
               ),
-              Obx(() => Text(audioController.currentMediaInfo.name,
-                  style: _bodyText2Style(context), maxLines: 1, overflow: TextOverflow.ellipsis))
+              Obx(() => Text(
+                  audioController.currentMusicInfo.value['author']!.isNotEmpty
+                      ? audioController.currentMusicInfo.value['author']!
+                      : audioController.currentMediaInfo.name,
+                  style: _bodyText2Style(context),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis))
             ],
           ),
         ),

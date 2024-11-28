@@ -70,8 +70,11 @@ class BottomMusicControl extends GetWidget<AudioController> {
                             )
                           : const Text('暂无歌曲', style: TextStyle(color: Colors.white)),
                       subtitle: controller.playlist.isNotEmpty
-                          ? Text(controller.playlist[controller.currentIndex].name,
-                              style: const TextStyle(color: Colors.white))
+                          ? Obx(() => Text(
+                              controller.currentMusicInfo.value['author']!.isNotEmpty
+                                  ? controller.currentMusicInfo.value['author']!
+                                  : controller.currentMediaInfo.name,
+                              style: const TextStyle(color: Colors.white)))
                           : const Text('请选择歌单', style: TextStyle(color: Colors.white)),
                       onTap: () {
                         if (controller.playlist.isNotEmpty) {
