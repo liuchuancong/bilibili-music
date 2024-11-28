@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:bilibilimusic/core/util.dart';
 import 'package:bilibilimusic/plugins/http_client.dart';
@@ -312,7 +311,6 @@ class BiliBiliSite {
       queryParameters: sign,
       header: header,
     );
-    log(result.toString(), name: 'getMusicInfo');
     if (result["code"] == 0) {
       return {
         'album': result['data']['album'],

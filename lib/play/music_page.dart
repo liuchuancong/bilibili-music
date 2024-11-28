@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:ripple_wave/ripple_wave.dart';
@@ -111,7 +110,6 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
                   audioController.currentMusicInfo.value['title']!, audioController.currentMusicInfo.value['author']!),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
-                  log(snapshot.toString(), name: 'lyric_dialog');
                   if (snapshot.hasError || snapshot.data == null || snapshot.data!.isEmpty) {
                     return SizedBox(
                       height: 300,
@@ -364,15 +362,18 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
           child: SizedBox(
             width: 200,
             height: 200,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(200),
-              child: audioController.currentMusicInfo.value['cover']!.isNotEmpty
-                  ? CachedNetworkImage(
-                      imageUrl: audioController.currentMusicInfo.value['cover']!,
-                      fit: BoxFit.cover,
-                    )
-                  : const Icon(Icons.data_usage_rounded),
-            ),
+            child: Obx(() => ClipRRect(
+                  borderRadius: BorderRadius.circular(200),
+                  child: audioController.currentMusicInfo.value['cover']!.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: audioController.currentMusicInfo.value['cover']!,
+                          fit: BoxFit.cover,
+                        )
+                      : CachedNetworkImage(
+                          imageUrl: audioController.currentMediaInfo.face,
+                          fit: BoxFit.cover,
+                        ),
+                )),
           ),
         ),
       ),

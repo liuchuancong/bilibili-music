@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math';
 import 'dart:async';
 import 'package:get/get.dart';
@@ -33,7 +32,6 @@ class AudioController extends GetxController {
   final isPlaying = false.obs;
   final showLyric = false.obs;
   final isFavorite = false.obs;
-  int tryTimes = 0;
   int get currentIndex => settingsService.currentMediaIndex.value;
   final playMode = PlayMode.listLoop.obs; // 默认播放模式为列表循环
   final currentMusicDuration = const Duration(seconds: 0).obs;
@@ -46,13 +44,17 @@ class AudioController extends GetxController {
     'title': '',
     'author': '',
     'cover': '',
-    'lyric': '',
   }.obs;
   final isMusicFirstLoad = true.obs;
   @override
   void onInit() {
     super.onInit();
-    _audioPlayer = AudioPlayer();
+    _audioPlayer = AudioPlayer(
+      userAgent:
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+      useProxyForRequestHeaders: false,
+    );
+
     _audioPlayer.positionStream.listen((position) {
       // 监听播放进度
       currentMusicPosition.value = position;
@@ -75,7 +77,6 @@ class AudioController extends GetxController {
       if (state.processingState == ProcessingState.completed) {
         next();
       }
-      developer.log(state.toString(), name: 'audioPlayerState');
     });
 
     // 监听播放列表变化
@@ -87,7 +88,6 @@ class AudioController extends GetxController {
           'title': playlist[currentIndex].part,
           'author': '',
           'cover': playlist[currentIndex].face,
-          'lyric': '',
         };
         startPlay(
           playlist[currentIndex],
@@ -120,49 +120,40 @@ class AudioController extends GetxController {
 
   Future<void> startPlay(LiveMediaInfo mediaInfo, {bool isAutoPlay = true}) async {
     isFavorite.value = settingsService.isInFavoriteMusic(mediaInfo);
-    lyricStatus.value = LyricStatus.loading;
-    normalLyric.value = '';
-    getLyric(mediaInfo);
-    if (tryTimes >= 3) {
-      SmartDialog.showToast("当前歌曲加载失败,正在播放下一首");
-      next();
-      return;
-    }
-
-    try {
-      LiveMediaInfoData? videoInfoData =
-          await BiliBiliSite().getAudioDetail(mediaInfo.aid, mediaInfo.cid, mediaInfo.bvid);
-
-      if (videoInfoData != null) {
-        try {
-          await _audioPlayer.setUrl(
-            videoInfoData.url,
-            initialPosition:
-                isMusicFirstLoad.value ? Duration(seconds: settingsService.currentMusicPosition.value) : Duration.zero,
-            headers: Platform.isAndroid ? getHeaders(mediaInfo) : null,
-          );
-          tryTimes = 0; // 重置重试计数器
-          isMusicFirstLoad.value = false;
-        } catch (e) {
-          developer.log(e.toString(), name: 'retryStartPlay');
-          await retryStartPlay(mediaInfo);
+    isPlaying.value = false;
+    await audioPlayer.stop();
+    LiveMediaInfoData? videoInfoData =
+        await BiliBiliSite().getAudioDetail(mediaInfo.aid, mediaInfo.cid, mediaInfo.bvid);
+    if (videoInfoData != null) {
+      getLyric(mediaInfo);
+      try {
+        await _audioPlayer.setUrl(
+          Uri.decodeComponent(videoInfoData.url),
+          initialPosition:
+              isMusicFirstLoad.value ? Duration(seconds: settingsService.currentMusicPosition.value) : Duration.zero,
+          headers: getHeaders(mediaInfo),
+        );
+        isMusicFirstLoad.value = false;
+        if (isAutoPlay) {
+          Timer(const Duration(seconds: 1), () async {
+            await _audioPlayer.play();
+          });
         }
-      } else {
-        await retryStartPlay(mediaInfo);
+      } catch (e) {
+        developer.log(e.toString(), name: 'audioPlayerSetUrl');
+        SmartDialog.showToast("当前歌曲加载失败,正在播放下一首");
+        await Future.delayed(const Duration(seconds: 2));
+        next();
       }
-      if (isAutoPlay) {
-        Timer(const Duration(seconds: 1), () async {
-          await _audioPlayer.play();
-        });
-      }
-    } catch (_) {
-      await retryStartPlay(mediaInfo);
+    } else {
+      SmartDialog.showToast("当前歌曲加载失败,正在播放下一首");
+      await Future.delayed(const Duration(seconds: 2));
+      next();
     }
   }
 
   Future<void> retryStartPlay(LiveMediaInfo mediaInfo) async {
-    await Future.delayed(const Duration(seconds: 1));
-    tryTimes++; // 增加重试计数器
+    await Future.delayed(const Duration(seconds: 2));
     await startPlay(mediaInfo);
   }
 
@@ -183,11 +174,22 @@ class AudioController extends GetxController {
   Future<void> getLyric(LiveMediaInfo mediaInfo) async {
     lyricStatus.value = LyricStatus.loading;
     normalLyric.value = '';
+    currentMusicInfo.value = {
+      'album': '',
+      'title': mediaInfo.part,
+      'author': mediaInfo.name,
+      'cover': mediaInfo.face,
+    };
     try {
       Map<String, dynamic> lyric = await BiliBiliSite().getAudioLyric(mediaInfo.aid, mediaInfo.cid, mediaInfo.bvid);
       String title = lyric['title'] ?? mediaInfo.part;
       String author = lyric['author'] ?? '';
-
+      currentMusicInfo.value = {
+        'album': lyric['album'] ?? '',
+        'title': title,
+        'author': author,
+        'cover': lyric['cover'] ?? ''
+      };
       // 定义正则表达式，用于匹配整个结构
       String pattern = r'\([^)]*\)|（[^）]*）';
       final regex = RegExp(pattern, dotAll: true);
@@ -202,13 +204,7 @@ class AudioController extends GetxController {
           lyricContent = await BiliBiliSite().getBilibiliLyrics(lyric['lyric']);
         }
       }
-      currentMusicInfo.value = {
-        'album': lyric['album'] ?? '',
-        'title': title,
-        'author': author,
-        'cover': lyric['cover'] ?? '',
-        'lyric': lyricContent,
-      };
+
       if (currentMediaInfo.aid == mediaInfo.aid &&
           currentMediaInfo.cid == mediaInfo.cid &&
           currentMediaInfo.bvid == mediaInfo.bvid) {
@@ -260,7 +256,6 @@ class AudioController extends GetxController {
   }
 
   Future<void> next() async {
-    tryTimes = 0; // 重置重试计数器
     if (settingsService.currentMediaList.isNotEmpty) {
       int newIndex;
       switch (playMode.value) {
@@ -287,7 +282,6 @@ class AudioController extends GetxController {
   }
 
   Future<void> previous() async {
-    tryTimes = 0; // 重置重试计数器
     if (settingsService.currentMediaList.isNotEmpty) {
       int newIndex;
       switch (playMode.value) {
