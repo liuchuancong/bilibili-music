@@ -104,6 +104,10 @@ class SettingsService extends GetxController {
       PrefUtil.setInt('currentMusicDuration', value);
     });
 
+    lrcApiIndex.listen((value) {
+      PrefUtil.setInt('lrcApiIndex', value);
+    });
+
     initFavoriteMusic();
   }
 
@@ -135,6 +139,15 @@ class SettingsService extends GetxController {
     var darkTheme = MyTheme(primaryColor: themeColor).darkThemeData;
     Get.changeTheme(lightTheme);
     Get.changeTheme(darkTheme);
+  }
+
+  final lrcApiUrl = ["https://api.lrc.cx/jsonapi", "https://tools.rangotec.com/api/anon/lrc"];
+
+  final lrcApiIndex = (PrefUtil.getInt('lrcApiIndex') ?? 0).obs;
+
+  void changeLrcApiIndex(int index) {
+    lrcApiIndex.value = index;
+    PrefUtil.setInt('lrcApiIndex', index);
   }
 
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(mode: StopWatchMode.countDown); // Create instance.
@@ -475,6 +488,7 @@ class SettingsService extends GetxController {
     currentMediaIndex.value = json['currentMediaIndex'] ?? 0;
     currentMusicPosition.value = json['currentMusicPosition'] ?? 0;
     currentMusicDuration.value = json['currentMusicDuration'] ?? 0;
+    lrcApiIndex.value = json['lrcApiIndex'] ?? 0;
     changeThemeMode(themeModeName.value);
     changeThemeColorSwitch(themeColorSwitch.value);
     changePreferResolution(preferResolution.value);
@@ -503,6 +517,7 @@ class SettingsService extends GetxController {
     json['currentMediaIndex'] = currentMediaIndex.value;
     json['currentMusicPosition'] = currentMusicPosition.value;
     json['currentMusicDuration'] = currentMusicDuration.value;
+    json['lrcApiIndex'] = lrcApiIndex.value;
     return json;
   }
 }

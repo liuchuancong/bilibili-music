@@ -59,6 +59,12 @@ class SettingsPage extends GetView<SettingsService> {
             trailing: Obx(() => Text('${controller.autoShutDownTime} minute')),
             onTap: showAutoShutDownTimeSetDialog,
           ),
+          ListTile(
+            title: const Text("歌词源"),
+            subtitle: const Text("选择播放的歌词匹配源"),
+            trailing: Obx(() => Text('歌词源${controller.lrcApiIndex.value + 1}')),
+            onTap: showLyricsSelectorDialog,
+          ),
           const SectionTitle(title: "备份与恢复"),
           ListTile(
             leading: const Icon(Icons.sync_rounded, size: 32),
@@ -94,6 +100,32 @@ class SettingsPage extends GetView<SettingsService> {
                 title: Text(name),
                 onChanged: (value) {
                   controller.changeThemeMode(value!);
+                  Navigator.of(context).pop();
+                },
+              );
+            }).toList(),
+          );
+        });
+  }
+
+  void showLyricsSelectorDialog() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            title: const Text("歌词源"),
+            children: controller.lrcApiUrl.map<Widget>((name) {
+              int index = controller.lrcApiUrl.indexOf(name);
+              return RadioListTile<String>(
+                activeColor: Theme.of(context).colorScheme.primary,
+                groupValue: controller.themeModeName.value,
+                value: name,
+                title: Text("歌词源${index + 1}"),
+                onChanged: (value) {
+                  if (value != null) {
+                    int setIndex = controller.lrcApiUrl.indexOf(value);
+                    controller.changeLrcApiIndex(setIndex);
+                  }
                   Navigator.of(context).pop();
                 },
               );

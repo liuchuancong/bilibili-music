@@ -26,9 +26,10 @@ class _VideoPlayerState extends State<VideoPlayer> {
   Widget build(BuildContext context) {
     if (Platform.isWindows) {
       return media_kit_video.Video(
-          key: widget.controller.key,
-          controller: widget.controller.mediaPlayerController,
-          controls: media_kit_video.MaterialVideoControls);
+        key: widget.controller.key,
+        controller: widget.controller.mediaPlayerController,
+        controls: media_kit_video.MaterialVideoControls,
+      );
     }
     return Obx(
       () => widget.controller.initialized.value

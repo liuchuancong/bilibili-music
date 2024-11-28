@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:bilibilimusic/core/util.dart';
 import 'package:bilibilimusic/plugins/http_client.dart';
@@ -329,50 +330,64 @@ class BiliBiliSite {
     };
   }
 
-  Future<String> getLyrics(String title, String author) async {
-    var lyrics = await HttpClient.instance.getFile("https://api.lrc.cx/lyrics?title=$title&artist=$author");
-    if (lyrics.statusCode == 200) {
-      String lrcText = utf8.decode(lyrics.data);
-      var lines = lrcText.split("\n");
-      if (lines.length < 10) {
-        return await getOtherLyrics(title, author);
-      }
-      return lrcText;
-    }
-    return "";
-  }
-
   Future<String> getBilibiliLyrics(String url) async {
     var lyrics = await HttpClient.instance.getFile(url);
     return utf8.decode(lyrics.data);
   }
 
-  Future<String> getOtherLyrics(String title, String author) async {
-    List<dynamic> lyricResults =
-        await HttpClient.instance.getJson("https://api.lrc.cx/jsonapi?title=$title&artist=$author");
-    var lyrics = '';
-    for (var i = 0; i < lyricResults.length; i++) {
-      if (lyricResults[i]['lyrics'].toString().split("\n").length > 10) {
-        lyrics = lyricResults[i]['lyrics'];
-        break;
-      }
+  String convertTimestamp(String input) {
+    // 正则表达式匹配整个时间戳
+    RegExp pattern = RegExp(r"\[(\d{2}:\d{2}:\d{3},\d{2}:\d{2}:\d{3})\]");
+    final match = pattern.firstMatch(input);
+    if (pattern.hasMatch(input)) {
+      // 提取小时、分钟和毫秒
+      String timestamp = match!.group(0)!.replaceAll("[", "").replaceAll("]", "");
+      List<String> timeList = timestamp.split(",");
+      String tHours = timeList[0].split(":")[0];
+      String tMinutes = timeList[0].split(":")[1];
+      String tMilliseconds = timeList[1].split(":")[2];
+      int milliseconds = int.parse(tMilliseconds);
+
+      // 毫秒转换为百分秒，并四舍五入
+      double hundredthsDouble = (milliseconds % 1000) / 10.0; // 将毫秒转换为百分秒
+      int hundredths = (hundredthsDouble).round(); // 四舍五入
+
+      // 格式化输出
+      return '[${tHours.padLeft(2, '0')}:${tMinutes.padLeft(2, '0')}.${hundredths.toString().padLeft(2, '0')}]';
     }
-    return lyrics;
+    return input;
   }
 
   Future<List<LyricResults>> getSearchLyrics(String title, String author) async {
-    List<dynamic> lyricResults =
-        await HttpClient.instance.getJson("https://api.lrc.cx/jsonapi?title=$title&artist=$author");
+    var url = settings.lrcApiUrl[settings.lrcApiIndex.value];
+    bool isLrcApi = settings.lrcApiIndex.value == 0;
+    var result = await HttpClient.instance.getJson("$url?title=$title&artist=$author");
+    List<dynamic> lyricResults = [];
+    if (isLrcApi) {
+      lyricResults = result;
+    } else {
+      lyricResults = result['data'] ?? [];
+    }
     List<LyricResults> list = [];
     for (var i = 0; i < lyricResults.length; i++) {
+      RegExp pattern = RegExp(r"\[\d{2}:\d{2}:\d{3},\d{2}:\d{2}:\d{3}]");
+      String text = isLrcApi ? lyricResults[i]['lyrics'] ?? '' : lyricResults[i]['lrc'];
+      try {
+        if (pattern.hasMatch(text)) {
+          text = text.replaceAllMapped(pattern, (match) => convertTimestamp(match.group(0)!));
+        }
+      } catch (e) {
+        log(e.toString(), name: 'getSearchLyrics');
+      }
       list.add(LyricResults(
         album: lyricResults[i]['album'] ?? '',
-        id: lyricResults[i]['id'] ?? '',
+        id: lyricResults[i]['id'].toString(),
         artist: lyricResults[i]['artist'] ?? '',
-        lyrics: lyricResults[i]['lyrics'] ?? '',
+        lyrics: text,
         title: lyricResults[i]['title'] ?? '',
       ));
     }
+
     return list;
   }
 }

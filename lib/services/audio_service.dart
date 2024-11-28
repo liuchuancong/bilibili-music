@@ -180,6 +180,7 @@ class AudioController extends GetxController {
       'author': mediaInfo.name,
       'cover': mediaInfo.face,
     };
+
     try {
       Map<String, dynamic> lyric = await BiliBiliSite().getAudioLyric(mediaInfo.aid, mediaInfo.cid, mediaInfo.bvid);
       String title = lyric['title'] ?? mediaInfo.part;
@@ -193,16 +194,20 @@ class AudioController extends GetxController {
       // 定义正则表达式，用于匹配整个结构
       String pattern = r'\([^)]*\)|（[^）]*）';
       final regex = RegExp(pattern, dotAll: true);
-
+      String lyricContent = '';
       title = title.replaceAll(regex, '');
       title = title.replaceAll(RegExp(r'$[^)]*$'), '').replaceAll(RegExp(r'\s*$[^)]*$\s*'), '');
-      String lyricContent = await BiliBiliSite().getLyrics(title, author);
-      developer.log(lyric.toString(), name: 'getAudioLyric');
+      developer.log(title, name: 'getAudioLyric');
+      developer.log(author, name: 'getAudioLyric');
+      List<LyricResults> lyricResults = await BiliBiliSite().getSearchLyrics(title, author);
+      developer.log(lyricResults.length.toString(), name: 'getAudioLyric');
       // 匹配歌词的正则表达式
-      if (lyricContent.isEmpty) {
+      if (lyricResults.isEmpty) {
         if (lyric['lyric'] != null) {
           lyricContent = await BiliBiliSite().getBilibiliLyrics(lyric['lyric']);
         }
+      } else {
+        lyricContent = lyricResults[0].lyrics;
       }
 
       if (currentMediaInfo.aid == mediaInfo.aid &&
