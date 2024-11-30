@@ -103,7 +103,7 @@ class BottomMusicControl extends GetWidget<AudioController> {
                           color: Colors.white,
                         ),
                         onPressed: () {
-                          if (controller.audioPlayer.playing) {
+                          if (controller.isPlaying.value) {
                             controller.pause();
                           } else {
                             controller.play();

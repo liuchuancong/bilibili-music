@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'dart:math';
 import 'dart:async';
 import 'package:get/get.dart';
 import 'dart:developer' as developer;
+import 'package:media_kit/media_kit.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/core/bilibili_site.dart';
@@ -9,6 +11,7 @@ import 'package:bilibilimusic/models/live_media_info.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
 import 'package:bilibilimusic/play/lyric/lyric_ui/ui_netease.dart';
 import 'package:bilibilimusic/play/lyric/lyrics_reader_model.dart';
+import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 
 enum PlayMode {
   singleLoop, // 单曲循环
@@ -24,14 +27,17 @@ enum LyricStatus {
 
 class AudioController extends GetxController {
   late AudioPlayer _audioPlayer;
+  late Player player = Player();
   final SettingsService settingsService = Get.find<SettingsService>();
   late LyricsReaderModel lyricModel;
   late UINetease lyricUI;
   AudioPlayer get audioPlayer => _audioPlayer;
+  Player get desktopPlayer => player;
   List<LiveMediaInfo> get playlist => settingsService.currentMediaList.value;
   final isPlaying = false.obs;
   final showLyric = false.obs;
   final isFavorite = false.obs;
+  final currentVolumn = 1.0.obs;
   int get currentIndex => settingsService.currentMediaIndex.value;
   final playMode = PlayMode.listLoop.obs; // 默认播放模式为列表循环
   final currentMusicDuration = const Duration(seconds: 0).obs;
@@ -49,36 +55,66 @@ class AudioController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _audioPlayer = AudioPlayer(
-      userAgent:
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-      useProxyForRequestHeaders: false,
-    );
+    if (Platform.isAndroid) {
+      _audioPlayer = AudioPlayer(
+        userAgent:
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+        useProxyForRequestHeaders: false,
+      );
 
-    _audioPlayer.positionStream.listen((position) {
-      // 监听播放进度
-      currentMusicPosition.value = position;
-      if (!isMusicFirstLoad.value) {
-        settingsService.currentMusicPosition.value = position.inSeconds;
-      }
-    });
+      _audioPlayer.positionStream.listen((position) {
+        // 监听播放进度
+        currentMusicPosition.value = position;
+        if (!isMusicFirstLoad.value) {
+          settingsService.currentMusicPosition.value = position.inSeconds;
+        }
+      });
 
-    _audioPlayer.durationStream.listen((duration) {
-      // 监听总时长
-      if (duration != null) {
-        currentMusicDuration.value = duration;
-        settingsService.currentMusicDuration.value = duration.inSeconds;
-      }
-    });
+      _audioPlayer.durationStream.listen((duration) {
+        // 监听总时长
+        if (duration != null) {
+          currentMusicDuration.value = duration;
+          settingsService.currentMusicDuration.value = duration.inSeconds;
+        }
+      });
 
-    _audioPlayer.playerStateStream.listen((state) {
-      // 监听播放状态
-      isPlaying.value = state.playing;
-      if (state.processingState == ProcessingState.completed) {
-        next();
-      }
-    });
-
+      _audioPlayer.playerStateStream.listen((state) {
+        // 监听播放状态
+        isPlaying.value = state.playing;
+        if (state.processingState == ProcessingState.completed) {
+          next();
+        }
+      });
+    } else {
+      player = Player();
+      player.stream.playing.listen(
+        (bool playing) {
+          isPlaying.value = playing;
+        },
+      );
+      player.stream.completed.listen(
+        (bool completed) {
+          if (completed) {
+            next();
+          }
+        },
+      );
+      player.stream.duration.listen(
+        (Duration duration) {
+          currentMusicDuration.value = duration;
+          settingsService.currentMusicDuration.value = duration.inSeconds;
+        },
+      );
+      player.stream.position.listen(
+        (Duration position) {
+          currentMusicPosition.value = position;
+          if (!isMusicFirstLoad.value) {
+            settingsService.currentMusicPosition.value = position.inSeconds;
+          }
+        },
+      );
+    }
+    getVolume();
     // 监听播放列表变化
 
     if (playlist.isNotEmpty) {
@@ -100,7 +136,11 @@ class AudioController extends GetxController {
   @override
   void dispose() {
     super.dispose();
-    _audioPlayer.stop();
+    if (Platform.isAndroid) {
+      _audioPlayer.dispose();
+    } else {
+      player.dispose();
+    }
     _audioPlayer.dispose();
   }
 
@@ -121,23 +161,42 @@ class AudioController extends GetxController {
   Future<void> startPlay(LiveMediaInfo mediaInfo, {bool isAutoPlay = true}) async {
     isFavorite.value = settingsService.isInFavoriteMusic(mediaInfo);
     isPlaying.value = false;
-    await audioPlayer.stop();
+    if (Platform.isAndroid) {
+      await audioPlayer.stop();
+    } else {
+      player.stop();
+    }
     LiveMediaInfoData? videoInfoData =
         await BiliBiliSite().getAudioDetail(mediaInfo.aid, mediaInfo.cid, mediaInfo.bvid);
     if (videoInfoData != null) {
       getLyric(mediaInfo);
       try {
-        await _audioPlayer.setUrl(
-          Uri.decodeComponent(videoInfoData.url),
-          initialPosition:
-              isMusicFirstLoad.value ? Duration(seconds: settingsService.currentMusicPosition.value) : Duration.zero,
-          headers: getHeaders(mediaInfo),
-        );
+        if (Platform.isAndroid) {
+          await _audioPlayer.setUrl(
+            Uri.decodeComponent(videoInfoData.url),
+            initialPosition:
+                isMusicFirstLoad.value ? Duration(seconds: settingsService.currentMusicPosition.value) : Duration.zero,
+            headers: getHeaders(mediaInfo),
+          );
+        } else {
+          await player.open(
+            Media(
+              videoInfoData.url,
+              httpHeaders: getHeaders(mediaInfo),
+              start: isMusicFirstLoad.value
+                  ? Duration(seconds: settingsService.currentMusicPosition.value)
+                  : Duration.zero,
+            ),
+            play: isAutoPlay,
+          );
+        }
         isMusicFirstLoad.value = false;
         if (isAutoPlay) {
-          Timer(const Duration(seconds: 1), () async {
-            await _audioPlayer.play();
-          });
+          if (Platform.isAndroid) {
+            Timer(const Duration(seconds: 1), () async {
+              await _audioPlayer.play();
+            });
+          }
         }
       } catch (e) {
         developer.log(e.toString(), name: 'audioPlayerSetUrl');
@@ -160,15 +219,45 @@ class AudioController extends GetxController {
   LiveMediaInfo get currentMediaInfo => settingsService.currentMediaList[settingsService.currentMediaIndex.value];
 
   Future<void> play() async {
-    _audioPlayer.play();
+    if (Platform.isAndroid) {
+      _audioPlayer.play();
+    } else {
+      player.play();
+    }
   }
 
   Future<void> pause() async {
-    _audioPlayer.pause();
+    if (Platform.isAndroid) {
+      _audioPlayer.pause();
+    } else {
+      player.pause();
+    }
   }
 
   Future<void> seek(Duration position) async {
-    _audioPlayer.seek(position);
+    if (Platform.isAndroid) {
+      _audioPlayer.seek(position);
+    } else {
+      player.seek(position);
+    }
+  }
+
+  Future<void> getVolume() async {
+    if (Platform.isWindows) {
+      currentVolumn.value = player.state.volume / 100;
+    } else {
+      currentVolumn.value = (await FlutterVolumeController.getVolume())!;
+    }
+  }
+
+  Future<void> setVolume(double volume) async {
+    volume = min(volume, 1.0);
+    volume = max(volume, 0.0);
+    if (Platform.isAndroid) {
+      _audioPlayer.setVolume(volume);
+    } else {
+      player.setVolume(volume * 100);
+    }
   }
 
   Future<void> getLyric(LiveMediaInfo mediaInfo) async {
@@ -251,7 +340,11 @@ class AudioController extends GetxController {
   }
 
   Future<void> stop() async {
-    _audioPlayer.stop();
+    if (Platform.isAndroid) {
+      _audioPlayer.stop();
+    } else {
+      player.stop();
+    }
   }
 
   Future<void> startPlayAtIndex(int index, List<LiveMediaInfo> currentPlaylist) async {
@@ -387,7 +480,11 @@ class AudioController extends GetxController {
 
   @override
   void onClose() {
-    _audioPlayer.dispose();
+    if (Platform.isAndroid) {
+      _audioPlayer.dispose();
+    } else {
+      player.dispose();
+    }
     _scrollController.dispose(); // 避免内存泄漏
     super.onClose();
   }

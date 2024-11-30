@@ -9,6 +9,7 @@ import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:bilibilimusic/routes/app_navigation.dart';
 import 'package:bilibilimusic/play/blur_back_ground.dart';
 import 'package:bilibilimusic/services/audio_service.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:bilibilimusic/play/lyric/lyrics_reader_model.dart';
 import 'package:bilibilimusic/play/lyric/lyric_ui/ui_netease.dart';
@@ -30,9 +31,14 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
 
   bool hasDisposed = false;
 
+  bool isShowVolume = false;
+
   final AudioController audioController = Get.find<AudioController>();
   late LyricsReaderModel lyricModel;
   var lyricUI = UINetease();
+
+  GlobalKey volumeButton = GlobalKey();
+  OverlayEntry? _overlayEntry;
   @override
   void initState() {
     setTransparentStatusBar();
@@ -346,6 +352,79 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
     );
   }
 
+  void showVolumeDialog() {
+    // 获取按钮的位置
+    final RenderBox buttonBox = volumeButton.currentContext!.findRenderObject() as RenderBox;
+    final Offset buttonPosition = buttonBox.localToGlobal(Offset.zero);
+    if (_overlayEntry != null || isShowVolume) {
+      _overlayEntry?.remove();
+      _overlayEntry = null;
+    }
+    if (isShowVolume) {
+      isShowVolume = false;
+      return;
+    }
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        left: buttonPosition.dx + 35,
+        top: buttonPosition.dy - 140, // 调整顶部偏移以适应屏幕布局
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            width: 30, // 设置宽度
+            height: 120, // 设置高度
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10.0,
+                  spreadRadius: 2.0,
+                  offset: const Offset(0.0, 4.0),
+                ),
+              ],
+            ),
+            child: Stack(
+              alignment: AlignmentDirectional.center,
+              children: [
+                Positioned(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: RotatedBox(
+                      quarterTurns: -1,
+                      child: Obx(() => ProgressBar(
+                            progress: Duration(seconds: (audioController.currentVolumn.value * 100).toInt()),
+                            barHeight: 5,
+                            thumbRadius: 4,
+                            thumbGlowRadius: 8,
+                            baseBarColor: Colors.white.withOpacity(0.5),
+                            progressBarColor: Colors.red[700],
+                            bufferedBarColor: Colors.red[300],
+                            thumbColor: Colors.white,
+                            thumbGlowColor: Colors.white,
+                            timeLabelTextStyle: const TextStyle(fontSize: 0),
+                            total: const Duration(seconds: 100),
+                            onSeek: (duration) {
+                              audioController.currentVolumn.value =
+                                  double.parse((duration.inSeconds / 100).toStringAsFixed(2));
+                              audioController.setVolume(duration.inSeconds / 100);
+                            },
+                          )),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+    isShowVolume = true;
+  }
+
   Widget _buildImage() {
     double expandedSize = Get.width;
     return GestureDetector(
@@ -380,13 +459,34 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
     );
   }
 
+  IconData getVolumeIcon() {
+    IconData iconData;
+    iconData = audioController.currentVolumn.value <= 0
+        ? FontAwesomeIcons.volumeXmark
+        : audioController.currentVolumn.value < 0.5
+            ? Icons.volume_down
+            : Icons.volume_up;
+    return iconData;
+  }
+
   Widget _buildTitle() {
     return Row(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const SizedBox(
+        SizedBox(
           width: 100,
+          key: volumeButton,
+          child: GestureDetector(
+            child: Obx(() => Icon(
+                  getVolumeIcon(),
+                  size: 32,
+                  color: Colors.white,
+                )),
+            onTapDown: (TapDownDetails details) {
+              showVolumeDialog();
+            },
+          ),
         ),
         Expanded(
           child: Column(
@@ -535,29 +635,52 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
     );
   }
 
+  void globalTapHandler(TapDownDetails details) {
+    if (_overlayEntry == null) return;
+    // 获取按钮的位置
+    final RenderBox buttonBox = volumeButton.currentContext!.findRenderObject() as RenderBox;
+    final Offset buttonPosition = buttonBox.localToGlobal(Offset.zero);
+    final Size buttonSize = buttonBox.size;
+    // 检查点击位置是否在按钮或音量控制面板内
+    if (buttonPosition.dx <= details.globalPosition.dx &&
+        buttonPosition.dx + buttonSize.width >= details.globalPosition.dx &&
+        buttonPosition.dy <= details.globalPosition.dy &&
+        buttonPosition.dy + buttonSize.height >= details.globalPosition.dy) {
+      // 点击在按钮内，不做任何操作
+    } else {
+      // 点击在按钮和音量控制面板外，关闭面板
+      _overlayEntry?.remove();
+      _overlayEntry = null;
+      isShowVolume = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      body: Stack(
-        children: [
-          Obx(() => BlurBackground(imageUrl: audioController.currentMusicInfo.value['cover']!)),
-          Column(
-            children: [
-              const SizedBox(height: 30),
-              _buildTopBar(),
-              const SizedBox(height: 10),
-              _buildCenterSection(),
-              const SizedBox(height: 10),
-              _buildTitle(),
-              const SizedBox(height: 10),
-              _buildSeekBar(),
-              const SizedBox(height: 20),
-              _buildControlsBar(),
-              const SizedBox(height: 30),
-            ],
-          )
-        ],
+      body: GestureDetector(
+        onTapDown: globalTapHandler,
+        child: Stack(
+          children: [
+            Obx(() => BlurBackground(imageUrl: audioController.currentMusicInfo.value['cover']!)),
+            Column(
+              children: [
+                const SizedBox(height: 30),
+                _buildTopBar(),
+                const SizedBox(height: 10),
+                _buildCenterSection(),
+                const SizedBox(height: 10),
+                _buildTitle(),
+                const SizedBox(height: 10),
+                _buildSeekBar(),
+                const SizedBox(height: 20),
+                _buildControlsBar(),
+                const SizedBox(height: 30),
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
