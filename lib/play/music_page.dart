@@ -607,7 +607,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
               color: Colors.white,
             ),
             onPressed: () {
-              if (audioController.audioPlayer.playing) {
+              if (audioController.isPlaying.value) {
                 audioController.pause();
               } else {
                 audioController.play();
