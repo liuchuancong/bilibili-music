@@ -18,6 +18,8 @@ void main(List<String> args) async {
   MediaKit.ensureInitialized();
   PrefUtil.prefs = await SharedPreferences.getInstance();
   // 初始化服务
+
+  initService();
   if (Platform.isWindows) {
     await WindowsSingleInstance.ensureSingleInstance(args, "bilibili_music_live_instance_checker");
     await windowManager.ensureInitialized();
@@ -26,6 +28,15 @@ void main(List<String> args) async {
       await windowManager.show();
       await windowManager.focus();
     });
+  } else {
+    await AudioService.init(
+      builder: () => AudioPlayerHandler(),
+      config: const AudioServiceConfig(
+        androidNotificationChannelId: 'com.mystyle.bilibili.music',
+        androidNotificationChannelName: 'bilibili audio playback',
+        androidNotificationOngoing: true,
+      ),
+    );
   }
   initService();
   if (Platform.isAndroid) {

@@ -5,7 +5,6 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   battery_plus
   flutter_volume_controller
-  just_audio_windows
   media_kit_libs_windows_video
   media_kit_video
   permission_handler_windows

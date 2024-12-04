@@ -53,9 +53,7 @@ dependencies:
   flutter_cache_manager: ^3.3.1
   cached_network_image: ^3.3.0
   just_audio: ^0.9.42 
-  just_audio_windows: any
   just_audio_background: ^0.0.1-beta.13
-  better_player_plus: ^1.0.7
     # 视频播放
   media_kit:
     git:
