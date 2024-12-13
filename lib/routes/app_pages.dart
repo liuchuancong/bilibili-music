@@ -4,9 +4,11 @@ import 'package:bilibilimusic/play/music_page.dart';
 import 'package:bilibilimusic/modules/home/home.dart';
 import 'package:bilibilimusic/modules/sync/sync_page.dart';
 import 'package:bilibilimusic/modules/home/home_bing.dart';
+import 'package:bilibilimusic/modules/profile/profile.dart';
 import 'package:bilibilimusic/modules/sync/sync_binding.dart';
 import 'package:bilibilimusic/modules/playlist/playlist.dart';
 import 'package:bilibilimusic/modules/search/search_page.dart';
+import 'package:bilibilimusic/modules/profile/profile_bing.dart';
 import 'package:bilibilimusic/modules/account/account_bing.dart';
 import 'package:bilibilimusic/modules/account/account_page.dart';
 import 'package:bilibilimusic/modules/search/search_binding.dart';
@@ -86,6 +88,12 @@ class AppPages {
       bindings: [
         SyncBinding(),
       ],
+    ),
+    GetPage(
+      name: RoutePath.kProfile,
+      page: ProfilePage.new,
+      preventDuplicates: true,
+      bindings: [ProfileBinding()],
     ),
   ];
 }

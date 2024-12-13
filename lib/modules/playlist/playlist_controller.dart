@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/core/bilibili_site.dart';
+import 'package:bilibilimusic/models/up_user_info.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:bilibilimusic/services/audio_service.dart';
 import 'package:bilibilimusic/models/live_media_info.dart';
@@ -13,6 +14,16 @@ class PlayListController extends BasePageController {
   var showSelectBox = false.obs;
   var isCheckAll = false.obs;
   var currentSelectItems = [].obs;
+  var upUserInfo = UpUserInfo(
+    name: "",
+    desc: "",
+    face: "",
+    mid: "",
+    like: 0,
+    follower: 0,
+    loaded: false,
+  ).obs;
+
   final AudioController audioController = Get.find<AudioController>();
   @override
   Future<List<PlayItems>> getData(int page, int pageSize) async {
@@ -33,7 +44,12 @@ class PlayListController extends BasePageController {
   @override
   void onInit() {
     loadData();
+    loadUserinfo();
     super.onInit();
+  }
+
+  loadUserinfo() async {
+    upUserInfo.value = await BiliBiliSite().getVidoeInfo(bilibiliVideo);
   }
 
   handleCheckAll() {

@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:bilibilimusic/core/util.dart';
+import 'package:bilibilimusic/utils/text_util.dart';
+import 'package:bilibilimusic/models/up_user_info.dart';
 import 'package:bilibilimusic/plugins/http_client.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:bilibilimusic/models/live_media_info.dart';
@@ -113,6 +115,219 @@ class BiliBiliSite {
     return videoList;
   }
 
+  Future<SeriesLiveMedia> getAllVideos(String mid) async {
+    cookie = settings.bilibiliCookie.value;
+    List<LiveMediaInfo> videoList = [];
+    var sign = await getSignedParams({
+      "mid": mid,
+      "pn": 1,
+      "ps": 1,
+      "order": "pubdate",
+      "order_avoided": true,
+      "platform": "web",
+    });
+    var header = {
+      "cookie": cookie,
+      "authority": "api.bilibili.com",
+      "accept":
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "accept-language": "zh-CN,zh;q=0.9",
+      "cache-control": "no-cache",
+      "dnt": "1",
+      "pragma": "no-cache",
+      "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": '"macOS"',
+      "sec-fetch-dest": "document",
+      "sec-fetch-mode": "navigate",
+      "sec-fetch-site": "none",
+      "sec-fetch-user": "?1",
+      "upgrade-insecure-requests": "1",
+      "user-agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+      "Referer": "https://space.bilibili.com/$mid",
+    };
+    var result = await HttpClient.instance.getJson(
+      "https://api.bilibili.com/x/space/masterpiece",
+      queryParameters: sign,
+      header: header,
+    );
+    if (result["code"] == 0) {
+      List queryList = result["data"]['list']['vlist'] ?? [];
+      for (var item in queryList.take(10)) {
+        var meta = item["meta"];
+        var stat = meta['stat'];
+        var length = item['length'];
+
+        var videoItem = LiveMediaInfo(
+          cid: item["cid"] ?? 0,
+          page: 0,
+          from: "",
+          part: "",
+          duration: convertToTimestampFromNow(length),
+          vid: "",
+          weblink: "",
+          firstFrame: "",
+          tname: "",
+          pic: item["pic"] ?? "",
+          title: item["title"] ?? "",
+          face: "",
+          name: item['name'] ?? "",
+          aid: item["aid"] ?? 0,
+          videos: 0,
+          pubdate: item["pubdate"] ?? 0,
+          favorite: stat['favorite'],
+          bvid: item["bvid"] ?? "",
+        );
+        videoList.add(videoItem);
+      }
+    }
+    return SeriesLiveMedia(
+      name: 'TA的视频',
+      total: videoList.length,
+      liveMediaInfoList: videoList,
+    );
+  }
+
+  Future<SeriesLiveMedia> getMasterpiece(String mid) async {
+    cookie = settings.bilibiliCookie.value;
+    List<LiveMediaInfo> videoList = [];
+
+    var header = {
+      "cookie": cookie,
+      "authority": "api.bilibili.com",
+      "accept":
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "accept-language": "zh-CN,zh;q=0.9",
+      "cache-control": "no-cache",
+      "dnt": "1",
+      "pragma": "no-cache",
+      "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": '"macOS"',
+      "sec-fetch-dest": "document",
+      "sec-fetch-mode": "navigate",
+      "sec-fetch-site": "none",
+      "sec-fetch-user": "?1",
+      "upgrade-insecure-requests": "1",
+      "user-agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+      "Referer": "https://space.bilibili.com/$mid",
+    };
+    var result = await HttpClient.instance.getJson(
+      "https://api.bilibili.com/x/space/masterpiece",
+      queryParameters: {
+        "vmid": mid,
+      },
+      header: header,
+    );
+    if (result["code"] == 0) {
+      var queryList = result["data"] ?? [];
+      for (var item in queryList.take(10) ?? []) {
+        var stat = item["stat"];
+        var owner = item["owner"];
+        var videoItem = LiveMediaInfo(
+          cid: item["cid"] ?? 0,
+          page: item["page"] ?? 0,
+          from: item["from"] ?? "",
+          part: owner["name"] ?? "",
+          duration: item["duration"] ?? 0,
+          vid: item["vid"] ?? "",
+          weblink: item["weblink"] ?? "",
+          firstFrame: item["first_frame"] ?? "",
+          tname: item["tname"] ?? "",
+          pic: item["pic"] ?? "",
+          title: item["title"] ?? "",
+          face: owner["face"] ?? "",
+          name: item["name"] ?? "",
+          aid: item["aid"] ?? 0,
+          videos: item["videos"] ?? 0,
+          pubdate: item["pubdate"] ?? 0,
+          favorite: stat["favorite"] ?? 0,
+          bvid: item["bvid"] ?? "",
+        );
+        videoList.add(videoItem);
+      }
+    }
+    return SeriesLiveMedia(
+      name: '代表作',
+      total: videoList.length,
+      liveMediaInfoList: videoList,
+    );
+  }
+
+  Future<List<SeriesLiveMedia>> getSeasonsSeries(String mid) async {
+    cookie = settings.bilibiliCookie.value;
+    List<SeriesLiveMedia> seriesLiveList = [];
+    var header = {
+      "cookie": cookie,
+      "authority": "api.bilibili.com",
+      "accept":
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "accept-language": "zh-CN,zh;q=0.9",
+      "cache-control": "no-cache",
+      "dnt": "1",
+      "pragma": "no-cache",
+      "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": '"macOS"',
+      "sec-fetch-dest": "document",
+      "sec-fetch-mode": "navigate",
+      "sec-fetch-site": "none",
+      "sec-fetch-user": "?1",
+      "upgrade-insecure-requests": "1",
+      "user-agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+      "Referer": "https://space.bilibili.com/$mid",
+    };
+    var result = await HttpClient.instance.getJson(
+      "https://api.bilibili.com/x/polymer/web-space/home/seasons_series",
+      queryParameters: {
+        "mid": mid,
+        "page_num": 1,
+        "page_size": 10,
+      },
+      header: header,
+    );
+    if (result["code"] == 0) {
+      var queryList = result["data"]['items_lists']['seasons_list'] ?? [];
+      for (var item in queryList ?? []) {
+        List<LiveMediaInfo> videoList = [];
+        var archives = item['archives'] ?? [];
+        var meta = item['meta'];
+        for (var archive in archives.take(10) ?? []) {
+          var videoItem = LiveMediaInfo(
+            cid: archive["cid"] ?? 0,
+            page: 0,
+            from: "",
+            part: "",
+            duration: archive["duration"] ?? 0,
+            vid: "",
+            weblink: "",
+            firstFrame: "",
+            tname: "",
+            pic: archive["pic"] ?? "",
+            title: archive["title"] ?? "",
+            face: "",
+            name: "",
+            aid: archive["aid"] ?? 0,
+            videos: 0,
+            pubdate: archive["pubdate"] ?? 0,
+            favorite: 0,
+            bvid: archive["bvid"] ?? "",
+          );
+          videoList.add(videoItem);
+        }
+        seriesLiveList.add(SeriesLiveMedia(
+          name: meta['name'] ?? '',
+          total: videoList.length,
+          liveMediaInfoList: videoList,
+        ));
+      }
+    }
+    return seriesLiveList;
+  }
+
   Future<LiveMediaInfoData?> getVideoDetail(int avid, int cid, String bvid, {String qn = '80'}) async {
     cookie = settings.bilibiliCookie.value;
     var header = {
@@ -168,6 +383,72 @@ class BiliBiliSite {
       );
     }
     return null;
+  }
+
+  Future<UpUserInfo> getVidoeInfo(BilibiliVideo video) async {
+    if (video.status == VideoStatus.customized) {
+      return UpUserInfo(
+        name: "",
+        desc: "",
+        face: "",
+        like: 0,
+        mid: '',
+        follower: 0,
+        loaded: false,
+      );
+    }
+    cookie = settings.bilibiliCookie.value;
+    var header = {
+      "cookie": cookie,
+      "authority": "api.bilibili.com",
+      "accept":
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "accept-language": "zh-CN,zh;q=0.9",
+      "cache-control": "no-cache",
+      "dnt": "1",
+      "pragma": "no-cache",
+      "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": '"macOS"',
+      "sec-fetch-dest": "document",
+      "sec-fetch-mode": "navigate",
+      "sec-fetch-site": "none",
+      "sec-fetch-user": "?1",
+      "upgrade-insecure-requests": "1",
+      "user-agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+      "Referer": "https://www.bilibili.com/video/${video.bvid}",
+    };
+    var result = await HttpClient.instance.getJson(
+      "https://api.bilibili.com/x/web-interface/wbi/view/detail",
+      queryParameters: {
+        "bvid": video.bvid,
+      },
+      header: header,
+    );
+    if (result["code"] == 0) {
+      var videoDetails = result["data"];
+      var owner = videoDetails["Card"];
+      log(owner.toString());
+      return UpUserInfo(
+        name: owner["card"]['name'] ?? "",
+        desc: owner['card']['sign'] ?? "",
+        face: owner['card']['face'] ?? "",
+        mid: owner['card']['mid'] ?? "",
+        like: owner['like_num'],
+        follower: owner['follower'],
+        loaded: true,
+      );
+    }
+    return UpUserInfo(
+      name: "",
+      desc: "",
+      face: "",
+      mid: '',
+      like: 0,
+      follower: 0,
+      loaded: false,
+    );
   }
 
   Future<LiveMediaInfoData?> getAudioDetail(int avid, int cid, String bvid, {String qn = '32'}) async {

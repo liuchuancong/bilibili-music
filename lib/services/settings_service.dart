@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:bilibilimusic/style/theme.dart';
 import 'package:flutter_color/flutter_color.dart';
 import 'package:bilibilimusic/utils/pref_util.dart';
+import 'package:bilibilimusic/models/up_user_info.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
@@ -90,6 +91,10 @@ class SettingsService extends GetxController {
 
     currentMediaList.listen((List<LiveMediaInfo> medias) {
       PrefUtil.setStringList('currentMediaList', medias.map<String>((e) => jsonEncode(e.toJson())).toList());
+    });
+
+    followers.listen((List<UpUserInfo> value) {
+      PrefUtil.setStringList('followers', value.map((e) => jsonEncode(e.toJson())).toList());
     });
 
     currentMediaIndex.listen((index) {
@@ -200,6 +205,38 @@ class SettingsService extends GetxController {
   static const List<String> resolutions = ['原画', '蓝光8M', '蓝光4M', '超清', '流畅'];
 
   final int favoriteId = 8888888888;
+
+  final followers =
+      ((PrefUtil.getStringList('followers') ?? []).map((e) => UpUserInfo.fromJson(jsonDecode(e))).toList()).obs;
+
+  bool isFollowed(String mid) {
+    int index = followers.indexWhere((element) => element.mid == mid);
+    return index != -1;
+  }
+
+  void follow(UpUserInfo user) {
+    if (isFollowed(user.mid)) {
+      return;
+    }
+    followers.add(user);
+    PrefUtil.setStringList('followers', followers.map((e) => jsonEncode(e.toJson())).toList());
+  }
+
+  void toggleFollow(UpUserInfo user) {
+    if (isFollowed(user.mid)) {
+      unFollow(user);
+    } else {
+      follow(user);
+    }
+  }
+
+  void unFollow(UpUserInfo user) {
+    if (!isFollowed(user.mid)) {
+      return;
+    }
+    followers.remove(user);
+    PrefUtil.setStringList('followers', followers.map((e) => jsonEncode(e.toJson())).toList());
+  }
 
   void changePreferResolution(String name) {
     if (resolutions.indexWhere((e) => e == name) != -1) {
@@ -489,6 +526,7 @@ class SettingsService extends GetxController {
     currentMusicPosition.value = json['currentMusicPosition'] ?? 0;
     currentMusicDuration.value = json['currentMusicDuration'] ?? 0;
     lrcApiIndex.value = json['lrcApiIndex'] ?? 0;
+    followers.value = (json['followers'] as List).map<UpUserInfo>((e) => UpUserInfo.fromJson(jsonDecode(e))).toList();
     changeThemeMode(themeModeName.value);
     changeThemeColorSwitch(themeColorSwitch.value);
     changePreferResolution(preferResolution.value);
@@ -518,6 +556,7 @@ class SettingsService extends GetxController {
     json['currentMusicPosition'] = currentMusicPosition.value;
     json['currentMusicDuration'] = currentMusicDuration.value;
     json['lrcApiIndex'] = lrcApiIndex.value;
+    json['followers'] = followers.map((e) => jsonEncode(e.toJson())).toList();
     return json;
   }
 }

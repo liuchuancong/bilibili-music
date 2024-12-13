@@ -1,10 +1,12 @@
 import 'package:get/get.dart';
 import 'playlist_controller.dart';
 import 'package:bilibilimusic/common/index.dart';
+import 'package:bilibilimusic/routes/route_path.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:bilibilimusic/services/audio_service.dart';
 import 'package:bilibilimusic/models/live_media_info.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class PlayListPage extends GetView<PlayListController> {
@@ -154,7 +156,33 @@ class PlayListPage extends GetView<PlayListController> {
       body: Obx(() {
         return Column(
           children: [
-            // 操作按钮
+            if (controller.upUserInfo.value.loaded)
+              Obx(
+                () => ListTile(
+                  leading: CircleAvatar(
+                    backgroundImage: CachedNetworkImageProvider(controller.upUserInfo.value.face),
+                  ),
+                  title: Text(
+                    controller.upUserInfo.value.name,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    controller.upUserInfo.value.desc,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),
+                    maxLines: 1,
+                  ),
+                  trailing: TextButton(
+                      onPressed: () {
+                        controller.settingsService.toggleFollow(controller.upUserInfo.value);
+                      },
+                      child: controller.settingsService.isFollowed(controller.upUserInfo.value.mid)
+                          ? const Text('已关注')
+                          : const Text('关注')),
+                  onTap: () {
+                    Get.toNamed(RoutePath.kProfile, arguments: controller.upUserInfo.value);
+                  },
+                ),
+              ),
             Container(
               padding: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 20),
               child: Row(
@@ -269,6 +297,102 @@ class PlayListPage extends GetView<PlayListController> {
         );
       }),
       bottomNavigationBar: const BottomMusicControl(),
+    );
+  }
+}
+
+class SimpleVideoCard extends StatelessWidget {
+  final LiveMediaInfo mediaInfo;
+  final Function() onTap;
+
+  const SimpleVideoCard({
+    super.key,
+    required this.mediaInfo,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.all(7.5),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(15.0),
+        onTap: () => onTap(),
+        child: Stack(
+          children: [
+            SizedBox(
+              height: 200,
+              child: Card(
+                margin: const EdgeInsets.all(0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                clipBehavior: Clip.antiAlias,
+                color: Theme.of(context).focusColor,
+                elevation: 0,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    CachedNetworkImage(
+                      imageUrl: mediaInfo.pic.startsWith("http") ? mediaInfo.pic : "http:${mediaInfo.pic}",
+                      cacheManager: CustomCacheManager.instance,
+                      fit: BoxFit.fill,
+                      errorWidget: (context, error, stackTrace) => const Center(
+                        child: Icon(
+                          Icons.music_note_rounded,
+                          size: 20,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15.0),
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.black.withOpacity(0.6),
+                      Colors.transparent,
+                    ],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                  ),
+                ),
+                child: ListTile(
+                  title: SizedBox(
+                    height: 50,
+                    child: Text(
+                      mediaInfo.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 2,
+              bottom: 2,
+              child: Text(formatDuration(mediaInfo.duration)),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

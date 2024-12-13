@@ -90,6 +90,18 @@ class LiveMediaInfo {
   }
 }
 
+class SeriesLiveMedia {
+  final String name;
+  final int total;
+  final List<LiveMediaInfo> liveMediaInfoList;
+
+  SeriesLiveMedia({
+    required this.name,
+    required this.total,
+    required this.liveMediaInfoList,
+  });
+}
+
 class LiveMediaInfoData {
   final String url;
   final int quality;
