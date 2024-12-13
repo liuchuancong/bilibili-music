@@ -39,6 +39,8 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
 
   GlobalKey volumeButton = GlobalKey();
   OverlayEntry? _overlayEntry;
+
+  Timer? timer;
   @override
   void initState() {
     setTransparentStatusBar();
@@ -409,6 +411,14 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
                               audioController.currentVolumn.value =
                                   double.parse((duration.inSeconds / 100).toStringAsFixed(2));
                               audioController.setVolume(duration.inSeconds / 100);
+
+                              timer?.cancel();
+                              timer = Timer(const Duration(seconds: 2), () {
+                                _overlayEntry?.remove();
+                                _overlayEntry = null;
+                                isShowVolume = false;
+                                setState(() {});
+                              });
                             },
                           )),
                     ),

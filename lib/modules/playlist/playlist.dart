@@ -313,82 +313,52 @@ class SimpleVideoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.all(7.5),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
+    return Container(
+      margin: const EdgeInsets.only(left: 16),
+      decoration: BoxDecoration(
+        // 添加边框
+        border: Border.all(color: Colors.grey.shade300, width: 1.0),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(15.0),
         onTap: () => onTap(),
-        child: Stack(
+        child: Column(
           children: [
-            SizedBox(
-              height: 200,
-              child: Card(
-                margin: const EdgeInsets.all(0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                clipBehavior: Clip.antiAlias,
-                color: Theme.of(context).focusColor,
-                elevation: 0,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    CachedNetworkImage(
-                      imageUrl: mediaInfo.pic.startsWith("http") ? mediaInfo.pic : "http:${mediaInfo.pic}",
-                      cacheManager: CustomCacheManager.instance,
-                      fit: BoxFit.fill,
-                      errorWidget: (context, error, stackTrace) => const Center(
-                        child: Icon(
-                          Icons.music_note_rounded,
-                          size: 20,
-                        ),
-                      ),
-                    )
-                  ],
+            Container(
+              height: 150,
+              width: 300,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: CachedNetworkImageProvider(
+                    mediaInfo.pic.startsWith("http") ? mediaInfo.pic : "http:${mediaInfo.pic}",
+                  ),
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15.0),
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.black.withOpacity(0.6),
-                      Colors.transparent,
-                    ],
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                  ),
-                ),
-                child: ListTile(
-                  title: SizedBox(
-                    height: 50,
-                    child: Text(
-                      mediaInfo.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
-                      ),
+            SizedBox(
+              height: 50,
+              width: 300,
+              child: ListTile(
+                title: SizedBox(
+                  height: 50,
+                  child: Text(
+                    mediaInfo.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
+                trailing: Text(
+                  formatDuration(mediaInfo.duration),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ),
-            ),
-            Positioned(
-              right: 2,
-              bottom: 2,
-              child: Text(formatDuration(mediaInfo.duration)),
             ),
           ],
         ),

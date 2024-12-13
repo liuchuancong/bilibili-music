@@ -121,7 +121,7 @@ class BiliBiliSite {
     var sign = await getSignedParams({
       "mid": mid,
       "pn": 1,
-      "ps": 1,
+      "ps": 30,
       "order": "pubdate",
       "order_avoided": true,
       "platform": "web",
@@ -148,17 +148,16 @@ class BiliBiliSite {
       "Referer": "https://space.bilibili.com/$mid",
     };
     var result = await HttpClient.instance.getJson(
-      "https://api.bilibili.com/x/space/masterpiece",
+      "https://api.bilibili.com/x/space/wbi/arc/search",
       queryParameters: sign,
       header: header,
     );
+
     if (result["code"] == 0) {
       List queryList = result["data"]['list']['vlist'] ?? [];
-      for (var item in queryList.take(10)) {
+      for (var item in queryList.take(20)) {
         var meta = item["meta"];
-        var stat = meta['stat'];
         var length = item['length'];
-
         var videoItem = LiveMediaInfo(
           cid: item["cid"] ?? 0,
           page: 0,
@@ -176,7 +175,7 @@ class BiliBiliSite {
           aid: item["aid"] ?? 0,
           videos: 0,
           pubdate: item["pubdate"] ?? 0,
-          favorite: stat['favorite'],
+          favorite: meta != null && meta['stat'] != null ? meta['stat']['favorite'] : 0,
           bvid: item["bvid"] ?? "",
         );
         videoList.add(videoItem);
@@ -230,7 +229,7 @@ class BiliBiliSite {
           cid: item["cid"] ?? 0,
           page: item["page"] ?? 0,
           from: item["from"] ?? "",
-          part: owner["name"] ?? "",
+          part: owner != null ? owner["name"] : "",
           duration: item["duration"] ?? 0,
           vid: item["vid"] ?? "",
           weblink: item["weblink"] ?? "",
@@ -238,12 +237,12 @@ class BiliBiliSite {
           tname: item["tname"] ?? "",
           pic: item["pic"] ?? "",
           title: item["title"] ?? "",
-          face: owner["face"] ?? "",
+          face: owner != null ? owner["face"] : "",
           name: item["name"] ?? "",
           aid: item["aid"] ?? 0,
           videos: item["videos"] ?? 0,
           pubdate: item["pubdate"] ?? 0,
-          favorite: stat["favorite"] ?? 0,
+          favorite: stat != null ? stat["favorite"] : 0,
           bvid: item["bvid"] ?? "",
         );
         videoList.add(videoItem);

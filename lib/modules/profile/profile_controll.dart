@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:bilibilimusic/services/index.dart';
 import 'package:bilibilimusic/core/bilibili_site.dart';
 import 'package:bilibilimusic/models/up_user_info.dart';
@@ -9,9 +10,16 @@ class ProfileController extends BasePageController {
   final UpUserInfo upUserInfo;
   ProfileController({required this.upUserInfo});
   SettingsService settingsService = Get.find<SettingsService>();
-
+  final List<String> items = List.generate(20, (index) => "Item $index");
   final followed = false.obs;
 
+  final innerController = ScrollController();
+
+  final masterpieceController = ScrollController();
+
+  final allVideosController = ScrollController();
+
+  final seasonsSeriesController = ScrollController();
   var masterpiece = SeriesLiveMedia(
     name: '代表作',
     total: 0,
@@ -24,7 +32,7 @@ class ProfileController extends BasePageController {
     liveMediaInfoList: [],
   ).obs;
 
-  var seasonsSeries = [].obs;
+  var seasonsSeries = <SeriesLiveMedia>[].obs;
   @override
   void onInit() {
     super.onInit();
