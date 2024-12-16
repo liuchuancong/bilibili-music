@@ -8,6 +8,7 @@ import 'package:bilibilimusic/services/index.dart';
 import 'package:bilibilimusic/widgets/empty_view.dart';
 import 'package:bilibilimusic/routes/app_navigation.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
+import 'package:bilibilimusic/models/live_media_info.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
@@ -92,7 +93,20 @@ class RoomCard extends StatelessWidget {
   final bool isVideo;
   final bool showTrailing;
   void onTap() async {
-    AppNavigator.toLiveRoomDetailList(bilibiliVideo: bilibiliVideo);
+    VideoMediaTypes mediaType = VideoMediaTypes.masterpiece;
+    if (bilibiliVideo.status == VideoStatus.series) {
+      mediaType = VideoMediaTypes.series;
+    } else if (bilibiliVideo.status == VideoStatus.customized) {
+      mediaType = VideoMediaTypes.customized;
+    } else if (bilibiliVideo.status == VideoStatus.published) {
+      mediaType = VideoMediaTypes.masterpiece;
+    } else {
+      mediaType = VideoMediaTypes.allVideos;
+    }
+    AppNavigator.toLiveRoomDetailList(
+      bilibiliVideo: bilibiliVideo,
+      mediaType: mediaType,
+    );
   }
 
   ImageProvider? getRoomAvatar(avatar) {
@@ -189,7 +203,7 @@ class RoomCard extends StatelessWidget {
                   ),
                 ),
                 child: ListTile(
-                  leading: bilibiliVideo.status == VideoStatus.published
+                  leading: bilibiliVideo.status == VideoStatus.published || bilibiliVideo.status == VideoStatus.series
                       ? CircleAvatar(
                           foregroundImage: bilibiliVideo.upic!.isNotEmpty ? getRoomAvatar(bilibiliVideo.upic) : null,
                           backgroundColor: Theme.of(context).disabledColor,
@@ -212,7 +226,7 @@ class RoomCard extends StatelessWidget {
                     ),
                   ),
                   subtitle: Text(
-                    '${bilibiliVideo.author} - ${transformData(bilibiliVideo.pubdate!)}',
+                    '${bilibiliVideo.author!.isEmpty ? "未知" : bilibiliVideo.author} - ${transformData(bilibiliVideo.pubdate!)}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -232,7 +246,7 @@ class RoomCard extends StatelessWidget {
                 ),
               ),
             ),
-            if (bilibiliVideo.status != VideoStatus.customized)
+            if (bilibiliVideo.status == VideoStatus.published)
               Positioned(
                 right: 2,
                 bottom: 2,

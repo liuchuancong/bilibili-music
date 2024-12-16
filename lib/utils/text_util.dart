@@ -16,7 +16,10 @@ String readableCount(String info) {
   return info;
 }
 
-transformData(int timestamp) {
+transformData(int? timestamp) {
+  if (timestamp == null) {
+    return '';
+  }
   DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
   // Format the date
   return DateFormat('yyyy-MM-dd HH:mm:ss').format(date);

@@ -7,9 +7,10 @@ import 'package:bilibilimusic/services/audio_service.dart';
 import 'package:bilibilimusic/models/live_media_info.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
 
-class PlayListController extends BasePageController {
+class PlayListController extends BasePageController<PlayItems> {
   final BilibiliVideo bilibiliVideo;
-  PlayListController({required this.bilibiliVideo});
+  final VideoMediaTypes mediaType;
+  PlayListController({required this.bilibiliVideo, required this.mediaType});
   SettingsService settingsService = Get.find<SettingsService>();
   var showSelectBox = false.obs;
   var isCheckAll = false.obs;
@@ -34,10 +35,22 @@ class PlayListController extends BasePageController {
       }
       return playitems;
     }
-    var result = await BiliBiliSite().getRoomListDetail(bilibiliVideo.bvid!);
-    for (var i = 0; i < result.length; i++) {
-      playitems.add(PlayItems(liveMediaInfo: result[i], index: i, selected: false));
+    if (mediaType == VideoMediaTypes.masterpiece) {
+      var result = await BiliBiliSite().getRoomListDetail(bilibiliVideo.bvid!);
+      for (var i = 0; i < result.length; i++) {
+        playitems.add(PlayItems(liveMediaInfo: result[i], index: i, selected: false));
+      }
+      return playitems;
+    } else if (mediaType == VideoMediaTypes.series || bilibiliVideo.status == VideoStatus.series) {
+      var result = await BiliBiliSite().playAlbumAllVideos(bilibiliVideo.aid!, bilibiliVideo.bvid!);
+      for (var i = 0; i < result.length; i++) {
+        playitems.add(PlayItems(liveMediaInfo: result[i], index: i, selected: false));
+      }
+      return playitems;
     }
+    // var result = await BiliBiliSite().getVideoPlayUrl(bilibiliVideo.bvid!);
+    // for (var i = 0; i < result.length; i++) {
+    // VideoMediaTypes.series
     return playitems;
   }
 

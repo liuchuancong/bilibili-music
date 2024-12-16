@@ -1,5 +1,8 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:bilibilimusic/routes/route_path.dart';
+import 'package:bilibilimusic/models/bilibili_video.dart';
+import 'package:bilibilimusic/routes/app_navigation.dart';
 import 'package:bilibilimusic/models/live_media_info.dart';
 import 'package:bilibilimusic/widgets/section_listtile.dart';
 import 'package:bilibilimusic/modules/playlist/playlist.dart';
@@ -29,7 +32,18 @@ class ProfilePage extends GetView<ProfileController> {
                               children: controller.masterpiece.value.liveMediaInfoList
                                   .map((e) => SimpleVideoCard(
                                         mediaInfo: e,
-                                        onTap: () {},
+                                        onTap: () {
+                                          AppNavigator.toLiveRoomDetailList(
+                                            bilibiliVideo: BilibiliVideo(
+                                              aid: e.aid,
+                                              bvid: e.bvid,
+                                              title: e.title,
+                                              pic: e.pic,
+                                              author: e.part,
+                                            ),
+                                            mediaType: VideoMediaTypes.masterpiece,
+                                          );
+                                        },
                                       ))
                                   .toList()),
                         ),
@@ -51,7 +65,15 @@ class ProfilePage extends GetView<ProfileController> {
               width: double.infinity,
               child: Obx(() => Column(
                     children: [
-                      SectionTitle(title: controller.allVideos.value.name),
+                      SectionTitle(
+                        title: controller.allVideos.value.name,
+                        trailing: TextButton(
+                          onPressed: () {
+                            Get.toNamed(RoutePath.kAreaRooms, arguments: [controller.upUserInfo.mid]);
+                          },
+                          child: const Text("更多"),
+                        ),
+                      ),
                       Expanded(
                         child: Scrollbar(
                             controller: controller.allVideosController,
@@ -64,7 +86,19 @@ class ProfilePage extends GetView<ProfileController> {
                                 itemBuilder: (context, index) {
                                   return SimpleVideoCard(
                                     mediaInfo: controller.allVideos.value.liveMediaInfoList[index],
-                                    onTap: () {},
+                                    onTap: () {
+                                      var e = controller.allVideos.value.liveMediaInfoList[index];
+                                      AppNavigator.toLiveRoomDetailList(
+                                        bilibiliVideo: BilibiliVideo(
+                                          aid: e.aid,
+                                          bvid: e.bvid,
+                                          title: e.title,
+                                          pic: e.pic,
+                                          author: e.part,
+                                        ),
+                                        mediaType: VideoMediaTypes.masterpiece,
+                                      );
+                                    },
                                   );
                                 })),
                       )
@@ -83,7 +117,16 @@ class ProfilePage extends GetView<ProfileController> {
             width: double.infinity,
             child: Column(
               children: [
-                SectionTitle(title: series.name),
+                SectionTitle(
+                  title: series.name,
+                  trailing: TextButton(
+                    onPressed: () {
+                      Get.toNamed(RoutePath.kArchives,
+                          arguments: [controller.seasonsSeries.value, controller.upUserInfo, series.sessionId]);
+                    },
+                    child: const Text("更多"),
+                  ),
+                ),
                 Expanded(
                   child: Scrollbar(
                     controller: seasonsSeriesController,
@@ -96,7 +139,19 @@ class ProfilePage extends GetView<ProfileController> {
                       itemBuilder: (context, index) {
                         return SimpleVideoCard(
                           mediaInfo: series.liveMediaInfoList[index],
-                          onTap: () {},
+                          onTap: () {
+                            var e = controller.allVideos.value.liveMediaInfoList[index];
+                            AppNavigator.toLiveRoomDetailList(
+                              bilibiliVideo: BilibiliVideo(
+                                aid: e.aid,
+                                bvid: e.bvid,
+                                title: e.title,
+                                pic: e.pic,
+                                author: e.part,
+                              ),
+                              mediaType: VideoMediaTypes.masterpiece,
+                            );
+                          },
                         );
                       },
                     ),

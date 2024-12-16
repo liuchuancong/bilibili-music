@@ -11,8 +11,12 @@ import 'package:bilibilimusic/models/live_media_info.dart';
 class AppNavigator {
   /// 跳转至分类详
   /// 跳转至直播间
-  static Future<void> toLiveRoomDetailList({required BilibiliVideo bilibiliVideo}) async {
-    Get.toNamed(RoutePath.kPlayList, arguments: bilibiliVideo);
+  static Future<void> toLiveRoomDetailList(
+      {required BilibiliVideo bilibiliVideo, required VideoMediaTypes mediaType}) async {
+    Get.toNamed(
+      RoutePath.kPlayList,
+      arguments: [bilibiliVideo, mediaType],
+    );
   }
 
   static Future<void> toLiveRoomDetail({required LiveMediaInfo mediaInfo}) async {

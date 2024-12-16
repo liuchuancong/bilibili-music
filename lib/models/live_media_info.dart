@@ -90,15 +90,21 @@ class LiveMediaInfo {
   }
 }
 
+enum VideoMediaTypes { masterpiece, series, allVideos, customized }
+
 class SeriesLiveMedia {
   final String name;
   final int total;
   final List<LiveMediaInfo> liveMediaInfoList;
+  int? sessionId = 0;
+  VideoMediaTypes? mediaType;
 
   SeriesLiveMedia({
     required this.name,
     required this.total,
     required this.liveMediaInfoList,
+    this.mediaType = VideoMediaTypes.masterpiece,
+    this.sessionId = 0,
   });
 }
 

@@ -12,11 +12,15 @@ import 'package:bilibilimusic/modules/profile/profile_bing.dart';
 import 'package:bilibilimusic/modules/account/account_bing.dart';
 import 'package:bilibilimusic/modules/account/account_page.dart';
 import 'package:bilibilimusic/modules/search/search_binding.dart';
+import 'package:bilibilimusic/modules/archives/archives_page.dart';
 import 'package:bilibilimusic/modules/settings/settings_page.dart';
+import 'package:bilibilimusic/modules/archives/archives_bings.dart';
 import 'package:bilibilimusic/modules/live_play/live_play_page.dart';
 import 'package:bilibilimusic/modules/settings/settings_binding.dart';
 import 'package:bilibilimusic/modules/playlist/playlist_binding.dart';
+import 'package:bilibilimusic/modules/area_rooms/area_rooms_page.dart';
 import 'package:bilibilimusic/modules/live_play/live_play_binding.dart';
+import 'package:bilibilimusic/modules/area_rooms/area_rooms_binding.dart';
 import 'package:bilibilimusic/modules/account/bilibili/qr_login_page.dart';
 import 'package:bilibilimusic/modules/account/bilibili/bilibili_bings.dart';
 import 'package:bilibilimusic/modules/account/bilibili/web_login_page.dart';
@@ -63,7 +67,8 @@ class AppPages {
     ),
     GetPage(
       name: RoutePath.kPlayList,
-      page: PlayListPage.new,
+      page: () => const PlayListPage(),
+      preventDuplicates: false,
       bindings: [PlayListBinding()],
     ),
     GetPage(
@@ -83,6 +88,11 @@ class AppPages {
       page: MusicPage.new,
     ),
     GetPage(
+      name: RoutePath.kAreaRooms,
+      page: AreasRoomPage.new,
+      bindings: [AreaRoomsBinding()],
+    ),
+    GetPage(
       name: RoutePath.kSync,
       page: () => const SyncPage(),
       bindings: [
@@ -94,6 +104,12 @@ class AppPages {
       page: ProfilePage.new,
       preventDuplicates: true,
       bindings: [ProfileBinding()],
+    ),
+    GetPage(
+      name: RoutePath.kArchives,
+      page: ArchivesPage.new,
+      preventDuplicates: true,
+      bindings: [ArchivesBinding()],
     ),
   ];
 }

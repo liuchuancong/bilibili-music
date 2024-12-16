@@ -82,7 +82,7 @@ class PlayListPage extends GetView<PlayListController> {
                           onPressed: () {
                             List<LiveMediaInfo> list = controller.list.value
                                 .where((el) => el.selected)
-                                .map((item) => item.liveMediaInfo as LiveMediaInfo)
+                                .map((item) => item.liveMediaInfo)
                                 .toList();
                             settings.addMusicToAlbum(item.id, list);
                             Navigator.of(Get.context!).pop();
@@ -106,7 +106,7 @@ class PlayListPage extends GetView<PlayListController> {
     } else if (result == '2') {
       // 删除
       List<LiveMediaInfo> list =
-          controller.list.value.where((el) => el.selected).map((item) => item.liveMediaInfo as LiveMediaInfo).toList();
+          controller.list.value.where((el) => el.selected).map((item) => item.liveMediaInfo).toList();
       List<LiveMediaInfo> sourcelist =
           controller.settingsService.deleteMusicFromAlbum(controller.bilibiliVideo.id, list);
       List<PlayItems> playitems = [];
@@ -145,7 +145,7 @@ class PlayListPage extends GetView<PlayListController> {
                 if (controller.bilibiliVideo.id == controller.settingsService.favoriteId) {
                   SmartDialog.showToast('系统预设歌单不可修改');
                 } else {
-                  var list = controller.list.value.map((item) => item.liveMediaInfo as LiveMediaInfo).toList();
+                  var list = controller.list.value.map((item) => item.liveMediaInfo).toList();
                   controller.settingsService.toggleCollectMusic(controller.bilibiliVideo, list);
                 }
               },
@@ -195,8 +195,7 @@ class PlayListPage extends GetView<PlayListController> {
                           icon: const Icon(FontAwesomeIcons.headphonesSimple),
                           onPressed: () {
                             if (controller.list.isNotEmpty) {
-                              var list =
-                                  controller.list.value.map((item) => item.liveMediaInfo as LiveMediaInfo).toList();
+                              var list = controller.list.value.map((item) => item.liveMediaInfo).toList();
                               controller.settingsService.setCurreentMusicList(list);
                             }
                           }),
@@ -226,7 +225,7 @@ class PlayListPage extends GetView<PlayListController> {
                             if (controller.showSelectBox.value) {
                               List<LiveMediaInfo> list = controller.list.value
                                   .where((el) => el.selected)
-                                  .map((item) => item.liveMediaInfo as LiveMediaInfo)
+                                  .map((item) => item.liveMediaInfo)
                                   .toList();
                               if (list.isNotEmpty) {
                                 handleMusicAlbumSelector();
@@ -248,50 +247,52 @@ class PlayListPage extends GetView<PlayListController> {
             // 分割线
             const Divider(height: 1, color: Color.fromARGB(255, 196, 191, 191)),
             Expanded(
-              child: ListView.builder(
-                itemCount: controller.list.length,
-                itemBuilder: (context, index) {
-                  PlayItems playItems = controller.list[index];
-                  LiveMediaInfo mediaInfo = playItems.liveMediaInfo;
-                  return Obx(
-                    () => Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                      color:
-                          controller.settingsService.isCurrentMediia(mediaInfo) ? Get.theme.colorScheme.primary : null,
-                      elevation: 4,
-                      child: InkWell(
-                        onTap: () {
-                          var list = controller.list.value.map((item) => item.liveMediaInfo as LiveMediaInfo).toList();
-                          controller.audioController.startPlayAtIndex(index, list);
-                        },
-                        child: ListTile(
-                          leading: controller.showSelectBox.value
-                              ? Obx(() => IconButton(
-                                  onPressed: () {
-                                    controller.handleToggleItem(index);
-                                  },
-                                  icon: Icon(
-                                    playItems.selected ? FontAwesomeIcons.squareCheck : FontAwesomeIcons.square,
-                                    color: controller.settingsService.isCurrentMediia(mediaInfo)
-                                        ? Colors.white
-                                        : Colors.black,
-                                  )))
+              child: Obx(() => ListView.builder(
+                    itemCount: controller.list.length,
+                    itemBuilder: (context, index) {
+                      PlayItems playItems = controller.list[index];
+                      LiveMediaInfo mediaInfo = playItems.liveMediaInfo;
+                      return Obx(
+                        () => Card(
+                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                          color: controller.settingsService.isCurrentMediia(mediaInfo)
+                              ? Get.theme.colorScheme.primary
                               : null,
-                          title: Text(
-                            mediaInfo.part,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color:
-                                  controller.settingsService.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black,
+                          elevation: 4,
+                          child: InkWell(
+                            onTap: () {
+                              var list = controller.list.value.map((item) => item.liveMediaInfo).toList();
+                              controller.audioController.startPlayAtIndex(index, list);
+                            },
+                            child: ListTile(
+                              leading: controller.showSelectBox.value
+                                  ? Obx(() => IconButton(
+                                      onPressed: () {
+                                        controller.handleToggleItem(index);
+                                      },
+                                      icon: Icon(
+                                        playItems.selected ? FontAwesomeIcons.squareCheck : FontAwesomeIcons.square,
+                                        color: controller.settingsService.isCurrentMediia(mediaInfo)
+                                            ? Colors.white
+                                            : Colors.black,
+                                      )))
+                                  : null,
+                              title: Text(
+                                mediaInfo.part,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: controller.settingsService.isCurrentMediia(mediaInfo)
+                                      ? Colors.white
+                                      : Colors.black,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  );
-                },
-              ),
+                      );
+                    },
+                  )),
             ),
           ],
         );
@@ -320,7 +321,7 @@ class SimpleVideoCard extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade300, width: 1.0),
       ),
       child: InkWell(
-        onTap: () => onTap(),
+        onTap: onTap,
         child: Column(
           children: [
             Container(

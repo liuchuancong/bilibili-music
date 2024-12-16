@@ -6,7 +6,8 @@ class PlayListBinding extends Binding {
   List<Bind> dependencies() {
     return [
       Bind.lazyPut(() => PlayListController(
-            bilibiliVideo: Get.arguments,
+            bilibiliVideo: Get.arguments[0],
+            mediaType: Get.arguments[1],
           ))
     ];
   }

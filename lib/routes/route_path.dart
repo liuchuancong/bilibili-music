@@ -84,4 +84,6 @@ class RoutePath {
   static const kSync = "/sync";
 
   static const kProfile = "/profile";
+
+  static const kArchives = "/archives";
 }

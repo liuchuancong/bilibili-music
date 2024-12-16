@@ -1,6 +1,6 @@
 import 'package:bilibilimusic/models/live_media_info.dart';
 
-enum VideoStatus { published, customized }
+enum VideoStatus { published, series, allVideos, customized }
 
 class BilibiliVideo {
   int? id;
@@ -41,7 +41,7 @@ class BilibiliVideo {
         play = json['play'],
         id = json['id'],
         medias = json['medias'] != null ? (json['medias'] as List).map((e) => LiveMediaInfo.fromJson(e)).toList() : [],
-        status = VideoStatus.values[json['status']],
+        status = json['status'] != null ? VideoStatus.values[json['status']] : VideoStatus.published,
         favorites = json['favorites'];
 
   Map<String, dynamic> toJson() {
@@ -59,5 +59,10 @@ class BilibiliVideo {
     data['status'] = status?.index;
     data['favorites'] = favorites;
     return data;
+  }
+
+  @override
+  String toString() {
+    return 'BilibiliVideo(title: $title, author: $author, pic: $pic, pubdate: $pubdate, upic: $upic, favorites: $favorites, bvid: $bvid, aid: $aid, play: $play, medias: $medias, status: $status, id: $id)';
   }
 }
