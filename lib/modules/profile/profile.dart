@@ -19,10 +19,7 @@ class ProfilePage extends GetView<ProfileController> {
               width: double.infinity,
               child: Obx(() => Column(
                     children: [
-                      Obx(() => Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: SectionTitle(title: controller.masterpiece.value.name),
-                          )),
+                      SectionTitle(title: controller.masterpiece.value.name),
                       Expanded(
                         child: Scrollbar(
                           controller: controller.masterpieceController,
@@ -54,10 +51,7 @@ class ProfilePage extends GetView<ProfileController> {
               width: double.infinity,
               child: Obx(() => Column(
                     children: [
-                      Obx(() => Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: SectionTitle(title: controller.allVideos.value.name),
-                          )),
+                      SectionTitle(title: controller.allVideos.value.name),
                       Expanded(
                         child: Scrollbar(
                             controller: controller.allVideosController,
@@ -82,38 +76,35 @@ class ProfilePage extends GetView<ProfileController> {
 
   Widget buildSeasonsSeriesListItem(SeriesLiveMedia series) {
     final seasonsSeriesController = ScrollController();
-    return Obx(
-      () => series.total == 0
-          ? Container()
-          : SizedBox(
-              height: 500,
-              width: double.infinity,
-              child: Obx(() => Column(
-                    children: [
-                      Obx(() => Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: SectionTitle(title: series.name),
-                          )),
-                      Expanded(
-                        child: Scrollbar(
-                            controller: seasonsSeriesController,
-                            child: MasonryGridView.count(
-                                scrollDirection: Axis.horizontal,
-                                controller: seasonsSeriesController,
-                                crossAxisCount: 2,
-                                crossAxisSpacing: 10,
-                                itemCount: series.total,
-                                itemBuilder: (context, index) {
-                                  return SimpleVideoCard(
-                                    mediaInfo: series.liveMediaInfoList[index],
-                                    onTap: () {},
-                                  );
-                                })),
-                      )
-                    ],
-                  )),
+    return series.total == 0
+        ? Container()
+        : SizedBox(
+            height: series.total <= 5 ? 270 : 500,
+            width: double.infinity,
+            child: Column(
+              children: [
+                SectionTitle(title: series.name),
+                Expanded(
+                  child: Scrollbar(
+                    controller: seasonsSeriesController,
+                    child: MasonryGridView.count(
+                      scrollDirection: Axis.horizontal,
+                      controller: seasonsSeriesController,
+                      crossAxisCount: series.total <= 5 ? 1 : 2,
+                      crossAxisSpacing: 10,
+                      itemCount: series.total,
+                      itemBuilder: (context, index) {
+                        return SimpleVideoCard(
+                          mediaInfo: series.liveMediaInfoList[index],
+                          onTap: () {},
+                        );
+                      },
+                    ),
+                  ),
+                )
+              ],
             ),
-    );
+          );
   }
 
   buildSeasonsSeriesListItems() {
