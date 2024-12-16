@@ -314,7 +314,7 @@ class SimpleVideoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(left: 16),
+      margin: const EdgeInsets.only(left: 5, right: 5),
       decoration: BoxDecoration(
         // 添加边框
         border: Border.all(color: Colors.grey.shade300, width: 1.0),
