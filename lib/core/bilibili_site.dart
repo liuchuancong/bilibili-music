@@ -144,7 +144,7 @@ class BiliBiliSite {
       "sec-fetch-user": "?1",
       "upgrade-insecure-requests": "1",
       "user-agent":
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
       "Referer": "https://space.bilibili.com/$mid",
     };
     var result = await HttpClient.instance.getJson(
@@ -210,7 +210,7 @@ class BiliBiliSite {
       "sec-fetch-user": "?1",
       "upgrade-insecure-requests": "1",
       "user-agent":
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
       "Referer": "https://space.bilibili.com/$mid",
     };
     var result = await HttpClient.instance.getJson(
@@ -276,7 +276,7 @@ class BiliBiliSite {
       "sec-fetch-user": "?1",
       "upgrade-insecure-requests": "1",
       "user-agent":
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
       "Referer": "https://space.bilibili.com/$mid",
     };
     var result = await HttpClient.instance.getJson(
@@ -347,7 +347,7 @@ class BiliBiliSite {
       "sec-fetch-user": "?1",
       "upgrade-insecure-requests": "1",
       "user-agent":
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
       "Referer": "https://www.bilibili.com/video/$bvid",
     };
     var result = await HttpClient.instance.getJson(
@@ -415,7 +415,7 @@ class BiliBiliSite {
       "sec-fetch-user": "?1",
       "upgrade-insecure-requests": "1",
       "user-agent":
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
       "Referer": "https://www.bilibili.com/video/${video.bvid}",
     };
     var result = await HttpClient.instance.getJson(
@@ -428,7 +428,6 @@ class BiliBiliSite {
     if (result["code"] == 0) {
       var videoDetails = result["data"];
       var owner = videoDetails["Card"];
-      log(owner.toString());
       return UpUserInfo(
         name: owner["card"]['name'] ?? "",
         desc: owner['card']['sign'] ?? "",
@@ -449,6 +448,57 @@ class BiliBiliSite {
       loaded: false,
     );
   }
+
+  //  public ApiModel GetMediaList(string medisListId, string lastAid, int pagesize = 20)
+  //       {
+  //           var api = new ApiModel()
+  //           {
+  //               method = HttpMethods.Get,
+  //               baseUrl = $"https://api.bilibili.com/x/v2/medialist/resource/list",
+  //               parameter =
+  //                   $"{ApiHelper.MustParameter(AppKey, true)}&type=1&biz_id={medisListId}&oid={lastAid}&otype=2&ps={pagesize}&direction=false&desc=true&sort_field=1&tid=0&with_current=false",
+  //           };
+  //           api.parameter += ApiHelper.GetSign(api.parameter, AppKey);
+  //           return api;
+  //       }
+
+  // Future<List<BilibiliVideo>> getMediaList(String medisListId, String lastAid, {int pagesize = 20}) async {
+  //   cookie = settings.bilibiliCookie.value;
+  //   var header = {
+  //     "cookie": cookie,
+  //     "authority": "api.bilibili.com",
+  //     "accept":
+  //         "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+  //     "accept-language": "zh-CN,zh;q=0.9",
+  //     "cache-control": "no-cache",
+  //     "dnt": "1",
+  //     "pragma": "no-cache",
+  //     "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+  //     "sec-ch-ua-mobile": "?0",
+  //     "sec-ch-ua-platform": '"macOS"',
+  //     "sec-fetch-dest": "document",
+  //     "sec-fetch-mode": "navigate",
+  //     "sec-fetch-site": "none",
+  //     "sec-fetch-user": "?1",
+  //     "upgrade-insecure-requests": "1",
+  //     "user-agent":
+  //         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+  //     "Referer": "https://www.bilibili.com/list/$medisListId",
+  //   };
+  //   var result =
+  //       await HttpClient.instance.getJson("https://api.bilibili.com/x/v2/medialist/resource/list", queryParameters: {
+  //     "type": 1,
+  //     "biz_id": medisListId,
+  //     "oid": lastAid,
+  //     "otype": 2,
+  //     "ps": pagesize,
+  //     "direction": false,
+  //     "desc": true,
+  //     "sort_field": 1,
+  //     "tid": 0,
+  //     "with_current": false,
+  //   });
+  // }
 
   Future<LiveMediaInfoData?> getAudioDetail(int avid, int cid, String bvid, {String qn = '32'}) async {
     cookie = settings.bilibiliCookie.value;
@@ -472,7 +522,7 @@ class BiliBiliSite {
       "sec-fetch-user": "?1",
       "upgrade-insecure-requests": "1",
       "user-agent":
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
       "Referer": "https://www.bilibili.com/video/$bvid",
     };
     var result = await HttpClient.instance.getJson(
@@ -534,7 +584,7 @@ class BiliBiliSite {
       "sec-fetch-user": "?1",
       "upgrade-insecure-requests": "1",
       "user-agent":
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
       "Referer": "https://www.bilibili.com/video/$bvid",
     };
     var result = await HttpClient.instance.getJson(
@@ -584,7 +634,7 @@ class BiliBiliSite {
       "sec-fetch-user": "?1",
       "upgrade-insecure-requests": "1",
       "user-agent":
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
       "Referer": "https://music.bilibili.com/",
     };
     var result = await HttpClient.instance.getJson(
