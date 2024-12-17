@@ -1,7 +1,7 @@
 /// 路由路径
 class RoutePath {
   /// 首页
-  static const kInitial = "/c";
+  static const kInitial = "/home";
 
   /// 关注
   static const kFavorite = "/favorite";

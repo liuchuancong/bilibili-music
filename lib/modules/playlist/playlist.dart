@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'playlist_controller.dart';
 import 'package:bilibilimusic/common/index.dart';
@@ -146,6 +147,7 @@ class PlayListPage extends GetView<PlayListController> {
                   SmartDialog.showToast('系统预设歌单不可修改');
                 } else {
                   var list = controller.list.value.map((item) => item.liveMediaInfo).toList();
+                  log(controller.bilibiliVideo.toJson().toString());
                   controller.settingsService.toggleCollectMusic(controller.bilibiliVideo, list);
                 }
               },

@@ -12,37 +12,38 @@ class BilibiliVideo {
   int? favorites;
   String? bvid;
   int? aid;
-  int? play = 0;
+  int? play;
   List<LiveMediaInfo> medias = [];
-  VideoStatus? status = VideoStatus.published;
+  VideoStatus? status;
   int? sort = 0;
   BilibiliVideo({
-    this.title,
-    this.author,
-    this.pic,
-    this.pubdate,
-    this.upic,
-    this.favorites,
+    this.title = '',
+    this.author = '',
+    this.pic = '',
+    this.pubdate = 0,
+    this.upic = '',
+    this.favorites = 0,
     this.bvid,
     this.aid,
-    this.play,
-    this.status,
+    this.play = 0,
+    this.status = VideoStatus.published,
     this.id,
+    this.medias = const [],
   });
 
   BilibiliVideo.fromJson(Map<String, dynamic> json)
-      : title = json['title'],
-        author = json['author'],
-        pic = json['pic'],
-        pubdate = json['pubdate'],
-        upic = json['upic'],
+      : title = json['title'] ?? '',
+        author = json['author'] ?? '',
+        pic = json['pic'] ?? '',
+        pubdate = json['pubdate'] ?? 0,
+        upic = json['upic'] ?? '',
         bvid = json['bvid'],
         aid = json['aid'],
         play = json['play'],
         id = json['id'],
         medias = json['medias'] != null ? (json['medias'] as List).map((e) => LiveMediaInfo.fromJson(e)).toList() : [],
         status = json['status'] != null ? VideoStatus.values[json['status']] : VideoStatus.published,
-        favorites = json['favorites'];
+        favorites = json['favorites'] ?? 0;
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};

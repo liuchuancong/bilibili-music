@@ -68,7 +68,6 @@ class AppPages {
     GetPage(
       name: RoutePath.kPlayList,
       page: () => const PlayListPage(),
-      preventDuplicates: false,
       bindings: [PlayListBinding()],
     ),
     GetPage(
