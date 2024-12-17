@@ -15,6 +15,7 @@ class PlayListController extends BasePageController<PlayItems> {
   var showSelectBox = false.obs;
   var isCheckAll = false.obs;
   var currentSelectItems = [].obs;
+  var oid = "".obs;
   var upUserInfo = UpUserInfo(
     name: "",
     desc: "",
@@ -30,27 +31,45 @@ class PlayListController extends BasePageController<PlayItems> {
   Future<List<PlayItems>> getData(int page, int pageSize) async {
     List<PlayItems> playitems = [];
     if (bilibiliVideo.status == VideoStatus.customized) {
+      if (list.isNotEmpty) {
+        return [];
+      }
       for (var i = 0; i < bilibiliVideo.medias.length; i++) {
         playitems.add(PlayItems(liveMediaInfo: bilibiliVideo.medias[i], index: i, selected: false));
       }
       return playitems;
-    }
-    if (mediaType == VideoMediaTypes.masterpiece) {
+    } else if (mediaType == VideoMediaTypes.masterpiece) {
+      if (list.isNotEmpty) {
+        return [];
+      }
       var result = await BiliBiliSite().getRoomListDetail(bilibiliVideo.bvid!);
       for (var i = 0; i < result.length; i++) {
         playitems.add(PlayItems(liveMediaInfo: result[i], index: i, selected: false));
       }
       return playitems;
     } else if (mediaType == VideoMediaTypes.series || bilibiliVideo.status == VideoStatus.series) {
+      if (list.isNotEmpty) {
+        return [];
+      }
       var result = await BiliBiliSite().playAlbumAllVideos(bilibiliVideo.aid!, bilibiliVideo.bvid!);
       for (var i = 0; i < result.length; i++) {
         playitems.add(PlayItems(liveMediaInfo: result[i], index: i, selected: false));
       }
       return playitems;
+    } else if (mediaType == VideoMediaTypes.allVideos) {
+      var newOld = list.isNotEmpty ? list.last.liveMediaInfo.vid : "";
+      if (newOld == oid.value && newOld.isNotEmpty) {
+        return [];
+      } else {
+        oid.value = newOld;
+      }
+      var result = await BiliBiliSite().getMediaList(bilibiliVideo.mid!, newOld, page: page, pageSize: pageSize);
+      for (var i = 0; i < result.length; i++) {
+        playitems.add(PlayItems(liveMediaInfo: result[i], index: i, selected: false));
+      }
+
+      return playitems;
     }
-    // var result = await BiliBiliSite().getVideoPlayUrl(bilibiliVideo.bvid!);
-    // for (var i = 0; i < result.length; i++) {
-    // VideoMediaTypes.series
     return playitems;
   }
 

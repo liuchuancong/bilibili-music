@@ -453,57 +453,6 @@ class BiliBiliSite {
     );
   }
 
-  //  public ApiModel GetMediaList(string medisListId, string lastAid, int pagesize = 20)
-  //       {
-  //           var api = new ApiModel()
-  //           {
-  //               method = HttpMethods.Get,
-  //               baseUrl = $"https://api.bilibili.com/x/v2/medialist/resource/list",
-  //               parameter =
-  //                   $"{ApiHelper.MustParameter(AppKey, true)}&type=1&biz_id={medisListId}&oid={lastAid}&otype=2&ps={pagesize}&direction=false&desc=true&sort_field=1&tid=0&with_current=false",
-  //           };
-  //           api.parameter += ApiHelper.GetSign(api.parameter, AppKey);
-  //           return api;
-  //       }
-
-  // Future<List<BilibiliVideo>> getMediaList(String medisListId, String lastAid, {int pagesize = 20}) async {
-  //   cookie = settings.bilibiliCookie.value;
-  //   var header = {
-  //     "cookie": cookie,
-  //     "authority": "api.bilibili.com",
-  //     "accept":
-  //         "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-  //     "accept-language": "zh-CN,zh;q=0.9",
-  //     "cache-control": "no-cache",
-  //     "dnt": "1",
-  //     "pragma": "no-cache",
-  //     "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
-  //     "sec-ch-ua-mobile": "?0",
-  //     "sec-ch-ua-platform": '"macOS"',
-  //     "sec-fetch-dest": "document",
-  //     "sec-fetch-mode": "navigate",
-  //     "sec-fetch-site": "none",
-  //     "sec-fetch-user": "?1",
-  //     "upgrade-insecure-requests": "1",
-  //     "user-agent":
-  //         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-  //     "Referer": "https://www.bilibili.com/list/$medisListId",
-  //   };
-  //   var result =
-  //       await HttpClient.instance.getJson("https://api.bilibili.com/x/v2/medialist/resource/list", queryParameters: {
-  //     "type": 1,
-  //     "biz_id": medisListId,
-  //     "oid": lastAid,
-  //     "otype": 2,
-  //     "ps": pagesize,
-  //     "direction": false,
-  //     "desc": true,
-  //     "sort_field": 1,
-  //     "tid": 0,
-  //     "with_current": false,
-  //   });
-  // }
-
   Future<LiveMediaInfoData?> getAudioDetail(int avid, int cid, String bvid, {String qn = '32'}) async {
     cookie = settings.bilibiliCookie.value;
 
@@ -930,6 +879,86 @@ class BiliBiliSite {
     } catch (e) {
       log(e.toString(), name: 'playAlbumAllVideos');
     }
+    return videoList;
+  }
+
+  Future<List<LiveMediaInfo>> getMediaList(String medisListId, String lastAid,
+      {int page = 1, int pageSize = 20}) async {
+    cookie = settings.bilibiliCookie.value;
+    List<LiveMediaInfo> videoList = [];
+    var header = {
+      "cookie": cookie,
+      "authority": "api.bilibili.com",
+      "accept":
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "accept-language": "zh-CN,zh;q=0.9",
+      "cache-control": "no-cache",
+      "dnt": "1",
+      "pragma": "no-cache",
+      "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": '"macOS"',
+      "sec-fetch-dest": "document",
+      "sec-fetch-mode": "navigate",
+      "sec-fetch-site": "none",
+      "sec-fetch-user": "?1",
+      "upgrade-insecure-requests": "1",
+      "user-agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+      "Referer": "https://www.bilibili.com/list/$medisListId",
+    };
+    var result = await HttpClient.instance.getJson(
+      "https://api.bilibili.com/x/v2/medialist/resource/list",
+      queryParameters: {
+        "type": 1,
+        "biz_id": medisListId,
+        "oid": lastAid,
+        "otype": 2,
+        "ps": pageSize,
+        "direction": false,
+        "desc": true,
+        "sort_field": 1,
+        "tid": 0,
+        "with_current": false,
+        "mobi_app": "web",
+      },
+      header: header,
+    );
+    try {
+      if (result["code"] == 0) {
+        List queryList = result["data"]["media_list"] ?? [];
+        for (var item in queryList) {
+          var pages = item["pages"] ?? [];
+          var upper = item["upper"];
+          for (var page in pages) {
+            var videoItem = LiveMediaInfo(
+              cid: 0,
+              page: item["page"] ?? 0,
+              from: page["from"] ?? "",
+              part: page["title"] ?? "",
+              duration: page["duration"] ?? 0,
+              vid: page["id"].toString(),
+              weblink: item['link'],
+              firstFrame: "",
+              tname: "",
+              pic: item["cover"] ?? "",
+              title: item["title"] ?? "",
+              face: upper != null ? upper["face"] : "",
+              name: upper != null ? upper["name"] : "",
+              aid: 0,
+              videos: 0,
+              pubdate: item["pubtime"] ?? 0,
+              favorite: 0,
+              bvid: item["bv_id"] ?? "",
+            );
+            videoList.add(videoItem);
+          }
+        }
+      }
+    } catch (e) {
+      log(e.toString(), name: 'getMediaList');
+    }
+    log(videoList.length.toString(), name: 'getMediaList');
     return videoList;
   }
 }

@@ -69,7 +69,7 @@ class ProfilePage extends GetView<ProfileController> {
                         title: controller.allVideos.value.name,
                         trailing: TextButton(
                           onPressed: () {
-                            Get.toNamed(RoutePath.kAreaRooms, arguments: [controller.upUserInfo.mid]);
+                            Get.toNamed(RoutePath.kAreaRooms, arguments: [controller.upUserInfo]);
                           },
                           child: const Text("更多"),
                         ),
@@ -193,7 +193,7 @@ class ProfilePage extends GetView<ProfileController> {
           onPressed: () {
             controller.toggleFollow();
           },
-          child: Obx(() => !controller.followed.value
+          child: Obx(() => controller.followed.value
               ? const Icon(
                   Icons.favorite,
                 )

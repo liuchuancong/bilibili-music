@@ -16,6 +16,7 @@ class BilibiliVideo {
   List<LiveMediaInfo> medias = [];
   VideoStatus? status;
   int? sort = 0;
+  String? mid;
   BilibiliVideo({
     this.title = '',
     this.author = '',
@@ -29,6 +30,7 @@ class BilibiliVideo {
     this.status = VideoStatus.published,
     this.id,
     this.medias = const [],
+    this.mid = "",
   });
 
   BilibiliVideo.fromJson(Map<String, dynamic> json)
