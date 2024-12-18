@@ -18,19 +18,19 @@
   <table>
     <tr>
     <td style="text-align: center">
-      <img width="180" height="320" src="https://raw.githubusercontent.com/liuchuancong/bilibili-music/main/assets/screenshots/1.png">
+      <img width="200" src="https://raw.githubusercontent.com/liuchuancong/bilibili-music/main/assets/screenshots/1.png">
     </td>
     <td style="text-align: center">
-      <img width="180" height="320" src="https://raw.githubusercontent.com/liuchuancong/bilibili-music/main/assets/screenshots/2.png">
+      <img width="200" src="https://raw.githubusercontent.com/liuchuancong/bilibili-music/main/assets/screenshots/2.png">
     </td>
     <td style="text-align: center">
-      <img width="180" height="320" src="https://raw.githubusercontent.com/liuchuancong/bilibili-music/main/assets/screenshots/3.png">
+      <img width="200" src="https://raw.githubusercontent.com/liuchuancong/bilibili-music/main/assets/screenshots/3.png">
     </td>
     <td style="text-align: center">
-      <img width="180" height="320" src="https://raw.githubusercontent.com/liuchuancong/bilibili-music/main/assets/screenshots/4.png">
+      <img width="200" src="https://raw.githubusercontent.com/liuchuancong/bilibili-music/main/assets/screenshots/4.png">
     </td>
     <td style="text-align: center">
-     <img width="180" height="320" src="https://raw.githubusercontent.com/liuchuancong/bilibili-music/main/assets/screenshots/5.png">
+     <img width="200"  src="https://raw.githubusercontent.com/liuchuancong/bilibili-music/main/assets/screenshots/5.png">
     </td>
     </tr>
   </table>
