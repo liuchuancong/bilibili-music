@@ -1,3 +1,4 @@
+import 'package:bilibilimusic/plugins/utils.dart';
 import 'package:bilibilimusic/models/live_media_info.dart';
 
 enum VideoStatus { published, series, allVideos, customized }
@@ -17,18 +18,20 @@ class BilibiliVideo {
   VideoStatus? status = VideoStatus.published;
   int? sort = 0;
   BilibiliVideo({
-    this.title,
-    this.author,
-    this.pic,
-    this.pubdate,
-    this.upic,
-    this.favorites,
-    this.bvid,
-    this.aid,
-    this.play,
-    this.status,
+    this.title = '',
+    this.author = '',
+    this.pic = '',
+    this.pubdate = 0,
+    this.upic = '',
+    this.favorites = 0,
+    this.bvid = '',
+    this.aid = 0,
+    this.play = 0,
+    this.status = VideoStatus.published,
     this.id,
-  });
+  }) {
+    id ??= Utils.getRandomId();
+  }
 
   BilibiliVideo.fromJson(Map<String, dynamic> json)
       : title = json['title'],
