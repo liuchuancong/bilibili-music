@@ -15,12 +15,9 @@
 
 ## 截图
 
-`<img src="https://raw.githubusercontent.com/liuchuancong/bilibili-music/main/assets/screenshots/1.png">`
+<img src="https://raw.githubusercontent.com/liuchuancong/bilibili-music/main/assets/screenshots/1.png">
+<img src="https://raw.githubusercontent.com/liuchuancong/bilibili-music/main/assets/screenshots/2.png">
+<img src="https://raw.githubusercontent.com/liuchuancong/bilibili-music/main/assets/screenshots/3.png">
+<img src="https://raw.githubusercontent.com/liuchuancong/bilibili-music/main/assets/screenshots/4.png">
+<img src="https://raw.githubusercontent.com/liuchuancong/bilibili-music/main/assets/screenshots/5.png">
 
-`<img src="https://raw.githubusercontent.com/liuchuancong/bilibili-music/main/assets/screenshots/2.png">`
-
-`<img src="https://raw.githubusercontent.com/liuchuancong/bilibili-music/main/assets/screenshots/3.png">`
-
-`<img src="https://raw.githubusercontent.com/liuchuancong/bilibili-music/main/assets/screenshots/4.png">`
-
-`<img src="https://raw.githubusercontent.com/liuchuancong/bilibili-music/main/assets/screenshots/5.png">`
