@@ -41,7 +41,7 @@ class BilibiliVideo {
         upic = json['upic'] ?? '',
         bvid = json['bvid'],
         aid = json['aid'],
-        play = json['play'],
+        play = json['play'] ?? 0,
         id = json['id'],
         medias = json['medias'] != null ? (json['medias'] as List).map((e) => LiveMediaInfo.fromJson(e)).toList() : [],
         status = json['status'] != null ? VideoStatus.values[json['status']] : VideoStatus.published,
