@@ -144,9 +144,9 @@ class RoomCard extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    bilibiliVideo.status == VideoStatus.published
+                    bilibiliVideo.status == VideoStatus.published || bilibiliVideo.status == VideoStatus.series
                         ? CachedNetworkImage(
-                            imageUrl: bilibiliVideo.pic!.startsWith("http")
+                            imageUrl: bilibiliVideo.pic!.startsWith("http") || bilibiliVideo.pic!.startsWith("https")
                                 ? bilibiliVideo.pic!
                                 : "http:${bilibiliVideo.pic}",
                             cacheManager: CustomCacheManager.instance,

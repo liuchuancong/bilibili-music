@@ -7,6 +7,7 @@ import 'package:bilibilimusic/widgets/menu_button.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:bilibilimusic/modules/search/search_page.dart';
 import 'package:bilibilimusic/modules/home/home_controller.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class HomePage extends GetView<HomeController> {
   const HomePage({super.key});
@@ -35,6 +36,18 @@ class HomePage extends GetView<HomeController> {
         leading: const MenuButton(),
         scrolledUnderElevation: 0,
         centerTitle: true,
+        title: TabBar(
+          controller: controller.tabController,
+          isScrollable: true,
+          tabAlignment: TabAlignment.center,
+          labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          labelPadding: const EdgeInsets.symmetric(horizontal: 12),
+          indicatorSize: TabBarIndicatorSize.label,
+          tabs: const [
+            Tab(text: '歌单'),
+            Tab(text: '关注'),
+          ],
+        ),
         actions: [
           IconButton(
               onPressed: () {
@@ -49,7 +62,10 @@ class HomePage extends GetView<HomeController> {
           ),
         ],
       ),
-      body: const MuiscGridView(),
+      body: TabBarView(
+        controller: controller.tabController,
+        children: const [MuiscGridView(), FavoriteView()],
+      ),
       bottomNavigationBar: const BottomMusicControl(),
     );
   }
@@ -80,6 +96,57 @@ class MuiscGridView extends GetView<HomeController> {
                 title: "暂无数据",
                 subtitle: "请尝试搜索关注",
               )),
+      ],
+    );
+  }
+}
+
+class FavoriteView extends GetView<HomeController> {
+  const FavoriteView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: Obx(() => controller.settingsService.followers.isNotEmpty
+              ? MasonryGridView.count(
+                  padding: const EdgeInsets.all(5),
+                  controller: controller.scrollController,
+                  crossAxisCount: 4,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  itemCount: controller.settingsService.followers.length,
+                  itemBuilder: (context, index) {
+                    return InkWell(
+                      onTap: () {
+                        Get.toNamed(RoutePath.kProfile, arguments: controller.settingsService.followers[index]);
+                      },
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircleAvatar(
+                            radius: 25,
+                            backgroundImage: NetworkImage(controller.settingsService.followers[index].face),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            controller.settingsService.followers[index].name,
+                            style: const TextStyle(fontSize: 14),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                )
+              : const EmptyView(
+                  icon: Icons.search,
+                  title: "暂无数据",
+                  subtitle: "请尝试搜索关注",
+                )),
+        ),
       ],
     );
   }

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'playlist_controller.dart';
 import 'package:bilibilimusic/common/index.dart';
@@ -146,6 +147,7 @@ class PlayListPage extends GetView<PlayListController> {
                   SmartDialog.showToast('系统预设歌单不可修改');
                 } else {
                   var list = controller.list.value.map((item) => item.liveMediaInfo).toList();
+                  log(controller.bilibiliVideo.toJson().toString());
                   controller.settingsService.toggleCollectMusic(controller.bilibiliVideo, list);
                 }
               },
@@ -246,53 +248,58 @@ class PlayListPage extends GetView<PlayListController> {
             ),
             // 分割线
             const Divider(height: 1, color: Color.fromARGB(255, 196, 191, 191)),
+
             Expanded(
-              child: Obx(() => ListView.builder(
-                    itemCount: controller.list.length,
-                    itemBuilder: (context, index) {
-                      PlayItems playItems = controller.list[index];
-                      LiveMediaInfo mediaInfo = playItems.liveMediaInfo;
-                      return Obx(
-                        () => Card(
-                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                          color: controller.settingsService.isCurrentMediia(mediaInfo)
-                              ? Get.theme.colorScheme.primary
-                              : null,
-                          elevation: 4,
-                          child: InkWell(
-                            onTap: () {
-                              var list = controller.list.value.map((item) => item.liveMediaInfo).toList();
-                              controller.audioController.startPlayAtIndex(index, list);
-                            },
-                            child: ListTile(
-                              leading: controller.showSelectBox.value
-                                  ? Obx(() => IconButton(
-                                      onPressed: () {
-                                        controller.handleToggleItem(index);
-                                      },
-                                      icon: Icon(
-                                        playItems.selected ? FontAwesomeIcons.squareCheck : FontAwesomeIcons.square,
-                                        color: controller.settingsService.isCurrentMediia(mediaInfo)
-                                            ? Colors.white
-                                            : Colors.black,
-                                      )))
-                                  : null,
-                              title: Text(
-                                mediaInfo.part,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: controller.settingsService.isCurrentMediia(mediaInfo)
-                                      ? Colors.white
-                                      : Colors.black,
-                                ),
+              child: EasyRefresh(
+                controller: controller.easyRefreshController,
+                onRefresh: controller.refreshData,
+                onLoad: controller.loadData,
+                child: ListView.builder(
+                  itemCount: controller.list.length,
+                  itemBuilder: (context, index) {
+                    PlayItems playItems = controller.list[index];
+                    LiveMediaInfo mediaInfo = playItems.liveMediaInfo;
+                    return Obx(
+                      () => Card(
+                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                        color: controller.settingsService.isCurrentMediia(mediaInfo)
+                            ? Get.theme.colorScheme.primary
+                            : null,
+                        elevation: 4,
+                        child: InkWell(
+                          onTap: () {
+                            var list = controller.list.value.map((item) => item.liveMediaInfo).toList();
+                            controller.audioController.startPlayAtIndex(index, list);
+                          },
+                          child: ListTile(
+                            leading: controller.showSelectBox.value
+                                ? Obx(() => IconButton(
+                                    onPressed: () {
+                                      controller.handleToggleItem(index);
+                                    },
+                                    icon: Icon(
+                                      playItems.selected ? FontAwesomeIcons.squareCheck : FontAwesomeIcons.square,
+                                      color: controller.settingsService.isCurrentMediia(mediaInfo)
+                                          ? Colors.white
+                                          : Colors.black,
+                                    )))
+                                : null,
+                            title: Text(
+                              mediaInfo.part,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color:
+                                    controller.settingsService.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black,
                               ),
                             ),
                           ),
                         ),
-                      );
-                    },
-                  )),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
           ],
         );

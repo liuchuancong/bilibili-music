@@ -10,7 +10,6 @@ class ProfileController extends BasePageController {
   final UpUserInfo upUserInfo;
   ProfileController({required this.upUserInfo});
   SettingsService settingsService = Get.find<SettingsService>();
-  final List<String> items = List.generate(20, (index) => "Item $index");
   final followed = false.obs;
 
   final innerController = ScrollController();
