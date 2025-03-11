@@ -112,7 +112,7 @@ msix_config:
   display_name: Bilibili Music
   # publisher_display_name: puretech.com
   # identity_name: com.puretech.purelive
-  msix_version: 1.0.0.4
+  msix_version: 1.0.0.6
   logo_path: assets/images/bilibili_2.png
   # capabilities: internetClient
   certificate_path: assets/keystore/CERTIFICATE.pfx

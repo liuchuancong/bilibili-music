@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Music"
-#define MyAppVersion "1.0.0.3"
+#define MyAppVersion "1.0.0.4"
 #define MyAppPublisher "My Company, Inc."
 #define MyAppExeName "bilibilimusic.exe"
 #define MyAppAssocName MyAppName + " File"
