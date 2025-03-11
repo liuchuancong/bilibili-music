@@ -1,5 +1,3 @@
-library common;
-
 export 'package:flutter_color/flutter_color.dart';
 export 'package:flutter/material.dart';
 export 'package:permission_handler/permission_handler.dart';

@@ -177,7 +177,7 @@ class RoomCard extends StatelessWidget {
                               )
                             : null,
                         color: bilibiliVideo.status == VideoStatus.published
-                            ? Colors.black.withOpacity(0)
+                            ? Colors.black.withValues(alpha: 0)
                             : null, // Adjust the opacity as needed
                       ),
                     ),
@@ -195,7 +195,7 @@ class RoomCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(15.0),
                   gradient: LinearGradient(
                     colors: [
-                      Colors.black.withOpacity(0.6),
+                      Colors.black.withValues(alpha: 0.6),
                       Colors.transparent,
                     ],
                     begin: Alignment.bottomCenter,
@@ -310,7 +310,7 @@ class CountChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       shape: const StadiumBorder(),
-      color: color.withOpacity(0.8),
+      color: color.withValues(alpha: 0.8),
       shadowColor: Colors.transparent,
       elevation: 0,
       child: Padding(

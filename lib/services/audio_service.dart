@@ -114,9 +114,7 @@ class AudioController extends GetxController {
         },
       );
     }
-    getVolume();
     // 监听播放列表变化
-
     if (playlist.isNotEmpty) {
       Timer(const Duration(seconds: 2), () {
         currentMusicInfo.value = {
@@ -131,6 +129,12 @@ class AudioController extends GetxController {
         );
       });
     }
+    currentVolumn.listen((value) {
+      double localVolume = settingsService.volume.value;
+      if (localVolume != value) {
+        settingsService.volume.value = value;
+      }
+    });
   }
 
   @override
@@ -189,12 +193,16 @@ class AudioController extends GetxController {
             ),
             play: isAutoPlay,
           );
+          await getVolume();
+          await setVolume(currentVolumn.value);
         }
         isMusicFirstLoad.value = false;
         if (isAutoPlay) {
           if (Platform.isAndroid) {
             Timer(const Duration(seconds: 1), () async {
               await _audioPlayer.play();
+              await getVolume();
+              await setVolume(currentVolumn.value);
             });
           }
         }
@@ -243,10 +251,15 @@ class AudioController extends GetxController {
   }
 
   Future<void> getVolume() async {
-    if (Platform.isWindows) {
-      currentVolumn.value = player.state.volume / 100;
+    double localVolume = settingsService.volume.value;
+    if (localVolume == 0.0) {
+      if (Platform.isWindows) {
+        currentVolumn.value = player.state.volume / 100;
+      } else {
+        currentVolumn.value = (await FlutterVolumeController.getVolume())!;
+      }
     } else {
-      currentVolumn.value = (await FlutterVolumeController.getVolume())!;
+      currentVolumn.value = localVolume;
     }
   }
 

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:bilibilimusic/plugins/utils.dart';
+import 'package:bilibilimusic/utils/event_bus.dart';
 import 'package:bilibilimusic/routes/route_path.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:bilibilimusic/models/live_media_info.dart';
@@ -16,20 +17,11 @@ class AppNavigator {
     required BilibiliVideo bilibiliVideo,
     required VideoMediaTypes mediaType,
   }) async {
-    if (Get.previousRoute == RoutePath.kInitial) {
-      Get.toNamed(
-        RoutePath.kPlayList,
-        arguments: [bilibiliVideo, mediaType],
-      );
-    } else {
-      Get.offAllNamed(RoutePath.kInitial);
-      Timer(const Duration(milliseconds: 20), () {
-        Get.toNamed(
-          RoutePath.kPlayList,
-          arguments: [bilibiliVideo, mediaType],
-        );
-      });
-    }
+    EventBus.instance.emit('toLiveRoomDetailList', true);
+    Get.toNamed(
+      RoutePath.kPlayList,
+      arguments: [bilibiliVideo, mediaType],
+    );
   }
 
   static Future<void> toLiveRoomDetail({required LiveMediaInfo mediaInfo}) async {

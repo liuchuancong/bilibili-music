@@ -9,7 +9,7 @@ class RingOfCirclesPainter extends CustomPainter {
   RingOfCirclesPainter(this.color, this.animation);
   void circle(Canvas canvas, Rect rect, double value) {
     final double opacity = (1.0 - (value / 4.0)).clamp(0.0, 1.0);
-    final Color rawColor = color.withOpacity(opacity);
+    final Color rawColor = color.withValues(alpha: opacity);
 
     final double size = rect.width / 2;
     final double area = size * size;

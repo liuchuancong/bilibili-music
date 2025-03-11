@@ -55,7 +55,7 @@ class BasePageController<T> extends BaseController {
   int pageSize = 30;
   var canLoadMore = false.obs;
   var list = <T>[].obs;
-
+  int lastUpdateTime = 0;
   @override
   void onInit() {
     scrollController.addListener(() {
@@ -83,7 +83,7 @@ class BasePageController<T> extends BaseController {
       pageEmpty.value = false;
       notLogin.value = false;
       pageLoadding.value = currentPage == 1;
-
+      lastUpdateTime = DateTime.now().millisecondsSinceEpoch;
       var result = await getData(currentPage, pageSize);
       //是否可以加载更多
       if (result.isNotEmpty) {

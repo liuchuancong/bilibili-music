@@ -140,7 +140,7 @@ class BottomMusicControl extends GetWidget<AudioController> {
                   barHeight: 5,
                   thumbRadius: 4,
                   thumbGlowRadius: 8,
-                  baseBarColor: Colors.white.withOpacity(0.5),
+                  baseBarColor: Colors.white.withValues(alpha: 0.5),
                   progressBarColor: Colors.red[700],
                   bufferedBarColor: Colors.red[300],
                   thumbColor: Colors.white,

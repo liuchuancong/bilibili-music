@@ -113,6 +113,10 @@ class SettingsService extends GetxController {
       PrefUtil.setInt('lrcApiIndex', value);
     });
 
+    volume.listen((value) {
+      PrefUtil.setDouble('volume', value);
+    });
+
     initFavoriteMusic();
   }
 
@@ -123,6 +127,8 @@ class SettingsService extends GetxController {
     "Light": ThemeMode.light,
   };
   final themeModeName = (PrefUtil.getString('themeMode') ?? "System").obs;
+
+  final volume = (PrefUtil.getDouble('volume') ?? 0.0).obs;
 
   get themeMode => SettingsService.themeModes[themeModeName.value]!;
   void onInitShutDown() {
@@ -527,6 +533,7 @@ class SettingsService extends GetxController {
     currentMusicDuration.value = json['currentMusicDuration'] ?? 0;
     lrcApiIndex.value = json['lrcApiIndex'] ?? 0;
     followers.value = (json['followers'] as List).map<UpUserInfo>((e) => UpUserInfo.fromJson(jsonDecode(e))).toList();
+    volume.value = json['volume'] ?? 0.0;
     changeThemeMode(themeModeName.value);
     changeThemeColorSwitch(themeColorSwitch.value);
     changePreferResolution(preferResolution.value);
@@ -557,6 +564,7 @@ class SettingsService extends GetxController {
     json['currentMusicDuration'] = currentMusicDuration.value;
     json['lrcApiIndex'] = lrcApiIndex.value;
     json['followers'] = followers.map((e) => jsonEncode(e.toJson())).toList();
+    json['volume'] = volume.value;
     return json;
   }
 }

@@ -58,9 +58,7 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
     return PlaybackState(
       controls: [
         MediaControl.skipToPrevious,
-        MediaControl.rewind,
         if (audioController.audioPlayer.playing) MediaControl.pause else MediaControl.play,
-        MediaControl.fastForward,
         MediaControl.skipToNext,
       ],
       systemActions: const {

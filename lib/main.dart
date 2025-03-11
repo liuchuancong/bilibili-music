@@ -35,21 +35,10 @@ void main(List<String> args) async {
         androidNotificationChannelId: 'com.mystyle.bilibili.music',
         androidNotificationChannelName: 'bilibili audio playback',
         androidNotificationOngoing: true,
+        androidNotificationIcon: 'mipmap/launcher_icon',
       ),
     );
   }
-  initService();
-  if (Platform.isAndroid) {
-    await AudioService.init(
-      builder: () => AudioPlayerHandler(),
-      config: const AudioServiceConfig(
-        androidNotificationChannelId: 'com.mystyle.bilibili.music',
-        androidNotificationChannelName: 'bilibili audio playback',
-        androidNotificationOngoing: true,
-      ),
-    );
-  }
-
   initRefresh();
   runApp(const MyApp());
 }

@@ -380,7 +380,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 10.0,
                   spreadRadius: 2.0,
                   offset: const Offset(0.0, 4.0),
@@ -392,7 +392,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
               children: [
                 Positioned(
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(10.0),
                     child: RotatedBox(
                       quarterTurns: -1,
                       child: Obx(() => ProgressBar(
@@ -400,7 +400,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
                             barHeight: 5,
                             thumbRadius: 4,
                             thumbGlowRadius: 8,
-                            baseBarColor: Colors.white.withOpacity(0.5),
+                            baseBarColor: Colors.white.withValues(alpha: 0.5),
                             progressBarColor: Colors.red[700],
                             bufferedBarColor: Colors.red[300],
                             thumbColor: Colors.white,
@@ -433,6 +433,12 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
 
     Overlay.of(context).insert(_overlayEntry!);
     isShowVolume = true;
+    timer = Timer(const Duration(seconds: 5), () {
+      _overlayEntry?.remove();
+      _overlayEntry = null;
+      isShowVolume = false;
+      setState(() {});
+    });
   }
 
   Widget _buildImage() {
@@ -444,7 +450,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
         height: expandedSize * 0.8,
         child: RippleWave(
           childTween: Tween(begin: 1, end: 1.0),
-          color: Colors.white.withOpacity(0.5),
+          color: Colors.white.withValues(alpha: 0.5),
           repeat: true,
           waveCount: 4,
           animationController: waveController,
@@ -552,7 +558,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
             barHeight: 5,
             thumbRadius: 4,
             thumbGlowRadius: 8,
-            baseBarColor: Colors.white.withOpacity(0.5),
+            baseBarColor: Colors.white.withValues(alpha: 0.5),
             progressBarColor: Colors.red[700],
             bufferedBarColor: Colors.red[300],
             thumbColor: Colors.white,
