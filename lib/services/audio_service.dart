@@ -123,6 +123,7 @@ class AudioController extends GetxController {
           'author': '',
           'cover': playlist[currentIndex].face,
         };
+        registerVolumeListener();
         startPlay(
           playlist[currentIndex],
           isAutoPlay: settingsService.enableAutoPlay.value,
@@ -262,6 +263,16 @@ class AudioController extends GetxController {
     } else {
       currentVolumn.value = localVolume;
     }
+  }
+
+  // 注册音量变化监听器
+  void registerVolumeListener() {
+    FlutterVolumeController.addListener((volume) {
+      // 音量变化时的回调
+      if (Platform.isAndroid) {
+        currentVolumn.value = volume;
+      }
+    });
   }
 
   Future<void> setVolume(double volume) async {
