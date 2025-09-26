@@ -1,5 +1,6 @@
 import 'route_path.dart';
 import 'package:get/get.dart';
+import 'package:flutter/widgets.dart';
 import 'package:bilibilimusic/play/music_page.dart';
 import 'package:bilibilimusic/modules/home/home.dart';
 import 'package:bilibilimusic/modules/sync/sync_page.dart';
@@ -67,8 +68,11 @@ class AppPages {
     ),
     GetPage(
       name: RoutePath.kPlayList,
-      page: () => const PlayListPage(),
+      page: () => PlayListPage(
+        key: UniqueKey(),
+      ),
       bindings: [PlayListBinding()],
+      preventDuplicates: false,
     ),
     GetPage(
       name: RoutePath.kLivePlay,
