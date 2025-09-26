@@ -9,7 +9,6 @@ import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:bilibilimusic/routes/app_navigation.dart';
 import 'package:bilibilimusic/play/blur_back_ground.dart';
 import 'package:bilibilimusic/services/audio_service.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:bilibilimusic/play/lyric/lyrics_reader_model.dart';
 import 'package:bilibilimusic/play/lyric/lyric_ui/ui_netease.dart';
@@ -39,6 +38,8 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
 
   GlobalKey volumeButton = GlobalKey();
   OverlayEntry? _overlayEntry;
+  Timer? _hideTimer;
+  static const double _barHeight = 150;
 
   Timer? timer;
   @override
@@ -61,12 +62,11 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
     super.initState();
   }
 
-  // 你可以在需要的地方调用这个方法，比如在main函数之前
   void setTransparentStatusBar() {
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent, // 设置状态栏背景为透明
-        statusBarBrightness: Brightness.dark, // 根据你的背景颜色调整文字颜色
+        statusBarColor: Colors.transparent,
+        statusBarBrightness: Brightness.dark,
       ),
     );
   }
@@ -77,6 +77,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
       hasDisposed = true;
       waveController.dispose();
     }
+    _hideVolumeBar();
     super.dispose();
   }
 
@@ -354,90 +355,106 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
     );
   }
 
-  void showVolumeDialog() {
-    // 获取按钮的位置
-    final RenderBox buttonBox = volumeButton.currentContext!.findRenderObject() as RenderBox;
-    final Offset buttonPosition = buttonBox.localToGlobal(Offset.zero);
-    if (_overlayEntry != null || isShowVolume) {
-      _overlayEntry?.remove();
-      _overlayEntry = null;
-    }
-    if (isShowVolume) {
-      isShowVolume = false;
-      return;
-    }
+  void _showVolumeBar() {
+    final renderBox = volumeButton.currentContext!.findRenderObject() as RenderBox;
+    final position = renderBox.localToGlobal(Offset.zero);
+
     _overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
-        left: buttonPosition.dx + 35,
-        top: buttonPosition.dy - 140, // 调整顶部偏移以适应屏幕布局
-        child: Material(
-          color: Colors.transparent,
-          child: Container(
-            width: 30, // 设置宽度
-            height: 120, // 设置高度
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 10.0,
-                  spreadRadius: 2.0,
-                  offset: const Offset(0.0, 4.0),
-                ),
-              ],
-            ),
-            child: Stack(
-              alignment: AlignmentDirectional.center,
-              children: [
-                Positioned(
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: RotatedBox(
-                      quarterTurns: -1,
-                      child: Obx(() => ProgressBar(
-                            progress: Duration(seconds: (audioController.currentVolumn.value * 100).toInt()),
-                            barHeight: 5,
-                            thumbRadius: 4,
-                            thumbGlowRadius: 8,
-                            baseBarColor: Colors.white.withValues(alpha: 0.5),
-                            progressBarColor: Colors.red[700],
-                            bufferedBarColor: Colors.red[300],
-                            thumbColor: Colors.white,
-                            thumbGlowColor: Colors.white,
-                            timeLabelTextStyle: const TextStyle(fontSize: 0),
-                            total: const Duration(seconds: 100),
-                            onSeek: (duration) {
-                              audioController.currentVolumn.value =
-                                  double.parse((duration.inSeconds / 100).toStringAsFixed(2));
-                              audioController.setVolume(duration.inSeconds / 100);
-                              timer?.cancel();
-                              timer = Timer(const Duration(seconds: 2), () {
-                                _overlayEntry?.remove();
-                                _overlayEntry = null;
-                                isShowVolume = false;
-                                setState(() {});
-                              });
-                            },
-                          )),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+        left: position.dx + (renderBox.size.width - 40) / 2,
+        top: position.dy - _barHeight - 8,
+        width: 40,
+        height: _barHeight,
+        child: _buildVolumeBar(),
       ),
     );
 
     Overlay.of(context).insert(_overlayEntry!);
-    isShowVolume = true;
-    timer = Timer(const Duration(seconds: 5), () {
-      _overlayEntry?.remove();
-      _overlayEntry = null;
-      isShowVolume = false;
-      setState(() {});
-    });
+    if (mounted) {
+      setState(() {
+        isShowVolume = true;
+        _hideTimer?.cancel();
+        _hideTimer = Timer(const Duration(seconds: 2), _hideVolumeBar);
+      });
+    }
+  }
+
+  void _hideVolumeBar() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+    if (mounted) {
+      setState(() => isShowVolume = false);
+    }
+    _hideTimer?.cancel();
+    _hideTimer = null;
+  }
+
+  void _toggleVolumeBar() {
+    if (isShowVolume) {
+      _hideVolumeBar();
+    } else {
+      _showVolumeBar();
+    }
+  }
+
+  void _handleVolumeDrag(DragUpdateDetails details) {
+    final maxDeltaPerUpdate = _barHeight * 0.1;
+    final clampedDelta = details.delta.dy.clamp(-maxDeltaPerUpdate, maxDeltaPerUpdate);
+    if (mounted) {
+      setState(() {
+        isShowVolume = true;
+        _hideTimer?.cancel();
+        _hideTimer = Timer(const Duration(seconds: 2), _hideVolumeBar);
+      });
+    }
+    final deltaRatio = -clampedDelta / _barHeight;
+    final newVolume = (audioController.currentVolumn.value + deltaRatio).clamp(0.0, 1.0);
+
+    if (newVolume != audioController.currentVolumn.value) {
+      setState(() {
+        audioController.currentVolumn.value = double.parse(newVolume.toStringAsFixed(2));
+      });
+      audioController.setVolume(newVolume);
+      _overlayEntry?.markNeedsBuild();
+      _hideTimer?.cancel();
+      _hideTimer = Timer(const Duration(seconds: 2), _hideVolumeBar);
+    }
+  }
+
+  Widget _buildVolumeBar() {
+    final sliderPosition = (audioController.currentVolumn.value * _barHeight).clamp(10, _barHeight - 25).toDouble();
+    return GestureDetector(
+      onVerticalDragUpdate: _handleVolumeDrag,
+      onTap: _hideVolumeBar,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.all(Radius.circular(15)),
+          gradient: LinearGradient(
+            colors: [Colors.white24, Colors.white12],
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+          ),
+          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 2)],
+        ),
+        child: Stack(
+          children: [
+            const Positioned.fill(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 15),
+                child: Center(child: VerticalDivider(color: Color.fromRGBO(233, 43, 43, 1), thickness: 3)),
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: sliderPosition,
+              child: const CircleAvatar(radius: 6, backgroundColor: Colors.white),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildImage() {
@@ -477,7 +494,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
   IconData getVolumeIcon() {
     IconData iconData;
     iconData = audioController.currentVolumn.value <= 0
-        ? FontAwesomeIcons.volumeXmark
+        ? Icons.volume_off
         : audioController.currentVolumn.value < 0.5
             ? Icons.volume_down
             : Icons.volume_up;
@@ -499,7 +516,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
                   color: Colors.white,
                 )),
             onTapDown: (TapDownDetails details) {
-              showVolumeDialog();
+              _toggleVolumeBar();
             },
           ),
         ),
@@ -652,21 +669,15 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
 
   void globalTapHandler(TapDownDetails details) {
     if (_overlayEntry == null) return;
-    // 获取按钮的位置
-    final RenderBox buttonBox = volumeButton.currentContext!.findRenderObject() as RenderBox;
-    final Offset buttonPosition = buttonBox.localToGlobal(Offset.zero);
-    final Size buttonSize = buttonBox.size;
-    // 检查点击位置是否在按钮或音量控制面板内
-    if (buttonPosition.dx <= details.globalPosition.dx &&
-        buttonPosition.dx + buttonSize.width >= details.globalPosition.dx &&
-        buttonPosition.dy <= details.globalPosition.dy &&
-        buttonPosition.dy + buttonSize.height >= details.globalPosition.dy) {
-      // 点击在按钮内，不做任何操作
-    } else {
-      // 点击在按钮和音量控制面板外，关闭面板
-      _overlayEntry?.remove();
-      _overlayEntry = null;
-      isShowVolume = false;
+    final renderBox = volumeButton.currentContext!.findRenderObject() as RenderBox;
+    final position = renderBox.localToGlobal(Offset.zero);
+    final size = renderBox.size;
+
+    if (!(position.dx <= details.globalPosition.dx &&
+        position.dx + size.width >= details.globalPosition.dx &&
+        position.dy <= details.globalPosition.dy &&
+        position.dy + size.height >= details.globalPosition.dy)) {
+      _hideVolumeBar();
     }
   }
 
