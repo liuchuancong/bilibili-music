@@ -19,7 +19,7 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
     super.onInit();
   }
 
-  setUI() {
+  void setUI() {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       systemNavigationBarColor: Theme.of(Get.context!).navigationBarTheme.backgroundColor,

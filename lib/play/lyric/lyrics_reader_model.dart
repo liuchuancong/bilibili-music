@@ -7,7 +7,7 @@ import 'package:bilibilimusic/play/lyric/lyric_ui/lyric_ui.dart';
 class LyricsReaderModel {
   List<LyricsLineModel> lyrics = [];
 
-  getCurrentLine(int progress) {
+  int getCurrentLine(int progress) {
     var lastEndTime = 0;
     for (var i = 0; i < lyrics.length; i++) {
       var element = lyrics[i];
@@ -65,7 +65,7 @@ class LyricsLineModel {
 
   List<LyricSpanInfo>? _defaultSpanList;
 
-  get defaultSpanList => _defaultSpanList ??= [
+  List<LyricSpanInfo> get defaultSpanList => _defaultSpanList ??= [
         LyricSpanInfo()
           ..duration = (endTime ?? 0) - (startTime ?? 0)
           ..start = startTime ?? 0
@@ -114,5 +114,5 @@ class LyricSpanInfo {
 }
 
 extension LyricsReaderModelExt on LyricsReaderModel? {
-  get isNullOrEmpty => this?.lyrics == null || this!.lyrics.isEmpty;
+  bool get isNullOrEmpty => this?.lyrics == null || this!.lyrics.isEmpty;
 }

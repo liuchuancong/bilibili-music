@@ -32,7 +32,7 @@ class LyricsReaderPaint extends ChangeNotifier implements CustomPainter {
 
   var cachePlayingIndex = -1;
 
-  clearCache() {
+  void clearCache() {
     cachePlayingIndex = -1;
     highlightWidth = 0;
   }
@@ -87,7 +87,7 @@ class LyricsReaderPaint extends ChangeNotifier implements CustomPainter {
   //限制刷新频率
   int ts = DateTime.now().microsecond;
 
-  refresh() {
+  void refresh() {
     notifyListeners();
   }
 

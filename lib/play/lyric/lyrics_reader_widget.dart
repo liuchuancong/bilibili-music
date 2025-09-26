@@ -139,7 +139,7 @@ class LyricReaderState extends State<LyricsReader> with TickerProviderStateMixin
   }
 
   ///update progress after verify
-  safeLyricOffset(double offset, [bool animation = true]) {
+  void safeLyricOffset(double offset, [bool animation = true]) {
     if (isDrag || isWait) return;
     if (_flingController?.isAnimating == true) return;
     realUpdateOffset(offset, animation);
@@ -177,7 +177,7 @@ class LyricReaderState extends State<LyricsReader> with TickerProviderStateMixin
   }
 
   ///calculate all line draw info
-  refreshLyricHeight(Size size) {
+  void refreshLyricHeight(Size size) {
     lyricPaint.clearCache();
     widget.model?.lyrics.forEach((element) {
       var drawInfo = LyricDrawInfo()
@@ -259,7 +259,7 @@ class LyricReaderState extends State<LyricsReader> with TickerProviderStateMixin
   ///handle widget size
   ///default screenWidth,screenWidth
   ///if outside box has limit,then select min value
-  handleSize() {
+  void handleSize() {
     mSize = Size(cacheBox?.maxWidth ?? 0, cacheBox?.maxHeight ?? 0);
     refreshLyricHeight(mSize);
   }
@@ -327,7 +327,7 @@ class LyricReaderState extends State<LyricsReader> with TickerProviderStateMixin
   }
 
   ///support touch event
-  Widget buildTouchReader(child) {
+  Widget buildTouchReader(Widget child) {
     return GestureDetector(
       onVerticalDragEnd: handleDragEnd,
       onTap: widget.onTap,
@@ -350,7 +350,7 @@ class LyricReaderState extends State<LyricsReader> with TickerProviderStateMixin
     );
   }
 
-  handleDragEnd(DragEndDetails event) {
+  void handleDragEnd(DragEndDetails event) {
     isDrag = false;
     _flingController = AnimationController.unbounded(vsync: this)
       ..addListener(() {
@@ -378,7 +378,7 @@ class LyricReaderState extends State<LyricsReader> with TickerProviderStateMixin
   Timer? waitTimer;
 
   ///handle select line
-  resumeSelectLineOffset() {
+  void resumeSelectLineOffset() {
     isWait = true;
     var waitSecond = 0;
     waitTimer?.cancel();
@@ -397,22 +397,22 @@ class LyricReaderState extends State<LyricsReader> with TickerProviderStateMixin
     });
   }
 
-  disposeSelectLineDelay() {
+  void disposeSelectLineDelay() {
     isWait = false;
     waitTimer?.cancel();
   }
 
-  disposeFiling() {
+  void disposeFiling() {
     _flingController?.dispose();
     _flingController = null;
   }
 
-  disposeLine() {
+  void disposeLine() {
     _lineController?.dispose();
     _lineController = null;
   }
 
-  disposeHighlight() {
+  void disposeHighlight() {
     _highlightController?.dispose();
     _highlightController = null;
   }

@@ -130,7 +130,7 @@ class SettingsService extends GetxController {
 
   final volume = (PrefUtil.getDouble('volume') ?? 0.0).obs;
 
-  get themeMode => SettingsService.themeModes[themeModeName.value]!;
+  ThemeMode get themeMode => SettingsService.themeModes[themeModeName.value]!;
   void onInitShutDown() {
     if (enableAutoShutDownTime.isTrue) {
       _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.value, add: false);
@@ -462,7 +462,7 @@ class SettingsService extends GetxController {
     return musicAlbum.any((element) => element.id == video.id);
   }
 
-  setCurreentMusicList(List<LiveMediaInfo> medias) {
+  void setCurreentMusicList(List<LiveMediaInfo> medias) {
     currentMediaList.value = medias;
     currentMediaIndex.value = 0;
     final AudioController audioController = Get.find<AudioController>();
@@ -493,7 +493,7 @@ class SettingsService extends GetxController {
     return true;
   }
 
-  setBilibiliCookit(cookie) {
+  void setBilibiliCookit(String cookie) {
     final BiliBiliAccountService biliAccountService = Get.find<BiliBiliAccountService>();
     if (biliAccountService.cookie.isEmpty || biliAccountService.uid == 0) {
       biliAccountService.resetCookie(cookie);

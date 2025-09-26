@@ -80,11 +80,11 @@ class PlayListController extends BasePageController<PlayItems> {
     super.onInit();
   }
 
-  loadUserinfo() async {
+  Future<void> loadUserinfo() async {
     upUserInfo.value = await BiliBiliSite().getVidoeInfo(bilibiliVideo);
   }
 
-  handleCheckAll() {
+  void handleCheckAll() {
     isCheckAll.toggle();
     if (isCheckAll.value) {
       for (var item in list.value) {
@@ -98,7 +98,7 @@ class PlayListController extends BasePageController<PlayItems> {
     list.value = List.from(list);
   }
 
-  handleToggleItem(int index) {
+  void handleToggleItem(int index) {
     list[index].selected = list[index].selected ? false : true;
     list.value = List.from(list);
   }

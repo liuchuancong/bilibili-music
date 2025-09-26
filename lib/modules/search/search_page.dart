@@ -109,7 +109,7 @@ class RoomCard extends StatelessWidget {
     );
   }
 
-  ImageProvider? getRoomAvatar(avatar) {
+  ImageProvider? getRoomAvatar(String avatar) {
     try {
       return CachedNetworkImageProvider(avatar, errorListener: (err) {
         log("CachedNetworkImageProvider: Image failed to load!");
@@ -205,7 +205,7 @@ class RoomCard extends StatelessWidget {
                 child: ListTile(
                   leading: bilibiliVideo.status == VideoStatus.published || bilibiliVideo.status == VideoStatus.series
                       ? CircleAvatar(
-                          foregroundImage: bilibiliVideo.upic!.isNotEmpty ? getRoomAvatar(bilibiliVideo.upic) : null,
+                          foregroundImage: bilibiliVideo.upic!.isNotEmpty ? getRoomAvatar(bilibiliVideo.upic!) : null,
                           backgroundColor: Theme.of(context).disabledColor,
                         )
                       : const Icon(
@@ -262,7 +262,7 @@ class RoomCard extends StatelessWidget {
     );
   }
 
-  handleMore() async {
+  Future<void> handleMore() async {
     var result = await Utils.showBottomSheet();
     final settings = Get.find<SettingsService>();
     if (result == '1') {
@@ -278,7 +278,7 @@ class RoomCard extends StatelessWidget {
     }
   }
 
-  editMuiscAlbum() async {
+  Future<void> editMuiscAlbum() async {
     final settings = Get.find<SettingsService>();
     Map<String, String?>? result =
         await Utils.showEditDialog(isEdit: true, title: bilibiliVideo.title!, author: bilibiliVideo.author!);

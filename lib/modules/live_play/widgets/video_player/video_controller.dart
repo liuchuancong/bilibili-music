@@ -136,7 +136,7 @@ class VideoController with ChangeNotifier {
     super.dispose();
   }
 
-  destory() async {
+  Future<void> destory() async {
     if (key.currentState?.isFullscreen() ?? false) {
       key.currentState?.exitFullscreen();
     }

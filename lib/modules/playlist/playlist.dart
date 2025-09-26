@@ -100,7 +100,7 @@ class PlayListPage extends GetView<PlayListController> {
         });
   }
 
-  handleMusicAlbumSelector() async {
+  Future<void> handleMusicAlbumSelector() async {
     String? result = await showBottomSheet();
     if (result == '1') {
       showMusicAlubmSelectorDialog();
@@ -194,7 +194,7 @@ class PlayListPage extends GetView<PlayListController> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       IconButton(
-                          icon: const Icon(FontAwesomeIcons.headphonesSimple),
+                          icon: const Icon(FontAwesomeIcons.headphones),
                           onPressed: () {
                             if (controller.list.isNotEmpty) {
                               var list = controller.list.value.map((item) => item.liveMediaInfo).toList();

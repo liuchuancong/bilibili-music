@@ -11,7 +11,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class HomePage extends GetView<HomeController> {
   const HomePage({super.key});
-  addMusicAlbum() async {
+  Future<void> addMusicAlbum() async {
     Map<String, String?>? result = await Utils.showEditDialog();
     if (result != null) {
       controller.settingsService.addMusicAlbum(

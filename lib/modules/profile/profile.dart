@@ -13,7 +13,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 class ProfilePage extends GetView<ProfileController> {
   const ProfilePage({super.key});
 
-  buildMasterpieceListItems() {
+  Obx buildMasterpieceListItems() {
     return Obx(
       () => controller.masterpiece.value.total == 0
           ? Container()
@@ -56,7 +56,7 @@ class ProfilePage extends GetView<ProfileController> {
 
   // allVideosController
 
-  buildAllvideosListItems() {
+  Obx buildAllvideosListItems() {
     return Obx(
       () => controller.allVideos.value.total == 0
           ? Container()
@@ -162,7 +162,7 @@ class ProfilePage extends GetView<ProfileController> {
           );
   }
 
-  buildSeasonsSeriesListItems() {
+  Obx buildSeasonsSeriesListItems() {
     return Obx(() => Column(
           children: controller.seasonsSeries.value.map((e) => buildSeasonsSeriesListItem(e)).toList(),
         ));

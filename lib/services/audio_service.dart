@@ -174,6 +174,7 @@ class AudioController extends GetxController {
         await BiliBiliSite().getAudioDetail(mediaInfo.aid, mediaInfo.cid, mediaInfo.bvid);
     if (videoInfoData != null) {
       getLyric(mediaInfo);
+      developer.log('videoInfoData: ${videoInfoData.url}', name: 'audioPlayerSetUrl');
       try {
         if (Platform.isAndroid) {
           await _audioPlayer.setUrl(
@@ -502,7 +503,7 @@ class AudioController extends GetxController {
     super.onClose();
   }
 
-  changePlayMode() {
+  void changePlayMode() {
     switch (playMode.value) {
       case PlayMode.listLoop:
         playMode.value = PlayMode.singleLoop;

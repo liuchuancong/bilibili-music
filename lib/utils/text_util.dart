@@ -16,7 +16,7 @@ String readableCount(String info) {
   return info;
 }
 
-transformData(int? timestamp) {
+String transformData(int? timestamp) {
   if (timestamp == null) {
     return '';
   }

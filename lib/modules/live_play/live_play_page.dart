@@ -24,7 +24,7 @@ class LivePlayPage extends GetWidget<LivePlayController> {
     return true;
   }
 
-  buildPhoneView() {
+  SafeArea buildPhoneView() {
     return SafeArea(
       child: Column(
         children: <Widget>[
@@ -35,7 +35,7 @@ class LivePlayPage extends GetWidget<LivePlayController> {
     );
   }
 
-  buildPadView() {
+  SafeArea buildPadView() {
     return SafeArea(
       child: Row(children: <Widget>[
         Flexible(

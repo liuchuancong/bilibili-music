@@ -741,7 +741,7 @@ class BiliBiliSite {
     return videoList;
   }
 
-  Future<List<LiveMediaInfo>> getUpAllVideos(page, size, String mid) async {
+  Future<List<LiveMediaInfo>> getUpAllVideos(int page, int size, String mid) async {
     cookie = settings.bilibiliCookie.value;
     List<LiveMediaInfo> videoList = [];
     var sign = await getSignedParams({

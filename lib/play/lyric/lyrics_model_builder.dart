@@ -12,7 +12,7 @@ class LyricsModelBuilder {
 
   var _lyricModel = LyricsReaderModel();
 
-  reset() {
+  void reset() {
     _lyricModel = LyricsReaderModel();
   }
 
@@ -31,7 +31,7 @@ class LyricsModelBuilder {
     return this;
   }
 
-  _setLyric(List<LyricsLineModel>? lineList, {isMain = true}) {
+  void _setLyric(List<LyricsLineModel>? lineList, {isMain = true}) {
     if (lineList == null) return;
     //下一行的开始时间则为上一行的结束时间，若无则MAX
     for (int i = 0; i < lineList.length; i++) {

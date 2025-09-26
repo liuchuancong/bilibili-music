@@ -7,6 +7,7 @@ import 'package:bilibilimusic/plugins/local_http.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:bilibilimusic/widgets/section_listtile.dart';
 import 'package:bilibilimusic/modules/backup/backup_page.dart';
+// ignore_for_file: deprecated_member_use
 
 class SettingsPage extends GetView<SettingsService> {
   const SettingsPage({super.key});
@@ -50,7 +51,7 @@ class SettingsPage extends GetView<SettingsService> {
                 title: const Text("开机自动播放"),
                 subtitle: const Text("当程序启动时，自动播放"),
                 value: controller.enableAutoPlay.value,
-                activeColor: Theme.of(context).colorScheme.primary,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) => controller.enableAutoPlay.value = value,
               )),
           ListTile(
@@ -95,9 +96,13 @@ class SettingsPage extends GetView<SettingsService> {
             children: SettingsService.themeModes.keys.map<Widget>((name) {
               return RadioListTile<String>(
                 activeColor: Theme.of(context).colorScheme.primary,
+                // ignore: duplicate_ignore
+                // ignore: deprecated_member_use
                 groupValue: controller.themeModeName.value,
                 value: name,
                 title: Text(name),
+                // ignore: duplicate_ignore
+                // ignore: deprecated_member_use
                 onChanged: (value) {
                   controller.changeThemeMode(value!);
                   Navigator.of(context).pop();
