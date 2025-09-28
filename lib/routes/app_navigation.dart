@@ -17,11 +17,10 @@ class AppNavigator {
     required BilibiliVideo bilibiliVideo,
     required VideoMediaTypes mediaType,
   }) async {
-    EventBus.instance.emit('toLiveRoomDetailList', true);
-    Get.toNamed(
-      RoutePath.kPlayList,
-      arguments: [bilibiliVideo, mediaType],
-    );
+    Get.toNamed(RoutePath.kPlayList, arguments: [bilibiliVideo, mediaType], preventDuplicates: false);
+    Future.delayed(Duration(milliseconds: 20), () {
+      EventBus.instance.emit('toLiveRoomDetailList', [bilibiliVideo, mediaType]);
+    });
   }
 
   static Future<void> toLiveRoomDetail({required LiveMediaInfo mediaInfo}) async {

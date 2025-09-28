@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 /// 全局事件
 class EventBus {
@@ -17,7 +16,6 @@ class EventBus {
     if (!_streams.containsKey(name)) {
       _streams.addAll({name: StreamController.broadcast()});
     }
-    log("Emit Event：$name\r\n$data", name: "EventBus");
     _streams[name]!.add(data);
   }
 
