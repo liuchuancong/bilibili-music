@@ -125,6 +125,11 @@ class PlayListPage extends GetView<PlayListController> {
     }
   }
 
+  String removeNumberPrefix(String text) {
+    final regex = RegExp(r'^\s*\d+[.\s]*');
+    return text.replaceFirst(RegExp(r'^\d+[.\s]*'), '').replaceFirst(regex, '');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -285,7 +290,7 @@ class PlayListPage extends GetView<PlayListController> {
                                     )))
                                 : null,
                             title: Text(
-                              mediaInfo.part,
+                              '${index + 1}. ${removeNumberPrefix(mediaInfo.part)}',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,

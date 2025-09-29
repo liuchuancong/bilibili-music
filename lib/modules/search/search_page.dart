@@ -81,6 +81,56 @@ class SearchPage extends GetView<SearchMusicController> {
   }
 }
 
+class PlayingAnimation extends StatefulWidget {
+  const PlayingAnimation({super.key});
+
+  @override
+  State<PlayingAnimation> createState() => _PlayingAnimationState();
+}
+
+class _PlayingAnimationState extends State<PlayingAnimation> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    )..repeat(); // 无限循环
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RotationTransition(
+      turns: _controller,
+      child: Container(
+        width: 25,
+        height: 25,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            width: 2,
+          ),
+          // 可选：加一个缺口，看起来更像“播放缓冲”动画
+        ),
+        child: const Center(
+          child: Icon(
+            Icons.music_note_outlined,
+            size: 15,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class RoomCard extends StatelessWidget {
   const RoomCard({
     super.key,
@@ -121,6 +171,8 @@ class RoomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final SettingsService service = Get.find<SettingsService>();
+    final LiveMediaInfo currentMedia = service.getCurrentVideoInfo();
     return Card(
       margin: const EdgeInsets.all(7.5),
       shape: RoundedRectangleBorder(
@@ -255,6 +307,12 @@ class RoomCard extends StatelessWidget {
                   count: readableCount(bilibiliVideo.play.toString()),
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
+              ),
+            if (currentMedia.aid == bilibiliVideo.aid && currentMedia.bvid == bilibiliVideo.bvid)
+              Positioned(
+                right: 2,
+                top: 2,
+                child: PlayingAnimation(),
               ),
           ],
         ),
