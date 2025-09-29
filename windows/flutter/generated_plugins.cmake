@@ -3,18 +3,19 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  battery_plus
-  flutter_inappwebview_windows
-  flutter_volume_controller
+  audio_service_win
+  bitsdojo_window_windows
+  connectivity_plus
+  flutter_acrylic
   media_kit_libs_windows_video
   media_kit_video
-  permission_handler_windows
   screen_brightness_windows
   screen_retriever_windows
+  sqlite3_flutter_libs
+  tray_manager
   url_launcher_windows
   volume_controller
   window_manager
-  windows_single_instance
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
