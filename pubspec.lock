@@ -592,6 +592,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.6.1"
+  flutter_spinkit:
+    dependency: transitive
+    description:
+      name: flutter_spinkit
+      sha256: "77850df57c00dc218bfe96071d576a8babec24cf58b2ed121c83cca4a2fdce7f"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "5.2.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -1407,6 +1415,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  snacknload:
+    dependency: "direct main"
+    description:
+      name: snacknload
+      sha256: ddae219ef750dcc6e6d9903370acf1cb2f654d22a7f06d0e97b4deed285c3f0d
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.2.0"
   source_gen:
     dependency: transitive
     description:

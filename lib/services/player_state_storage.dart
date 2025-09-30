@@ -51,7 +51,7 @@ class PlayerStateStorage {
     state._volume = PrefUtil.getDouble(PlayerStateKeys.volume) ?? 1.0;
 
     final pageIndex = PrefUtil.getInt(PlayerStateKeys.currentPage);
-    if (pageIndex != null && pageIndex >= 0 && pageIndex < PlayerPage.values.length) {
+    if (pageIndex != null && pageIndex >= 0 && pageIndex < MenuPages.values.length) {
       state._currentPage = MenuPages.values[pageIndex];
     }
 

@@ -4,10 +4,10 @@ class RecentlyPlayedPage extends ConsumerStatefulWidget {
   const RecentlyPlayedPage({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _RecentlyPlayedPageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => RecentlyPlayedPageState();
 }
 
-class _RecentlyPlayedPageState extends ConsumerState<RecentlyPlayedPage> {
+class RecentlyPlayedPageState extends ConsumerState<RecentlyPlayedPage> {
   @override
   Widget build(BuildContext context) {
     return Container();

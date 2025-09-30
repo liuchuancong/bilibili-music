@@ -4,10 +4,10 @@ class LibraryPage extends ConsumerStatefulWidget {
   const LibraryPage({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _LibraryPageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => LibraryPageState();
 }
 
-class _LibraryPageState extends ConsumerState<LibraryPage> {
+class LibraryPageState extends ConsumerState<LibraryPage> {
   @override
   Widget build(BuildContext context) {
     return const Text('Library Page');

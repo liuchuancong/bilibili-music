@@ -52,6 +52,7 @@ dependencies:
   flutter_single_instance: ^1.6.1
   launch_at_startup: ^0.5.1
   package_info_plus: ^9.0.0
+  snacknload: ^1.2.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

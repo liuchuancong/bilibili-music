@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:media_kit/media_kit.dart';
+import 'package:snacknload/snacknload.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/utils/core_log.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
@@ -69,4 +70,20 @@ class AppInitializer {
 
   // 检查是否已初始化
   bool get isInitialized => _isInitialized;
+}
+
+void configLoading() {
+  SnackNLoad.instance
+    ..displayDuration = const Duration(milliseconds: 2000)
+    ..indicatorType = IndicatorType.fadingCircle
+    ..loadingStyle = LoadingStyle.dark
+    ..indicatorSize = 45.0
+    ..radius = 10.0
+    ..progressColor = Colors.yellow
+    ..backgroundColor = Colors.green
+    ..indicatorColor = Colors.yellow
+    ..textColor = Colors.yellow
+    ..maskColor = Colors.blue.withValues(alpha: 0.5)
+    ..userInteractions = true
+    ..dismissOnTap = false;
 }

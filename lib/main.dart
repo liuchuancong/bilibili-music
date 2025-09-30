@@ -1,3 +1,4 @@
+import 'package:snacknload/snacknload.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/global/initialized.dart';
 import 'package:bilibilimusic/router/route_observer.dart';
@@ -62,19 +63,20 @@ class MyApp extends ConsumerWidget {
       data: (state) {
         return MyKeyboardHandler(
           child: MaterialApp(
-            title: 'LZF Music',
-            theme: ref.read(themeProvider.notifier).buildLightTheme(state),
-            darkTheme: ref.read(themeProvider.notifier).buildDarkTheme(state),
-            themeMode: state.themeMode,
-            home: const HomePageWrapper(),
-            navigatorObservers: [routeObserver],
-            builder: (context, child) {
-              if (PlatformUtils.isDesktopNotMac) {
-                return DesktopManager.buildWithTitleBar(child);
-              }
-              return child ?? const SizedBox.shrink();
-            },
-          ),
+              title: 'LZF Music',
+              theme: ref.read(themeProvider.notifier).buildLightTheme(state),
+              darkTheme: ref.read(themeProvider.notifier).buildDarkTheme(state),
+              themeMode: state.themeMode,
+              home: const HomePageWrapper(),
+              navigatorObservers: [routeObserver],
+              builder: SnackNLoad.init(
+                builder: (context, child) {
+                  if (PlatformUtils.isDesktopNotMac) {
+                    return DesktopManager.buildWithTitleBar(child);
+                  }
+                  return child ?? const SizedBox.shrink();
+                },
+              )),
         );
       },
     );
@@ -88,10 +90,10 @@ class HomePageWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     if (PlatformUtils.isMobileWidth(context)) {
       // 小屏幕（手机）
-      return HomePageMobile();
+      return const HomePageMobile();
     } else {
       // 大屏幕（平板/桌面）
-      return HomePageDesktop();
+      return const HomePageDesktop();
     }
   }
 }

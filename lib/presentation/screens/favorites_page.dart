@@ -4,10 +4,10 @@ class FavoritesPage extends ConsumerStatefulWidget {
   const FavoritesPage({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _FavoritesPageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => FavoritesPageState();
 }
 
-class _FavoritesPageState extends ConsumerState<FavoritesPage> {
+class FavoritesPageState extends ConsumerState<FavoritesPage> {
   @override
   Widget build(BuildContext context) {
     return Container();
