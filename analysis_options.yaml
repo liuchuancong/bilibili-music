@@ -1,28 +1,35 @@
-# This file configures the analyzer, which statically analyzes Dart code to
-# check for errors, warnings, and lints.
-#
-# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
-# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
-# invoked from the command line by running `flutter analyze`.
-
-# The following line activates a set of recommended lints for Flutter apps,
-# packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
+analyzer:
+  exclude:
+    - "**/*.g.dart"
 
 linter:
-  # The lint rules applied to this project can be customized in the
-  # section below to disable rules from the `package:flutter_lints/flutter.yaml`
-  # included above or to enable additional rules. A list of all available lints
-  # and their documentation is published at https://dart.dev/lints.
-  #
-  # Instead of disabling a lint rule for the entire project in the
-  # section below, it can also be suppressed for a single line of code
-  # or a specific dart file by using the `// ignore: name_of_lint` and
-  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
-  # producing the lint.
   rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+    # 构造函数相关
+    - prefer_const_constructors          # 优先使用 const 构造函数
+    - prefer_const_constructors_in_immutables # 不可变类中优先使用 const 构造函数
+    - prefer_const_declarations          # 优先使用 const 变量声明
+    - prefer_const_literals_to_create_immutables # 用 const 字面量创建不可变对象
 
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options
+    # 命名规范（可自动修复命名格式）
+    - camel_case_types                   # 类型名使用 UpperCamelCase
+    - constant_identifier_names          # 常量名使用 UPPER_CASE_WITH_UNDERSCORES
+    # 代码简化
+    - unnecessary_const                  # 移除不必要的 const 关键字
+    - unnecessary_new                   # 移除不必要的 new 关键字
+    - unnecessary_brace_in_string_interps # 移除字符串插值中不必要的大括号
+    - prefer_single_quotes               # 优先使用单引号（自动替换双引号）
+    - prefer_adjacent_string_concatenation # 相邻字符串优先直接拼接而非 + 号
+
+    # 空安全相关
+    - unnecessary_null_checks            # 移除不必要的空检查（!）
+    - prefer_null_aware_operators        # 优先使用空安全运算符（?.、?? 等）
+
+    # 导入优化
+    - always_use_package_imports         # 优先使用包导入（package:xxx）而非相对导入
+    - avoid_relative_lib_imports         # 避免从 lib/ 目录相对导入
+    # 其他实用规则
+    - avoid_empty_else                   # 移除空的 else 块
+    - avoid_unused_constructor_parameters # 移除未使用的构造函数参数
+    - prefer_is_empty                    # 优先使用 isEmpty 而非 length == 0
+    - prefer_is_not_empty                # 优先使用 isNotEmpty 而非 length != 0
