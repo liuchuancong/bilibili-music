@@ -140,7 +140,7 @@ class ThemeProvider extends AsyncNotifier<ThemeState> {
         shadowColor: Color(0xffe0e0e0),
         position: PopupMenuPosition.under,
       ),
-      dialogTheme: DialogThemeData(backgroundColor: ThemeUtils.lightBg),
+      dialogTheme: const DialogThemeData(backgroundColor: ThemeUtils.lightBg),
       fontFamily: PlatformUtils.getFontFamily(),
       brightness: Brightness.light,
       colorScheme: ColorScheme.fromSeed(
@@ -165,7 +165,7 @@ class ThemeProvider extends AsyncNotifier<ThemeState> {
         shadowColor: Color(0xff2f2f2f),
         position: PopupMenuPosition.under,
       ),
-      dialogTheme: DialogThemeData(backgroundColor: ThemeUtils.darkBg),
+      dialogTheme: const DialogThemeData(backgroundColor: ThemeUtils.darkBg),
       fontFamily: PlatformUtils.getFontFamily(),
       brightness: Brightness.dark,
       colorScheme: ColorScheme.fromSeed(

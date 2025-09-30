@@ -12,7 +12,7 @@ class CoreLog {
     if (!enableLog) {
       return;
     }
-    logger.d("${DateTime.now().toString()}\n$message");
+    logger.d('${DateTime.now().toString()}\n$message');
   }
 
   static void i(String message) {
@@ -20,7 +20,7 @@ class CoreLog {
     if (!enableLog) {
       return;
     }
-    logger.i("${DateTime.now().toString()}\n$message");
+    logger.i('${DateTime.now().toString()}\n$message');
   }
 
   static void e(String message, StackTrace stackTrace) {
@@ -28,13 +28,13 @@ class CoreLog {
     if (!enableLog) {
       return;
     }
-    logger.e("${DateTime.now().toString()}\n$message", stackTrace: stackTrace);
+    logger.e('${DateTime.now().toString()}\n$message', stackTrace: stackTrace);
   }
 
   static void error(dynamic e) {
     onPrintLog?.call(Level.error, e.toString());
     logger.e(
-      "${DateTime.now().toString()}\n${e.toString()}",
+      '${DateTime.now().toString()}\n${e.toString()}',
       error: e,
       stackTrace: (e is Error) ? e.stackTrace : StackTrace.current,
     );
@@ -45,7 +45,7 @@ class CoreLog {
     if (!enableLog) {
       return;
     }
-    logger.w("${DateTime.now().toString()}\n$message");
+    logger.w('${DateTime.now().toString()}\n$message');
   }
 
   static void logPrint(dynamic obj) {

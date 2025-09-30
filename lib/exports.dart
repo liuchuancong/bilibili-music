@@ -9,7 +9,6 @@ export 'package:bilibilimusic/database/daos/album_dao.dart';
 export 'package:bilibilimusic/database/daos/artlist_dao.dart';
 export 'package:bilibilimusic/database/daos/song_dao.dart';
 export 'package:bilibilimusic/database/database_manager.dart';
-export 'package:bilibilimusic/database/db.dart';
 export 'package:bilibilimusic/database/models/albums.dart';
 export 'package:bilibilimusic/database/models/artlists.dart';
 export 'package:bilibilimusic/database/models/songs.dart';

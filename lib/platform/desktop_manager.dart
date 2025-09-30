@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'dart:ui';
-import '../utils/theme_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:bilibilimusic/utils/theme_utils.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:bilibilimusic/utils/platform_utils.dart';
