@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:bilibilimusic/database/db.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/contants/player_state_keys.dart';
+import 'package:bilibilimusic/presentation/menu/models/menu_pages.dart';
 
 class PlayerStateStorage {
   static PlayerStateStorage? _instance;
@@ -20,7 +21,7 @@ class PlayerStateStorage {
   Song? _currentSong;
   PlayMode _playMode = PlayMode.shuffle;
   double _volume = 1.0;
-  PlayerPage _currentPage = PlayerPage.library;
+  MenuPages _currentPage = MenuPages.library;
   final Map<String, SortState> _pageSortStates = {};
   List<Song> _playlist = [];
 
@@ -30,7 +31,7 @@ class PlayerStateStorage {
   Song? get currentSong => _currentSong;
   PlayMode get playMode => _playMode;
   double get volume => _volume;
-  PlayerPage get currentPage => _currentPage;
+  MenuPages get currentPage => _currentPage;
   Map<String, SortState> get pageSortStates => Map.unmodifiable(_pageSortStates);
   List<Song> get playlist => List.unmodifiable(_playlist);
 
@@ -51,7 +52,7 @@ class PlayerStateStorage {
 
     final pageIndex = PrefUtil.getInt(PlayerStateKeys.currentPage);
     if (pageIndex != null && pageIndex >= 0 && pageIndex < PlayerPage.values.length) {
-      state._currentPage = PlayerPage.values[pageIndex];
+      state._currentPage = MenuPages.values[pageIndex];
     }
 
     final sortJsonStr = PrefUtil.getString(PlayerStateKeys.pageSortStates);
@@ -144,7 +145,7 @@ extension PlayerStateSetters on PlayerStateStorage {
     await _saveVolume();
   }
 
-  Future<void> setCurrentPage(PlayerPage page) async {
+  Future<void> setCurrentPage(MenuPages page) async {
     _currentPage = page;
     await _saveCurrentPage();
   }

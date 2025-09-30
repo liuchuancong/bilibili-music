@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/utils/theme_utils.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 @immutable
 class ThemeState {

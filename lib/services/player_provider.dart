@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:bilibilimusic/database/db.dart';
+import 'package:bilibilimusic/common/index.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:bilibilimusic/utils/core_log.dart';
 import 'package:bilibilimusic/events/player_event.dart';
 import 'package:bilibilimusic/states/player_state.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:bilibilimusic/contants/app_contants.dart';
 import 'package:media_kit/media_kit.dart' hide PlayerState;
 import 'package:bilibilimusic/services/audio_player_service.dart';
 import 'package:bilibilimusic/services/player_state_storage.dart';

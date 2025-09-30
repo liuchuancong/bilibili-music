@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:bilibilimusic/common/index.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bilibilimusic/services/player_provider.dart';
 import 'package:bilibilimusic/platform/desktop_manager.dart';
 

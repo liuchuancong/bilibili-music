@@ -1,15 +1,16 @@
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/presentation/menu/menu_manager.dart';
 import 'package:bilibilimusic/presentation/menu/models/menu_pages.dart';
+// 改为 ConsumerStatefulWidget
 
-class HomePageMobile extends ConsumerStatefulWidget {
-  const HomePageMobile({super.key});
+class HomePageDesktop extends ConsumerStatefulWidget {
+  const HomePageDesktop({super.key});
 
   @override
-  ConsumerState<HomePageMobile> createState() => _HomePageMobileState();
+  ConsumerState<HomePageDesktop> createState() => _HomePageDesktopState();
 }
 
-class _HomePageMobileState extends ConsumerState<HomePageMobile> {
+class _HomePageDesktopState extends ConsumerState<HomePageDesktop> {
   late final GlobalKey<NavigatorState> navigatorKey;
   final MenuManager menuManager = MenuManager();
   @override
@@ -25,8 +26,6 @@ class _HomePageMobileState extends ConsumerState<HomePageMobile> {
 
   @override
   Widget build(BuildContext context) {
-    // 使用 widget.menuManager 访问 menuManager
-
     return Scaffold(
       body: Row(
         children: [
@@ -60,14 +59,14 @@ class _HomePageMobileState extends ConsumerState<HomePageMobile> {
           ),
           const VerticalDivider(thickness: 1, width: 1),
           // 右侧内容区
-          Expanded(
-            child: ValueListenableBuilder<MenuPages>(
-              valueListenable: menuManager.currentPage,
-              builder: (context, currentPage, _) {
-                return menuManager.pages[currentPage.index];
-              },
-            ),
-          ),
+          // Expanded(
+          //   child: ValueListenableBuilder<PlayerPage>(
+          //     valueListenable: menuManager.currentPage,
+          //     builder: (context, currentPage, _) {
+          //       return menuManager.pages[currentPage.index];
+          //     },
+          //   ),
+          // ),
         ],
       ),
     );
