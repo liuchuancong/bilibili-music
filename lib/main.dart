@@ -10,15 +10,43 @@ import 'package:bilibilimusic/widgets/keyboard_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   // 初始化
   await AppInitializer().initialize();
-
   runApp(
     const ProviderScope(
       child: MyApp(),
     ),
   );
+}
+
+class MainApp extends StatefulWidget {
+  const MainApp({super.key});
+
+  @override
+  createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> with DesktopWindowMixin {
+  @override
+  void initState() {
+    super.initState();
+    if (PlatformUtils.isDesktop) {
+      DesktopManager.initializeListeners(this);
+    }
+  }
+
+  @override
+  void dispose() {
+    if (PlatformUtils.isDesktop) {
+      DesktopManager.disposeListeners();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const MyApp();
+  }
 }
 
 class MyApp extends ConsumerWidget {

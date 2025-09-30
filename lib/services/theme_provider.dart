@@ -148,7 +148,7 @@ class ThemeProvider extends AsyncNotifier<ThemeState> {
         brightness: Brightness.light,
       ),
       useMaterial3: true,
-      scaffoldBackgroundColor: Colors.white,
+      scaffoldBackgroundColor: Colors.transparent,
       appBarTheme: AppBarTheme(
         systemOverlayStyle: SystemUiOverlayStyle.dark,
         backgroundColor: Colors.transparent,
@@ -173,7 +173,7 @@ class ThemeProvider extends AsyncNotifier<ThemeState> {
         brightness: Brightness.dark,
       ),
       useMaterial3: true,
-      scaffoldBackgroundColor: Colors.transparent,
+      // scaffoldBackgroundColor: Colors.transparent,
       appBarTheme: AppBarTheme(
         systemOverlayStyle: SystemUiOverlayStyle.light,
         backgroundColor: Colors.transparent,
