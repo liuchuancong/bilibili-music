@@ -1,10 +1,6 @@
 export 'package:bilibilimusic/common/add_status.dart';
 export 'package:bilibilimusic/common/index.dart';
 export 'package:bilibilimusic/contants/app_contants.dart';
-export 'package:bilibilimusic/data/models/album.dart';
-export 'package:bilibilimusic/data/models/artist.dart';
-export 'package:bilibilimusic/data/models/playlist.dart';
-export 'package:bilibilimusic/data/models/song.dart';
 export 'package:bilibilimusic/database/daos/album_dao.dart';
 export 'package:bilibilimusic/database/daos/artlist_dao.dart';
 export 'package:bilibilimusic/database/daos/song_dao.dart';

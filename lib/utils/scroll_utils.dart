@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:bilibilimusic/data/models/song.dart';
+import 'package:bilibilimusic/database/db.dart';
 
 class ScrollUtils {
   /// 滚动到指定的索引位置

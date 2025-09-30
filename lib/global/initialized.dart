@@ -1,6 +1,9 @@
 import 'package:media_kit/media_kit.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bilibilimusic/platform/desktop_manager.dart';
+import 'package:bilibilimusic/database/database_manager.dart';
+import 'package:bilibilimusic/services/audio_player_service.dart';
 
 class AppInitializer {
   // 单例实例
@@ -28,7 +31,10 @@ class AppInitializer {
     WidgetsFlutterBinding.ensureInitialized();
     PrefUtil.prefs = await SharedPreferences.getInstance();
     MediaKit.ensureInitialized();
-
+    AudioPlayerService.init(DatabaseManager.instance.appDatabase);
+    if (PlatformUtils.isDesktop) {
+      await DesktopManager.postInitialize();
+    }
     // 标记为已初始化
     _isInitialized = true;
   }

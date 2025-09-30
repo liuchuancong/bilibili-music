@@ -148,7 +148,7 @@ class ThemeProvider extends AsyncNotifier<ThemeState> {
         brightness: Brightness.light,
       ),
       useMaterial3: true,
-      scaffoldBackgroundColor: Colors.transparent,
+      scaffoldBackgroundColor: Colors.white,
       appBarTheme: AppBarTheme(
         systemOverlayStyle: SystemUiOverlayStyle.dark,
         backgroundColor: Colors.transparent,
