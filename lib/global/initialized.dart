@@ -8,7 +8,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:bilibilimusic/platform/mobile_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bilibilimusic/platform/desktop_manager.dart';
-import 'package:bilibilimusic/database/database_manager.dart';
 import 'package:bilibilimusic/services/audio_player_service.dart';
 import 'package:flutter_single_instance/flutter_single_instance.dart';
 
@@ -44,7 +43,7 @@ class AppInitializer {
 
     PrefUtil.prefs = await SharedPreferences.getInstance();
     MediaKit.ensureInitialized();
-    AudioPlayerService.init(DatabaseManager.instance.appDatabase);
+    AudioPlayerService.init();
     if (PlatformUtils.isDesktop) {
       await DesktopManager.postInitialize();
     }

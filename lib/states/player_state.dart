@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:bilibilimusic/database/db.dart';
 import 'package:bilibilimusic/contants/app_contants.dart';
 
+@immutable
 class PlayerState {
   final Song? currentSong;
   final bool isPlaying;

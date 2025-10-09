@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:bilibilimusic/database/db.dart';
 import 'package:bilibilimusic/common/index.dart';
-import 'package:audio_service/audio_service.dart';
 import 'package:bilibilimusic/utils/core_log.dart';
 import 'package:bilibilimusic/events/player_event.dart';
 import 'package:bilibilimusic/states/player_state.dart';
@@ -89,7 +88,6 @@ class PlayerProvider extends Notifier<PlayerState> {
       if (isPlaying) {
         await _audioService.playSong(currentSong, playNow: true);
         _audioService.updateCurrentMediaItem(currentSong);
-        _audioService.updatePlaybackState(playing: true, position: position);
       }
     }
 
@@ -100,20 +98,12 @@ class PlayerProvider extends Notifier<PlayerState> {
   void _startListeningToPlayer() {
     _playingSub = _player.stream.playing.listen((playing) {
       final newState = state.copyWith(isPlaying: playing, isLoading: false);
-      _updateAudioServicePlayback(playing: playing, position: newState.currentPosition);
       state = newState;
     });
 
-    Duration lastNotify = Duration.zero;
-    const Duration notifyInterval = Duration(milliseconds: 200);
     _positionSub = _player.stream.position.listen((pos) {
       state.positionNotifier.value = pos;
-      final newState = state.copyWith(position: pos);
-      if ((pos - lastNotify) >= notifyInterval) {
-        lastNotify = pos;
-        _updateAudioServicePlayback(playing: state.isPlaying, position: pos);
-      }
-      state = newState;
+      state = state.copyWith(position: pos);
     });
 
     _durationSub = _player.stream.duration.listen((dur) {
@@ -135,13 +125,6 @@ class PlayerProvider extends Notifier<PlayerState> {
       onNext: () => next(),
       onPrevious: () => previous(),
       onSeek: (position) => seekTo(position),
-    );
-  }
-
-  void _updateAudioServicePlayback({required bool playing, required Duration position}) {
-    _audioService.updatePlaybackState(
-      playing: playing,
-      position: position,
     );
   }
 
@@ -226,10 +209,6 @@ class PlayerProvider extends Notifier<PlayerState> {
         isPlaying: false,
         errorMessage: '播放失败: $e',
       );
-      _audioService.updatePlaybackState(
-        playing: false,
-        processingState: AudioProcessingState.error,
-      );
     }
   }
 
@@ -259,11 +238,6 @@ class PlayerProvider extends Notifier<PlayerState> {
       errorMessage: null,
     );
     state.positionNotifier.value = Duration.zero;
-
-    _audioService.updatePlaybackState(
-      playing: false,
-      processingState: AudioProcessingState.idle,
-    );
 
     Future.delayed(const Duration(milliseconds: 200), () {
       _isHandlingComplete = false;

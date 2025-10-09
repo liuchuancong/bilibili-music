@@ -128,6 +128,104 @@ class SongDao extends DatabaseAccessor<AppDatabase> with _$SongDaoMixin {
         .get();
   }
 
+  Future<List<Song>> smartSearch(
+    String? keyword, {
+    String? orderField,
+    String? orderDirection,
+    bool? isLiked,
+    bool? isLastPlayed,
+  }) async {
+    final query = select(songs);
+    if (keyword != null && keyword.trim().isNotEmpty) {
+      final lowerKeyword = keyword.toLowerCase();
+
+      query.where(
+        (song) =>
+            song.title.lower().like('%$lowerKeyword%') |
+            song.artist.lower().like('%$lowerKeyword%') |
+            song.album.lower().like('%$lowerKeyword%'),
+      );
+
+      // 优先级排序的条件
+      if (isLastPlayed == null) {
+        query.orderBy([
+          (song) => OrderingTerm(
+                expression: CaseWhenExpression(
+                  cases: [
+                    CaseWhen(
+                      song.title.lower().equals(lowerKeyword),
+                      then: const Constant(0),
+                    ),
+                    CaseWhen(
+                      song.artist.lower().equals(lowerKeyword),
+                      then: const Constant(1),
+                    ),
+                    CaseWhen(
+                      song.album.lower().equals(lowerKeyword),
+                      then: const Constant(2),
+                    ),
+                    CaseWhen(
+                      song.title.lower().like('$lowerKeyword%'),
+                      then: const Constant(3),
+                    ),
+                    CaseWhen(
+                      song.artist.lower().like('$lowerKeyword%'),
+                      then: const Constant(4),
+                    ),
+                    CaseWhen(
+                      song.album.lower().like('$lowerKeyword%'),
+                      then: const Constant(5),
+                    ),
+                  ],
+                  orElse: const Constant(6),
+                ),
+              ),
+        ]);
+      }
+    }
+    if (isLiked != null) {
+      query.where((song) => song.isLiked.equals(isLiked));
+    }
+    if (isLastPlayed == true) {
+      query.where((song) => song.playedCount.isBiggerThanValue(0));
+      query.orderBy([(song) => OrderingTerm.desc(song.lastPlayedTime)]);
+      query.limit(100);
+      return await query.get();
+    }
+
+    // 无论有没有关键字，都执行排序逻辑
+    query.orderBy([
+      (song) {
+        if (orderField == null || orderDirection == null) {
+          return OrderingTerm.desc(song.id);
+        }
+        final Expression orderExpr;
+        switch (orderField) {
+          case 'id':
+            orderExpr = song.duration;
+            break;
+          case 'title':
+            orderExpr = song.title;
+            break;
+          case 'artist':
+            orderExpr = song.artist;
+            break;
+          case 'album':
+            orderExpr = song.album;
+            break;
+          case 'duration':
+            orderExpr = song.duration;
+            break;
+          default:
+            orderExpr = song.id;
+        }
+        return orderDirection.toLowerCase() == 'desc' ? OrderingTerm.desc(orderExpr) : OrderingTerm.asc(orderExpr);
+      },
+    ]);
+
+    return await query.get();
+  }
+
   // 获取最近播放的歌曲（按最后播放时间倒序）
   Future<List<Song>> getRecentPlayedSongs({int limit = 20}) {
     return (select(songs)
