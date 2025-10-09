@@ -31,7 +31,6 @@ class AudioPlayerService extends BaseAudioHandler with SeekHandler {
   StreamSubscription? _playbackStateSubscription;
   // 初始化 AudioService
   static Future<AudioPlayerService> init() async {
-    _database = database;
     await AudioService.init(
       builder: () => AudioPlayerService(),
       config: const AudioServiceConfig(

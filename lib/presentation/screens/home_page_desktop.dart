@@ -16,11 +16,10 @@ class HomePageDesktop extends ConsumerStatefulWidget {
 }
 
 class _HomePageDesktopState extends ConsumerState<HomePageDesktop> {
-  late final GlobalKey<NavigatorState> navigatorKey;
   @override
   void initState() {
     super.initState();
-    navigatorKey = GlobalKey<NavigatorState>();
+    ref.read(menuManagerProvider.notifier).init(navigatorKey: GlobalKey<NavigatorState>());
   }
 
   void _onTabChanged(int newIndex) {

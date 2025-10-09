@@ -54,6 +54,8 @@ dependencies:
   package_info_plus: ^9.0.0
   snacknload: ^1.2.0
   rxdart: ^0.28.0
+  dio: ^5.9.0
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

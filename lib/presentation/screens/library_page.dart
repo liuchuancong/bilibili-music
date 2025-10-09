@@ -1,6 +1,7 @@
 import 'package:snacknload/snacknload.dart';
 import 'package:bilibilimusic/database/db.dart';
 import 'package:bilibilimusic/common/index.dart';
+import 'package:bilibilimusic/utils/core_log.dart';
 import 'package:bilibilimusic/utils/common_utils.dart';
 import 'package:bilibilimusic/utils/scroll_utils.dart';
 import 'package:bilibilimusic/services/player_provider.dart';
@@ -40,13 +41,9 @@ class LibraryPageState extends ConsumerState<LibraryPage> with ShowAwarePage {
 
   @override
   void onPageShow() {
+    CoreLog.d('LibraryPage show');
     _loadSongs().then((_) {
       _scrollToCurrentSong();
-    });
-    ref.listen(playerNotifierProvider, (previousState, newState) {
-      if (previousState?.currentSong?.id != newState.currentSong?.id) {
-        _handleSongChange();
-      }
     });
   }
 
@@ -182,7 +179,11 @@ class LibraryPageState extends ConsumerState<LibraryPage> with ShowAwarePage {
   Widget build(BuildContext context) {
     final playerProvider = ref.watch(playerNotifierProvider);
     _currentSong = playerProvider.currentSong;
-
+    ref.listen(playerNotifierProvider, (previousState, newState) {
+      if (previousState?.currentSong?.id != newState.currentSong?.id) {
+        // _handleSongChange();
+      }
+    });
     return ThemedBackground(
       builder: (context, theme) {
         return Stack(

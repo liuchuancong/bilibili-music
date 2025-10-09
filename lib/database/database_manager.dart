@@ -21,7 +21,6 @@ LazyDatabase openConnection() {
   return LazyDatabase(() async {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File('${dbFolder.path}/app.db');
-    // 确保数据库文件所在的目录存在
     if (!file.existsSync()) {
       await file.create(recursive: true);
     }

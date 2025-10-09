@@ -29,57 +29,57 @@ class MenuManagerState {
 }
 
 class MenuManagerNotifier extends AsyncNotifier<MenuManagerState> {
-  @override
-  Future<MenuManagerState> build() async {
-    final navigatorKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  late final List<MenuItem> items = [
+    MenuItem(
+      icon: SFIcons.sf_icon_musicpages,
+      iconSize: 22.0,
+      label: '库',
+      key: MenuPages.library,
+      pageKey: GlobalKey<LibraryPageState>(),
+      builder: (key) => LibraryPage(key: key),
+    ),
+    MenuItem(
+      icon: Icons.favorite_rounded,
+      iconSize: 22.0,
+      label: '喜欢',
+      key: MenuPages.favorite,
+      pageKey: GlobalKey<FavoritesPageState>(),
+      builder: (key) => FavoritesPage(key: key),
+    ),
+    MenuItem(
+      icon: Icons.history_rounded,
+      iconSize: 22.0,
+      label: '最近播放',
+      key: MenuPages.recently,
+      pageKey: GlobalKey<RecentlyPlayedPageState>(),
+      builder: (key) => RecentlyPlayedPage(key: key),
+    ),
+    MenuItem(
+      icon: Icons.settings_rounded,
+      iconSize: 22.0,
+      label: '系统设置',
+      key: MenuPages.settings,
+      pageKey: GlobalKey<NestedNavigatorWrapperState>(),
+      builder: (key) => NestedNavigatorWrapper(
+        key: key,
+        navigatorKey: navigatorKey,
+        initialRoute: '/',
+        subItems: subItems,
+      ),
+    ),
+  ];
+  late final List<Widget> pages = items.map((item) => item.buildPage()).toList();
+  late final List<MenuSubItem> subItems = _createDefaultSubItems();
 
-    final subItems = _createDefaultSubItems();
-
-    final items = [
-      MenuItem(
-        icon: SFIcons.sf_icon_musicpages,
-        iconSize: 22.0,
-        label: '库',
-        key: MenuPages.library,
-        pageKey: GlobalKey<LibraryPageState>(),
-        builder: (key) => LibraryPage(key: key),
-      ),
-      MenuItem(
-        icon: Icons.favorite_rounded,
-        iconSize: 22.0,
-        label: '喜欢',
-        key: MenuPages.favorite,
-        pageKey: GlobalKey<FavoritesPageState>(),
-        builder: (key) => FavoritesPage(key: key),
-      ),
-      MenuItem(
-        icon: Icons.history_rounded,
-        iconSize: 22.0,
-        label: '最近播放',
-        key: MenuPages.recently,
-        pageKey: GlobalKey<RecentlyPlayedPageState>(),
-        builder: (key) => RecentlyPlayedPage(key: key),
-      ),
-      MenuItem(
-        icon: Icons.settings_rounded,
-        iconSize: 22.0,
-        label: '系统设置',
-        key: MenuPages.settings,
-        pageKey: GlobalKey<NestedNavigatorWrapperState>(),
-        builder: (key) => NestedNavigatorWrapper(
-          key: key,
-          navigatorKey: navigatorKey,
-          initialRoute: '/',
-          subItems: subItems,
-        ),
-      ),
-    ];
-
+  Future<void> init({
+    required GlobalKey<NavigatorState> navigatorKey,
+    List<MenuSubItem>? subMenuItems, // 可选参数，允许从外部传入
+  }) async {
     final playerState = await PlayerStateStorage.getInstance();
     final currentPage = ValueNotifier(playerState.currentPage);
-
-    final pages = items.map((item) => item.buildPage()).toList();
-    return MenuManagerState(
+    final subItems = subMenuItems ?? _createDefaultSubItems();
+    final state = MenuManagerState(
       pages: pages,
       currentPage: currentPage,
       items: items,
@@ -87,6 +87,28 @@ class MenuManagerNotifier extends AsyncNotifier<MenuManagerState> {
       navigatorKey: navigatorKey,
       hoverIndex: -1,
     );
+    this.state = AsyncData(state);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _notifyPageShow(items[currentPage.value.index].pageKey);
+    });
+  }
+
+  @override
+  Future<MenuManagerState> build() async {
+    final stateData = state.value;
+    if (stateData == null) {
+      return MenuManagerState(
+        pages: pages,
+        currentPage: ValueNotifier(MenuPages.library),
+        items: items,
+        subItems: subItems,
+        navigatorKey: navigatorKey,
+        hoverIndex: -1,
+      );
+    }
+
+    return stateData;
   }
 
   void setHoverIndex(int index) {
