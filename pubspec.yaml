@@ -32,7 +32,7 @@ dependencies:
   crypto: ^3.0.0
   flutter_colorpicker: ^1.1.0
   flutter_acrylic: ^1.1.4
-  connectivity_plus: ^6.1.4
+  connectivity_plus: ^7.0.0
   shelf: ^1.4.2
   shelf_web_socket: ^3.0.0
   move_to_desktop: ^0.0.2

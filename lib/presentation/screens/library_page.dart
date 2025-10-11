@@ -78,15 +78,6 @@ class LibraryPageState extends ConsumerState<LibraryPage> with ShowAwarePage {
     }
   }
 
-  void _handleSongChange() {
-    if (mounted) {
-      setState(() {
-        _currentSong = ref.watch(playerNotifierProvider).currentSong;
-      });
-      _scrollToCurrentSong();
-    }
-  }
-
   void _scrollToCurrentSong() {
     if (_currentSong != null && _songs.isNotEmpty) {
       ScrollUtils.scrollToCurrentSong(
