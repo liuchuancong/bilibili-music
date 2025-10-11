@@ -46,12 +46,12 @@ class _HomePageDesktopState extends ConsumerState<HomePageDesktop> {
                     AnimatedContainer(
                       color: theme.sidebarBg,
                       duration: const Duration(milliseconds: 200),
-                      width: CommonUtils.select(theme.sidebarIsExtended, t: 220, f: 70),
+                      width: CommonUtils.select(theme.sidebarIsExtended, t: 260, f: 80),
                       child: Column(
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(
-                              top: 40.0,
+                              top: 10.0,
                               bottom: 12.0,
                             ),
                             child: Row(
@@ -209,10 +209,7 @@ class _HomePageDesktopState extends ConsumerState<HomePageDesktop> {
                                   f: Icons.menu_rounded,
                                 ),
                               ),
-                              onPressed: () => {
-                                // theme.themeProvider.toggleExtended()
-                                ref.read(themeProvider.notifier).toggleSidebarExtended()
-                              },
+                              onPressed: () => {ref.read(themeProvider.notifier).toggleSidebarExtended()},
                             ),
                           ),
                         ],

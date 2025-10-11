@@ -63,4 +63,12 @@ class PrefUtil {
   static Future<bool> setStringList(String key, List<String> value) {
     return prefs.setStringList(key, value);
   }
+
+  static Future<bool> remove(String key) {
+    return prefs.remove(key);
+  }
+
+  static Future<bool> clear() {
+    return prefs.clear();
+  }
 }

@@ -28,4 +28,12 @@ class AppConstants {
   static const String seedAlphaKey = 'theme_seed_alpha';
   static const String opacityTargetKey = 'theme_opacity_target';
   static const String sidebarIsExtendedKey = 'theme_sidebar_is_extended';
+  // 背景相关常量
+  static const String backgroundTypeKey = 'background_type';
+  static const String backgroundPathKey = 'background_path';
+  static const String isBackgroundAssetKey = 'is_background_asset';
+  static const String isPresetBackgroundKey = 'is_preset_background';
+  static const String extractedPrimaryColorKey = 'extracted_primary_color';
+  static const String extractedSecondaryColorKey = 'extracted_secondary_color';
+  static const String harmonyColorsKey = 'harmony_colors';
 }

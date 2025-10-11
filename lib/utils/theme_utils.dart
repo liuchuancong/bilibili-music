@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 
 class ThemeUtils {
@@ -44,5 +45,20 @@ class ThemeUtils {
   /// 获取错误颜色
   static Color errorColor(BuildContext context) {
     return Theme.of(context).colorScheme.error;
+  }
+
+  // 获取与背景色对比的文本颜色
+  static Color getContrastColor(Color background) {
+    final luminance = background.computeLuminance();
+    return luminance > 0.5 ? Colors.black : Colors.white;
+  }
+
+  // 计算两个颜色的对比度
+  static double getContrastRatio(Color color1, Color color2) {
+    final double luminance1 = color1.computeLuminance();
+    final double luminance2 = color2.computeLuminance();
+
+    // 对比度计算公式 (L1 + 0.05) / (L2 + 0.05)，其中L是较亮颜色的亮度
+    return (max(luminance1, luminance2) + 0.05) / (min(luminance1, luminance2) + 0.05);
   }
 }
