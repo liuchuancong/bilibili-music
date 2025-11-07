@@ -192,9 +192,14 @@ class PlayerProvider extends Notifier<PlayerState> {
   Future<void> previous() async {
     if (state.playlist.isEmpty) return;
 
-    int newIndex;
+    int newIndex = state.currentIndex;
     if (state.playMode == PlayMode.shuffle) {
       newIndex = math.Random().nextInt(state.playlist.length);
+      if (state.playlist.length > 1) {
+        do {
+          newIndex = math.Random().nextInt(state.playlist.length);
+        } while (newIndex == state.currentIndex);
+      }
     } else {
       if (!state.hasPrevious) {
         newIndex = state.playlist.length - 1;
@@ -220,6 +225,11 @@ class PlayerProvider extends Notifier<PlayerState> {
     int newIndex = state.currentIndex;
     if (state.playMode == PlayMode.shuffle) {
       newIndex = math.Random().nextInt(state.playlist.length);
+      if (state.playlist.length > 1) {
+        do {
+          newIndex = math.Random().nextInt(state.playlist.length);
+        } while (newIndex == state.currentIndex);
+      }
     } else if (state.playMode == PlayMode.sequence) {
       if (!state.hasNext) {
         newIndex = 0;
