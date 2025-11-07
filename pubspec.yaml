@@ -57,6 +57,10 @@ dependencies:
   dio: ^5.9.0
   palette_generator_master: ^1.0.1
   wolt_modal_sheet: ^0.11.0
+  flutter_inappwebview: ^6.2.0-beta.2
+  parallax_cards: ^1.0.2
+  text_scroll: ^0.2.1
+  pretty_qr_code: ^3.5.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

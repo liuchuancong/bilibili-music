@@ -4,6 +4,7 @@ import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/utils/core_log.dart';
 import 'package:bilibilimusic/utils/common_utils.dart';
 import 'package:bilibilimusic/utils/scroll_utils.dart';
+import 'package:bilibilimusic/events/player_event.dart';
 import 'package:bilibilimusic/services/player_provider.dart';
 import 'package:bilibilimusic/database/database_manager.dart';
 import 'package:bilibilimusic/widgets/frosted_container.dart';
@@ -37,6 +38,9 @@ class LibraryPageState extends ConsumerState<LibraryPage> with ShowAwarePage {
   void initState() {
     super.initState();
     importService = MusicImportService();
+    PlayerEvent.instance.songChanged.listen((event) {
+      _scrollToCurrentSong();
+    });
   }
 
   @override
@@ -66,6 +70,7 @@ class LibraryPageState extends ConsumerState<LibraryPage> with ShowAwarePage {
         _songs.clear();
         _songs.addAll(loadedSongs);
       });
+      ref.read(playerNotifierProvider.notifier).setPlaylist(_songs);
 
       debugPrint('加载了 ${loadedSongs.length} 首歌曲');
     } catch (e) {

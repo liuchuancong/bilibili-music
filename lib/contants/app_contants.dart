@@ -2,8 +2,9 @@ enum PlayerPage { library, favorite, playlist, recently, settings }
 
 enum SettingsPageKeys { settings, storage }
 
-enum PlayMode { single, singleLoop, sequence, loop, shuffle }
+enum PlayMode { single, sequence, shuffle }
 
+//  single（单曲循环） sequence（顺序播放） shuffle（随机播放）
 class SortState {
   String? field;
   String? direction;

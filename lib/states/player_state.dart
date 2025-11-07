@@ -27,7 +27,7 @@ class PlayerState {
     this.position = Duration.zero,
     this.duration = Duration.zero,
     this.volume = 1.0,
-    this.playMode = PlayMode.loop,
+    this.playMode = PlayMode.single,
     this.playlist = const [],
     this.currentIndex = -1,
   }) : positionNotifier = ValueNotifier(position) {

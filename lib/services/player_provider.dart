@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:math' as math;
 import 'package:bilibilimusic/database/db.dart';
 import 'package:bilibilimusic/common/index.dart';
@@ -21,11 +22,6 @@ class PlayerProvider extends Notifier<PlayerState> {
   // 用于防抖和打乱逻辑
   Timer? _completeDebounceTimer;
   bool _isHandlingComplete = false;
-  final math.Random _random = math.Random();
-
-  // 原始和打乱的播放列表
-  List<Song> _originalPlaylist = [];
-  List<Song> _shuffledPlaylist = [];
 
   // 流订阅
   StreamSubscription? _playingSub;
@@ -64,20 +60,12 @@ class PlayerProvider extends Notifier<PlayerState> {
     final isPlaying = storage.isPlaying;
 
     _playerState = storage;
-    _originalPlaylist = List.from(playlist);
-    _shuffledPlaylist = List.from(playlist);
 
     if (currentSong != null) {
-      if (playMode == PlayMode.shuffle) {
-        _createShuffledPlaylist(currentSong: currentSong);
-      }
-
-      final effectivePlaylist = playMode == PlayMode.shuffle ? _shuffledPlaylist : playlist;
-
       state = state.copyWith(
         currentSong: currentSong,
-        playlist: effectivePlaylist,
-        currentIndex: effectivePlaylist.indexWhere((s) => s.id == currentSong.id),
+        playlist: playlist,
+        currentIndex: playlist.indexWhere((s) => s.id == currentSong.id),
         volume: volume,
         playMode: playMode,
         position: position,
@@ -137,19 +125,6 @@ class PlayerProvider extends Notifier<PlayerState> {
     });
   }
 
-  void _createShuffledPlaylist({Song? currentSong}) {
-    final current = currentSong ?? state.currentSong;
-    if (_originalPlaylist.isEmpty || current == null) return;
-
-    _shuffledPlaylist = List.from(_originalPlaylist)..removeWhere((s) => s.id == current.id);
-    _shuffledPlaylist.insert(0, current);
-    if (_shuffledPlaylist.length > 1) {
-      final rest = _shuffledPlaylist.sublist(1);
-      rest.shuffle(_random);
-      _shuffledPlaylist = [current, ...rest];
-    }
-  }
-
   /// 播放指定歌曲
   Future<void> playSong(
     Song song, {
@@ -161,39 +136,8 @@ class PlayerProvider extends Notifier<PlayerState> {
     try {
       state = state.copyWith(isLoading: true, errorMessage: null);
       _isHandlingComplete = false;
-
-      List<Song> effectivePlaylist = [];
-      int effectiveIndex = 0;
-
-      if (playlist != null && playlist.isNotEmpty) {
-        _originalPlaylist = List.from(playlist);
-
-        if (state.playMode == PlayMode.shuffle && shuffle) {
-          _createShuffledPlaylist(currentSong: song);
-          effectivePlaylist = _shuffledPlaylist;
-          effectiveIndex = _shuffledPlaylist.indexOf(song);
-        } else if (state.playMode == PlayMode.shuffle) {
-          effectivePlaylist = _shuffledPlaylist;
-          effectiveIndex = _shuffledPlaylist.indexWhere((s) => s.id == song.id);
-          if (effectiveIndex == -1) {
-            effectivePlaylist = _originalPlaylist;
-            effectiveIndex = index ?? _originalPlaylist.indexOf(song);
-          }
-        } else {
-          effectivePlaylist = List.from(playlist);
-          effectiveIndex = index ?? playlist.indexOf(song);
-        }
-      } else {
-        effectivePlaylist = [song];
-        effectiveIndex = 0;
-        _originalPlaylist = [song];
-        _shuffledPlaylist = [song];
-      }
-
       state = state.copyWith(
         currentSong: song,
-        playlist: effectivePlaylist,
-        currentIndex: effectiveIndex.clamp(0, effectivePlaylist.length - 1),
         isLoading: false,
       );
 
@@ -202,7 +146,7 @@ class PlayerProvider extends Notifier<PlayerState> {
 
       // 持久化
       _playerState.setCurrentSong(song);
-      _playerState.setPlaylist(effectivePlaylist);
+      _playerState.setPlaylist(state.playlist);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -250,10 +194,9 @@ class PlayerProvider extends Notifier<PlayerState> {
 
     int newIndex;
     if (state.playMode == PlayMode.shuffle) {
-      newIndex = state.currentIndex > 0 ? state.currentIndex - 1 : state.playlist.length - 1;
+      newIndex = math.Random().nextInt(state.playlist.length);
     } else {
       if (!state.hasPrevious) {
-        if (state.playMode != PlayMode.loop && state.playMode != PlayMode.singleLoop) return;
         newIndex = state.playlist.length - 1;
       } else {
         newIndex = state.currentIndex - 1;
@@ -261,6 +204,12 @@ class PlayerProvider extends Notifier<PlayerState> {
     }
 
     final song = state.playlist[newIndex];
+    state = state.copyWith(
+      currentSong: song,
+      isPlaying: false,
+      currentIndex: newIndex,
+      position: Duration.zero,
+    );
     await playSong(song);
     PlayerEvent.notifySongChanged(song);
   }
@@ -268,13 +217,11 @@ class PlayerProvider extends Notifier<PlayerState> {
   /// 下一首
   Future<void> next() async {
     if (state.playlist.isEmpty) return;
-
-    int newIndex;
+    int newIndex = state.currentIndex;
     if (state.playMode == PlayMode.shuffle) {
-      newIndex = state.currentIndex < state.playlist.length - 1 ? state.currentIndex + 1 : 0;
-    } else {
+      newIndex = math.Random().nextInt(state.playlist.length);
+    } else if (state.playMode == PlayMode.sequence) {
       if (!state.hasNext) {
-        if (state.playMode != PlayMode.loop && state.playMode != PlayMode.singleLoop) return;
         newIndex = 0;
       } else {
         newIndex = state.currentIndex + 1;
@@ -282,6 +229,12 @@ class PlayerProvider extends Notifier<PlayerState> {
     }
 
     final song = state.playlist[newIndex];
+    state = state.copyWith(
+      currentSong: song,
+      isPlaying: false,
+      currentIndex: newIndex,
+      position: Duration.zero,
+    );
     await playSong(song);
     PlayerEvent.notifySongChanged(song);
   }
@@ -319,49 +272,12 @@ class PlayerProvider extends Notifier<PlayerState> {
   /// 设置播放模式
   void setPlayMode(PlayMode mode) {
     if (state.playMode == mode) return;
-
-    final oldMode = state.playMode;
     state = state.copyWith(playMode: mode);
     _playerState.setPlayMode(mode);
-
-    // 模式切换处理
-    if (oldMode == PlayMode.shuffle && mode != PlayMode.shuffle) {
-      // 恢复原始顺序
-      state = state.copyWith(playlist: _originalPlaylist);
-      final idx = _originalPlaylist.indexWhere((s) => s.id == state.currentSong?.id);
-      if (idx != -1) {
-        state = state.copyWith(currentIndex: idx);
-      }
-    } else if (oldMode != PlayMode.shuffle && mode == PlayMode.shuffle) {
-      // 进入随机模式
-      if (state.currentSong != null) {
-        _createShuffledPlaylist(currentSong: state.currentSong);
-        state = state.copyWith(playlist: _shuffledPlaylist);
-        final idx = _shuffledPlaylist.indexWhere((s) => s.id == state.currentSong!.id);
-        state = state.copyWith(currentIndex: idx);
-      }
-    }
-  }
-
-  /// 重新打乱播放列表（保持当前歌曲在第一位）
-  void reshufflePlaylist() {
-    if (state.playMode == PlayMode.shuffle && state.currentSong != null) {
-      _createShuffledPlaylist(currentSong: state.currentSong);
-      state = state.copyWith(playlist: _shuffledPlaylist);
-      final idx = _shuffledPlaylist.indexWhere((s) => s.id == state.currentSong!.id);
-      state = state.copyWith(currentIndex: idx);
-    }
   }
 
   /// 添加歌曲到播放列表
   void addToPlaylist(Song song) {
-    _originalPlaylist.add(song);
-
-    if (state.playMode == PlayMode.shuffle) {
-      final idx = _random.nextInt(_shuffledPlaylist.length + 1);
-      _shuffledPlaylist.insert(idx, song);
-    }
-
     final newPlaylist = List<Song>.from(state.playlist)..add(song);
     state = state.copyWith(playlist: newPlaylist);
   }
@@ -372,12 +288,6 @@ class PlayerProvider extends Notifier<PlayerState> {
 
     final removed = state.playlist[index];
     final newPlaylist = List<Song>.from(state.playlist)..removeAt(index);
-
-    _originalPlaylist.removeWhere((s) => s.id == removed.id);
-    if (state.playMode == PlayMode.shuffle) {
-      _shuffledPlaylist.removeWhere((s) => s.id == removed.id);
-    }
-
     int newCurrentIndex = state.currentIndex;
     if (index < newCurrentIndex) {
       newCurrentIndex--;
@@ -400,25 +310,15 @@ class PlayerProvider extends Notifier<PlayerState> {
 
   /// 设置整个播放列表
   void setPlaylist(List<Song> songs, {int currentIndex = 0}) {
-    _originalPlaylist = List.from(songs);
     if (songs.isEmpty) return;
 
     final current = songs[currentIndex.clamp(0, songs.length - 1)];
 
-    if (state.playMode == PlayMode.shuffle) {
-      _createShuffledPlaylist(currentSong: current);
-      state = state.copyWith(
-        playlist: _shuffledPlaylist,
-        currentIndex: _shuffledPlaylist.indexOf(current),
-        currentSong: current,
-      );
-    } else {
-      state = state.copyWith(
-        playlist: songs,
-        currentIndex: currentIndex,
-        currentSong: current,
-      );
-    }
+    state = state.copyWith(
+      playlist: songs,
+      currentIndex: currentIndex,
+      currentSong: current,
+    );
   }
 
   /// 清除错误
@@ -436,19 +336,7 @@ class PlayerProvider extends Notifier<PlayerState> {
           state = state.copyWith(isPlaying: false);
           state.positionNotifier.value = Duration.zero;
           break;
-        case PlayMode.singleLoop:
-          seekTo(Duration.zero);
-          _audioService.resume();
-          break;
         case PlayMode.sequence:
-          if (state.hasNext) {
-            next();
-          } else {
-            state = state.copyWith(isPlaying: false);
-            state.positionNotifier.value = Duration.zero;
-          }
-          break;
-        case PlayMode.loop:
           next();
           break;
         case PlayMode.shuffle:
