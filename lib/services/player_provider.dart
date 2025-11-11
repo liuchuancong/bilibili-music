@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'dart:math' as math;
 import 'package:bilibilimusic/database/db.dart';
 import 'package:bilibilimusic/common/index.dart';
@@ -296,7 +295,6 @@ class PlayerProvider extends Notifier<PlayerState> {
   void removeFromPlaylist(int index) {
     if (index < 0 || index >= state.playlist.length) return;
 
-    final removed = state.playlist[index];
     final newPlaylist = List<Song>.from(state.playlist)..removeAt(index);
     int newCurrentIndex = state.currentIndex;
     if (index < newCurrentIndex) {
