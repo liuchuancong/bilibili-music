@@ -103,26 +103,33 @@ class PlayListPage extends GetView<PlayListController> {
   }
 
   Future<void> handleMusicAlbumSelector() async {
-    String? result = await showBottomSheet();
-    if (result == '1') {
-      showMusicAlbumSelectorDialog();
-    } else if (result == '2') {
-      List<int> selectedIndexes = controller.multiSelectController.getSelectedItems();
-      List<VideoMediaInfo> deleteList = selectedIndexes.map((idx) => controller.list[idx]).toList();
+    final action = await showBottomSheet();
+    switch (action) {
+      case '1':
+        showMusicAlbumSelectorDialog();
+        break;
+      case '2':
+        final selectedIndexes = controller.multiSelectController.getSelectedItems();
+        final deleteList = selectedIndexes.map((idx) => controller.list[idx]).toList();
+        final sourceList = controller.settingsService.deleteMusicFromAlbum(
+          controller.bilibiliVideo.id!,
+          deleteList,
+        );
+        controller.list.value = sourceList;
+        controller.multiSelectController.deselectAll();
 
-      List<VideoMediaInfo> sourcelist =
-          controller.settingsService.deleteMusicFromAlbum(controller.bilibiliVideo.id, deleteList);
-      controller.list.value = sourcelist;
-      controller.multiSelectController.deselectAll();
+        SmartDialog.showToast('删除成功');
+        controller.refreshData();
 
-      SmartDialog.showToast('删除成功');
-      controller.refreshData();
-
-      if (controller.bilibiliVideo.id == controller.settingsService.favoriteMusicPlaylistId) {
-        final AudioController audioController = Get.find<AudioController>();
-        audioController.isFavorite.value = controller.settingsService.isInFavoriteMusic(
-            controller.settingsService.currentPlaylist[controller.settingsService.currentPlayIndex.value]);
-      }
+        if (controller.bilibiliVideo.id == controller.settingsService.favoriteMusicPlaylistId) {
+          final audioController = Get.find<AudioController>();
+          final currentMedia =
+              controller.settingsService.currentPlaylist[controller.settingsService.currentPlayIndex.value];
+          audioController.isFavorite.value = controller.settingsService.isInFavoriteMusic(currentMedia);
+        }
+        break;
+      default:
+        break;
     }
   }
 
@@ -208,13 +215,26 @@ class PlayListPage extends GetView<PlayListController> {
                             }
                           }),
                       if (controller.showSelectBox.value)
-                        IconButton(
-                            icon: const FaIcon(FontAwesomeIcons.squareCheck),
+                        Obx(() {
+                          bool isAllSelected = controller.isAllSelected.value;
+                          return IconButton(
+                            icon: FaIcon(
+                              isAllSelected ? FontAwesomeIcons.squareCheck : FontAwesomeIcons.square,
+                            ),
                             onPressed: () {
-                              controller.multiSelectController.selectAll();
-                            }),
+                              if (isAllSelected) {
+                                // 已全选 → 取消全选
+                                controller.multiSelectController.deselectAll();
+                                controller.isAllSelected.value = false;
+                              } else {
+                                controller.multiSelectController.selectAll();
+                                controller.isAllSelected.value = true;
+                              }
+                            },
+                          );
+                        }),
                       IconButton(
-                          icon: const Icon(Icons.select_all_outlined),
+                          icon: const FaIcon(FontAwesomeIcons.listOl),
                           onPressed: () {
                             if (controller.list.isNotEmpty) {
                               controller.showSelectBox.toggle();
@@ -251,18 +271,28 @@ class PlayListPage extends GetView<PlayListController> {
                 child: controller.showSelectBox.value
                     ? MultiSelectCheckList(
                         controller: controller.multiSelectController,
+                        // 文字样式
                         textStyles: const MultiSelectTextStyles(
+                          textStyle: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black87,
+                          ),
                           selectedTextStyle: TextStyle(
-                            color: Colors.white,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
+                        // 选中装饰
                         itemsDecoration: MultiSelectDecorations(
                           selectedDecoration: BoxDecoration(
-                            color: Colors.indigo.withAlpha(200),
+                            color: Get.theme.colorScheme.primary, // 选中高亮
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                         listViewSettings: ListViewSettings(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           physics: const AlwaysScrollableScrollPhysics(),
                           separatorBuilder: (context, index) => const Divider(height: 0),
                         ),
@@ -272,26 +302,22 @@ class PlayListPage extends GetView<PlayListController> {
                             final mediaInfo = controller.list[index];
                             return CheckListCard(
                               value: index,
+                              selectedColor: Colors.white,
+                              checkColor: Get.theme.colorScheme.primary,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                               title: Text(
                                 '${index + 1}. ${removeNumberPrefix(mediaInfo.part)}',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: controller.settingsService.isCurrentMedia(mediaInfo)
-                                      ? Colors.white
-                                      : Colors.black,
+                                  fontWeight: controller.settingsService.isCurrentMedia(mediaInfo)
+                                      ? FontWeight.bold
+                                      : FontWeight.w500,
                                 ),
-                              ),
-                              selectedColor: Colors.white,
-                              checkColor: Colors.indigo,
-                              checkBoxBorderSide: const BorderSide(color: Colors.blue),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5),
                               ),
                             );
                           },
                         ),
-                        onChange: (allSelectedItems, selectedItem) {},
+                        onChange: (all, item) {},
                       )
                     : ListView.builder(
                         itemCount: controller.list.length,

@@ -172,7 +172,6 @@ class RoomCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppSettingsService service = Get.find<AppSettingsService>();
-    final VideoMediaInfo currentMedia = service.getCurrentVideoInfo();
     return Card(
       margin: const EdgeInsets.all(7.5),
       shape: RoundedRectangleBorder(
@@ -309,7 +308,9 @@ class RoomCard extends StatelessWidget {
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
-            if (currentMedia.aid == bilibiliVideo.aid && currentMedia.bvid == bilibiliVideo.bvid)
+            if (service.currentPlaylist.isNotEmpty &&
+                service.getCurrentVideoInfo().aid == bilibiliVideo.aid &&
+                service.getCurrentVideoInfo().bvid == bilibiliVideo.bvid)
               Positioned(
                 right: 2,
                 top: 2,

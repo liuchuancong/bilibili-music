@@ -35,6 +35,8 @@ class PlayListController extends BasePageController<VideoMediaInfo> {
 
   final AudioController audioController = Get.find<AudioController>();
 
+  var isAllSelected = false.obs;
+
   @override
   Future<List<VideoMediaInfo>> getData(int page, int pageSize) async {
     List<VideoMediaInfo> playitems = [];
