@@ -120,7 +120,7 @@ class VolumeControl extends StatefulWidget {
     required this.onVolumeChanged,
     required this.activeColor,
     required this.inactiveColor,
-    @required this.onPressed,
+    required this.onPressed,
   });
 
   @override
@@ -245,6 +245,7 @@ class _VolumeControlState extends State<VolumeControl> {
         _hideTimer = Timer(const Duration(seconds: 2), _hideVolumeBar);
       },
       child: IconButton(
+          tooltip: '音量',
           icon: Icon(
             getVolumeIcon(),
             key: volumeButton,

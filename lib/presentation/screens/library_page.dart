@@ -4,7 +4,6 @@ import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/utils/core_log.dart';
 import 'package:bilibilimusic/utils/common_utils.dart';
 import 'package:bilibilimusic/utils/scroll_utils.dart';
-import 'package:bilibilimusic/events/player_event.dart';
 import 'package:bilibilimusic/services/player_provider.dart';
 import 'package:bilibilimusic/database/database_manager.dart';
 import 'package:bilibilimusic/widgets/frosted_container.dart';
@@ -38,9 +37,6 @@ class LibraryPageState extends ConsumerState<LibraryPage> with ShowAwarePage {
   void initState() {
     super.initState();
     importService = MusicImportService();
-    PlayerEvent.instance.songChanged.listen((event) {
-      _scrollToCurrentSong();
-    });
   }
 
   @override
@@ -177,7 +173,7 @@ class LibraryPageState extends ConsumerState<LibraryPage> with ShowAwarePage {
     _currentSong = playerProvider.currentSong;
     ref.listen(playerNotifierProvider, (previousState, newState) {
       if (previousState?.currentSong?.id != newState.currentSong?.id) {
-        // _handleSongChange();
+        _scrollToCurrentSong();
       }
     });
     return ThemedBackground(

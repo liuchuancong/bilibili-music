@@ -72,6 +72,15 @@ class _MiniPlayerState extends ConsumerState<MiniPlayer> {
     SnackNLoad.showToast('${modeMap[nextMode]} 模式', maskType: MaskType.none, position: SnackNLoadPosition.center);
   }
 
+  String getPlayMode(PlayMode playMode) {
+    const modeMap = {
+      PlayMode.single: '单曲循环',
+      PlayMode.sequence: '顺序播放',
+      PlayMode.shuffle: '随机播放',
+    };
+    return modeMap[playMode] ?? '';
+  }
+
   @override
   Widget build(BuildContext context) {
     final playerNotifier = ref.watch(playerNotifierProvider.notifier);
@@ -102,7 +111,7 @@ class _MiniPlayerState extends ConsumerState<MiniPlayer> {
       child: Row(
         children: [
           SizedBox(
-            width: MediaQuery.of(context).size.width * 0.3,
+            width: 200,
             child: Row(
               children: [
                 MouseRegion(
@@ -167,7 +176,7 @@ class _MiniPlayerState extends ConsumerState<MiniPlayer> {
                     children: [
                       TextScroll(getDisplayTitle(currentSong),
                           style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 15,
                               fontWeight: FontWeight.bold,
                               color: Theme.of(context).colorScheme.onSurface)),
                       Row(
@@ -210,6 +219,7 @@ class _MiniPlayerState extends ConsumerState<MiniPlayer> {
                     IconButton(
                         color: activeColor,
                         icon: const Icon(Icons.skip_previous_rounded, size: 40),
+                        tooltip: '上一首',
                         // 顺序模式下无 previous 时禁用
                         onPressed: () {
                           playerNotifier.previous();
@@ -220,6 +230,7 @@ class _MiniPlayerState extends ConsumerState<MiniPlayer> {
                       children: [
                         IconButton(
                             color: activeColor,
+                            tooltip: isPlaying ? '暂停' : '播放',
                             icon: Icon(
                               isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
                               size: 40,
@@ -241,6 +252,7 @@ class _MiniPlayerState extends ConsumerState<MiniPlayer> {
                     // 下一首
                     IconButton(
                       color: activeColor,
+                      tooltip: '下一首',
                       icon: const Icon(Icons.skip_next_rounded, size: 40),
                       onPressed: () {
                         playerNotifier.next();
@@ -252,6 +264,7 @@ class _MiniPlayerState extends ConsumerState<MiniPlayer> {
                         getPlayModeIcon(playMode),
                         color: activeColor,
                       ),
+                      tooltip: getPlayMode(playMode),
                       onPressed: () {
                         setPlayMode(playMode);
                       },
@@ -326,7 +339,6 @@ class _MiniPlayerState extends ConsumerState<MiniPlayer> {
             ),
           ),
           SizedBox(
-            width: MediaQuery.of(context).size.width * 0.3,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -352,7 +364,6 @@ class _MiniPlayerState extends ConsumerState<MiniPlayer> {
                 // 播放列表按钮
                 IconButton(
                   onPressed: () => _showPlaylist(context),
-                  constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
                   padding: EdgeInsets.zero,
                   iconSize: 14,
                   icon: Transform.translate(
