@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:get/get.dart';
 import 'package:bilibilimusic/style/theme.dart';
 import 'package:bilibilimusic/common/index.dart';
@@ -7,6 +8,8 @@ import 'package:bilibilimusic/plugins/local_http.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:bilibilimusic/widgets/section_listtile.dart';
 import 'package:bilibilimusic/modules/backup/backup_page.dart';
+import 'package:bilibilimusic/common/global/platform/background_server.dart';
+
 // ignore_for_file: deprecated_member_use
 
 class SettingsPage extends GetView<AppSettingsService> {
@@ -46,7 +49,36 @@ class SettingsPage extends GetView<AppSettingsService> {
             ),
             onTap: colorPickerDialog,
           ),
+          if (Platform.isWindows)
+            Obx(
+              () => SwitchListTile(
+                title: Text('退出每次询问'),
+                subtitle: Text('应用将在每次退出时不再询问是否退出'),
+                value: controller.enableExitWithoutConfirm.value,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
+                onChanged: (bool value) => controller.enableExitWithoutConfirm.value = value,
+              ),
+            ),
           const SectionTitle(title: "播放器"),
+          if (Platform.isAndroid)
+            Obx(
+              () => SwitchListTile(
+                title: Text("后台播放"),
+                subtitle: Text("enable_background_play_subtitle"),
+                value: controller.enableBackgroundPlay.value,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
+                onChanged: (bool value) async {
+                  controller.enableBackgroundPlay.value = value;
+                  if (Platform.isAndroid && value) {
+                    bool hasPermission = await BackgroundService.requestPlatformPermissions();
+                    if (!hasPermission) {
+                      SmartDialog.showToast("如果需要后台播放，建议开启此权限");
+                    }
+                    controller.enableBackgroundPlay.value = hasPermission;
+                  }
+                },
+              ),
+            ),
           Obx(() => SwitchListTile(
                 title: const Text("开机自动播放"),
                 subtitle: const Text("当程序启动时，自动播放"),
