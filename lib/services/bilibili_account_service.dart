@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/plugins/http_client.dart';
 import 'package:bilibilimusic/utils/hive_pref_util.dart';
+import 'package:bilibilimusic/models/bili_user_profile.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:bilibilimusic/models/bilibili_user_info_page.dart';
 
 class BiliBiliAccountService extends GetxController {
   static BiliBiliAccountService get instance => Get.find<BiliBiliAccountService>();
@@ -38,7 +38,7 @@ class BiliBiliAccountService extends GetxController {
           },
         );
         if (result["code"] == 0) {
-          var info = BiliBiliUserInfoModel.fromJson(result["data"]);
+          var info = BiliUserProfile.fromJson(result["data"]);
           name.value = info.uname ?? "未登录";
           uid = info.mid ?? 0;
           setCookie(cookie.value);
