@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:bilibilimusic/core/util.dart';
+import 'package:audio_service/audio_service.dart';
 import 'package:bilibilimusic/utils/text_util.dart';
 import 'package:bilibilimusic/models/bili_up_info.dart';
 import 'package:bilibilimusic/plugins/http_client.dart';
@@ -449,36 +450,43 @@ class BiliBiliSite {
     return null;
   }
 
-  Future<Map<String, dynamic>> getAudioLyric(int avid, int cid, String bvid) async {
+  Future<MediaItem?> getAudioLyricAsMediaItem(int avid, int cid, String bvid) async {
     try {
-      cookie = settings.bilibiliCookie.value;
-
-      var sign = await getSignedParams({
+      final sign = await getSignedParams({
         "aid": avid,
         "bvid": bvid,
         "cid": cid,
       });
-      var header = _buildCommonHeaders(referer: "https://www.bilibili.com/video/$bvid");
-      var result = await HttpClient.instance.getJson(
+
+      final result = await HttpClient.instance.getJson(
         "http://api.bilibili.com/x/player/wbi/v2",
         queryParameters: sign,
-        header: header,
+        header: _buildCommonHeaders(referer: "https://www.bilibili.com/video/$bvid"),
       );
-      if (result["code"] == 0) {
-        if (result["data"]["bgm_info"] != null && result["data"]["bgm_info"]["music_id"] != null) {
-          return await getMusicInfo(result["data"]["bgm_info"]['music_id']);
-        }
-      }
+
+      if (result["code"] != 0) return null;
+      final bgm = result["data"]["bgm_info"];
+      if (bgm == null || bgm["music_id"] == null) return null;
+
+      final musicInfo = await getMusicInfo(bgm["music_id"]);
+      if (musicInfo.isEmpty) return null;
+
+      return MediaItem(
+        id: 'bilibili_${bgm["music_id"]}',
+        title: musicInfo['title'] ?? '未知音乐',
+        artist: musicInfo['author'] ?? '未知作者',
+        album: musicInfo['album'] ?? '未知专辑',
+        artUri: Uri.tryParse(musicInfo['cover'] ?? ''),
+        isLive: false,
+        extras: {
+          'lyric': musicInfo['lyric'] ?? '',
+          'music_id': bgm["music_id"],
+        },
+      );
     } catch (e) {
-      log(e.toString(), name: 'getAudioLyric');
+      log('getAudioLyricAsMediaItem error: $e');
+      return null;
     }
-    return {
-      'album': '',
-      'title': '',
-      'author': '',
-      'cover': '',
-      'lyric': '',
-    };
   }
 
   Future<Map<String, dynamic>> getMusicInfo(String musicId) async {

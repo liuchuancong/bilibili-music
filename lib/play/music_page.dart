@@ -116,7 +116,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
           ),
           content: FutureBuilder<List<LyricResults>>(
               future: BiliBiliSite().getSearchLyrics(
-                  audioController.currentMusicInfo.value['title']!, audioController.currentMusicInfo.value['author']!),
+                  audioController.currentMusicInfo.value.title, audioController.currentMusicInfo.value.artist!),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.hasError || snapshot.data == null || snapshot.data!.isEmpty) {
@@ -475,9 +475,9 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
             height: 200,
             child: Obx(() => ClipRRect(
                   borderRadius: BorderRadius.circular(200),
-                  child: audioController.currentMusicInfo.value['cover']!.isNotEmpty
+                  child: audioController.currentMusicInfo.value.artUri!.toString().isNotEmpty
                       ? CachedNetworkImage(
-                          imageUrl: audioController.currentMusicInfo.value['cover']!,
+                          imageUrl: audioController.currentMusicInfo.value.artUri.toString(),
                           fit: BoxFit.cover,
                         )
                       : CachedNetworkImage(
@@ -540,8 +540,8 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
                 ],
               ),
               Obx(() => Text(
-                  audioController.currentMusicInfo.value['author']!.isNotEmpty
-                      ? audioController.currentMusicInfo.value['author']!
+                  audioController.currentMusicInfo.value.artist!.isNotEmpty
+                      ? audioController.currentMusicInfo.value.artist!
                       : audioController.currentMediaInfo.name,
                   style: _bodyText2Style(context),
                   maxLines: 1,
@@ -689,7 +689,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
         onTapDown: globalTapHandler,
         child: Stack(
           children: [
-            Obx(() => BlurBackground(imageUrl: audioController.currentMusicInfo.value['cover']!)),
+            Obx(() => BlurBackground(imageUrl: audioController.currentMusicInfo.value.artUri.toString())),
             Column(
               children: [
                 const SizedBox(height: 30),

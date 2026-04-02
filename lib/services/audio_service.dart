@@ -6,6 +6,7 @@ import 'dart:developer' as developer;
 import 'package:media_kit/media_kit.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:bilibilimusic/common/index.dart';
+import 'package:audio_service/audio_service.dart';
 import 'package:bilibilimusic/core/bilibili_site.dart';
 import 'package:bilibilimusic/models/video_media_info.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
@@ -45,12 +46,7 @@ class AudioController extends GetxController {
   final normalLyric = ''.obs;
   final lyricStatus = LyricStatus.loading.obs;
   final ScrollController _scrollController = ScrollController();
-  final currentMusicInfo = {
-    'album': '',
-    'title': '',
-    'author': '',
-    'cover': '',
-  }.obs;
+  final Rx<MediaItem> currentMusicInfo = Rx<MediaItem>(MediaItem(id: '', title: '', artist: ''));
   final isMusicFirstLoad = true.obs;
   @override
   void onInit() {
@@ -117,12 +113,13 @@ class AudioController extends GetxController {
     // 监听播放列表变化
     if (playlist.isNotEmpty) {
       Timer(const Duration(seconds: 2), () {
-        currentMusicInfo.value = {
-          'album': '',
-          'title': playlist[currentIndex].part,
-          'author': '',
-          'cover': playlist[currentIndex].face,
-        };
+        currentMusicInfo.value = MediaItem(
+          id: "${currentMediaInfo.aid}_${currentMediaInfo.cid}_${currentMediaInfo.bvid}",
+          title: currentMediaInfo.part,
+          artist: currentMediaInfo.name,
+          album: '',
+          artUri: Uri.tryParse(currentMediaInfo.face),
+        );
         registerVolumeListener();
         startPlay(
           playlist[currentIndex],
@@ -285,23 +282,21 @@ class AudioController extends GetxController {
   Future<void> getLyric(VideoMediaInfo mediaInfo) async {
     lyricStatus.value = LyricStatus.loading;
     normalLyric.value = '';
-    currentMusicInfo.value = {
-      'album': '',
-      'title': mediaInfo.part,
-      'author': mediaInfo.name,
-      'cover': mediaInfo.face,
-    };
+
+    currentMusicInfo.value = MediaItem(
+      id: "${mediaInfo.aid}_${mediaInfo.cid}_${mediaInfo.bvid}",
+      title: mediaInfo.part,
+      artist: mediaInfo.name,
+      album: '',
+      artUri: Uri.tryParse(mediaInfo.face),
+    );
 
     try {
-      Map<String, dynamic> lyric = await BiliBiliSite().getAudioLyric(mediaInfo.aid, mediaInfo.cid, mediaInfo.bvid);
-      String title = lyric['title'] ?? mediaInfo.part;
-      String author = lyric['author'] ?? '';
-      currentMusicInfo.value = {
-        'album': lyric['album'] ?? '',
-        'title': title,
-        'author': author,
-        'cover': lyric['cover'] ?? ''
-      };
+      MediaItem? mediaItem =
+          await BiliBiliSite().getAudioLyricAsMediaItem(mediaInfo.aid, mediaInfo.cid, mediaInfo.bvid);
+      String title = mediaItem!.title;
+      String author = mediaItem.artist ?? '';
+      currentMusicInfo.value = mediaItem;
       // 定义正则表达式，用于匹配整个结构
       String pattern = r'\([^)]*\)|（[^）]*）';
       final regex = RegExp(pattern, dotAll: true);
@@ -309,13 +304,12 @@ class AudioController extends GetxController {
       title = title.replaceAll(regex, '');
       title = title.replaceAll(RegExp(r'$[^)]*$'), '').replaceAll(RegExp(r'\s*$[^)]*$\s*'), '');
       developer.log(title, name: 'getAudioLyric');
-      developer.log(author, name: 'getAudioLyric');
       List<LyricResults> lyricResults = await BiliBiliSite().getSearchLyrics(title, author);
       developer.log(lyricResults.length.toString(), name: 'getAudioLyric');
       // 匹配歌词的正则表达式
       if (lyricResults.isEmpty) {
-        if (lyric['lyric'] != null) {
-          lyricContent = await BiliBiliSite().getBilibiliLyrics(lyric['lyric']);
+        if (mediaItem.extras!['lyric'] != null) {
+          lyricContent = await BiliBiliSite().getBilibiliLyrics(mediaItem.extras!['lyric']);
         }
       } else {
         lyricContent = lyricResults[0].lyrics;

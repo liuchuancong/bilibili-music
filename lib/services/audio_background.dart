@@ -13,9 +13,9 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
       Timer(const Duration(seconds: 1), () {
         Map info = {
           'album': '',
-          'title': audioController.currentMusicInfo['title'],
-          'author': audioController.currentMusicInfo['author'],
-          'cover': audioController.currentMusicInfo['cover'],
+          'title': audioController.currentMusicInfo.value.title,
+          'author': audioController.currentMusicInfo.value.artist,
+          'cover': audioController.currentMusicInfo.value.artUri.toString(),
           'lyric': '',
         };
         final item = MediaItem(

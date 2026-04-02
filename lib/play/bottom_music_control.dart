@@ -46,8 +46,8 @@ class BottomMusicControl extends GetWidget<AudioController> {
                       leading: controller.playlist.isNotEmpty
                           ? CircleAvatar(
                               child: ClipOval(
-                                child: Obx(() => controller.currentMusicInfo.value['cover']!.isNotEmpty
-                                    ? CachedNetworkImage(imageUrl: controller.currentMusicInfo.value['cover']!)
+                                child: Obx(() => controller.currentMusicInfo.value.artUri!.toString().isNotEmpty
+                                    ? CachedNetworkImage(imageUrl: controller.currentMusicInfo.value.artUri.toString())
                                     : CachedNetworkImage(imageUrl: controller.playlist[controller.currentIndex].face)),
                               ),
                             )
@@ -71,8 +71,8 @@ class BottomMusicControl extends GetWidget<AudioController> {
                           : const Text('暂无歌曲', style: TextStyle(color: Colors.white)),
                       subtitle: controller.playlist.isNotEmpty
                           ? Obx(() => Text(
-                              controller.currentMusicInfo.value['author']!.isNotEmpty
-                                  ? controller.currentMusicInfo.value['author']!
+                              controller.currentMusicInfo.value.artist!.isNotEmpty
+                                  ? controller.currentMusicInfo.value.artist!
                                   : controller.currentMediaInfo.name,
                               style: const TextStyle(color: Colors.white)))
                           : const Text('请选择歌单', style: TextStyle(color: Colors.white)),
