@@ -5,7 +5,7 @@ import 'package:bilibilimusic/plugins/utils.dart';
 import 'package:bilibilimusic/utils/event_bus.dart';
 import 'package:bilibilimusic/routes/route_path.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
-import 'package:bilibilimusic/models/live_media_info.dart';
+import 'package:bilibilimusic/models/video_media_info.dart';
 
 /// APP页面跳转封装
 /// * 需要参数的页面都应使用此类
@@ -14,8 +14,8 @@ class AppNavigator {
   /// 跳转至分类详
   /// 跳转至直播间
   static Future<void> toLiveRoomDetailList({
-    required BilibiliVideo bilibiliVideo,
-    required VideoMediaTypes mediaType,
+    required BilibiliVideoItem bilibiliVideo,
+    required VideoMediaType mediaType,
   }) async {
     Get.toNamed(RoutePath.kPlayList, arguments: [bilibiliVideo, mediaType], preventDuplicates: false);
     Future.delayed(Duration(milliseconds: 20), () {
@@ -23,7 +23,7 @@ class AppNavigator {
     });
   }
 
-  static Future<void> toLiveRoomDetail({required LiveMediaInfo mediaInfo}) async {
+  static Future<void> toLiveRoomDetail({required VideoMediaInfo mediaInfo}) async {
     Get.toNamed(RoutePath.kLivePlay, arguments: mediaInfo);
   }
 

@@ -8,7 +8,7 @@ import 'package:bilibilimusic/services/index.dart';
 import 'package:bilibilimusic/widgets/empty_view.dart';
 import 'package:bilibilimusic/routes/app_navigation.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
-import 'package:bilibilimusic/models/live_media_info.dart';
+import 'package:bilibilimusic/models/video_media_info.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
@@ -139,19 +139,19 @@ class RoomCard extends StatelessWidget {
     this.showTrailing = false,
   });
 
-  final BilibiliVideo bilibiliVideo;
+  final BilibiliVideoItem bilibiliVideo;
   final bool isVideo;
   final bool showTrailing;
   void onTap() async {
-    VideoMediaTypes mediaType = VideoMediaTypes.masterpiece;
-    if (bilibiliVideo.status == VideoStatus.series) {
-      mediaType = VideoMediaTypes.series;
-    } else if (bilibiliVideo.status == VideoStatus.customized) {
-      mediaType = VideoMediaTypes.customized;
-    } else if (bilibiliVideo.status == VideoStatus.published) {
-      mediaType = VideoMediaTypes.masterpiece;
+    VideoMediaType mediaType = VideoMediaType.masterpiece;
+    if (bilibiliVideo.category == VideoCategory.series) {
+      mediaType = VideoMediaType.series;
+    } else if (bilibiliVideo.category == VideoCategory.customized) {
+      mediaType = VideoMediaType.customized;
+    } else if (bilibiliVideo.category == VideoCategory.published) {
+      mediaType = VideoMediaType.masterpiece;
     } else {
-      mediaType = VideoMediaTypes.allVideos;
+      mediaType = VideoMediaType.allVideos;
     }
     AppNavigator.toLiveRoomDetailList(
       bilibiliVideo: bilibiliVideo,
@@ -172,7 +172,7 @@ class RoomCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppSettingsService service = Get.find<AppSettingsService>();
-    final LiveMediaInfo currentMedia = service.getCurrentVideoInfo();
+    final VideoMediaInfo currentMedia = service.getCurrentVideoInfo();
     return Card(
       margin: const EdgeInsets.all(7.5),
       shape: RoundedRectangleBorder(
@@ -196,7 +196,7 @@ class RoomCard extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    bilibiliVideo.status == VideoStatus.published || bilibiliVideo.status == VideoStatus.series
+                    bilibiliVideo.category == VideoCategory.published || bilibiliVideo.category == VideoCategory.series
                         ? CachedNetworkImage(
                             imageUrl: bilibiliVideo.pic!.startsWith("http") || bilibiliVideo.pic!.startsWith("https")
                                 ? bilibiliVideo.pic!
@@ -214,7 +214,7 @@ class RoomCard extends StatelessWidget {
                     BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
                       child: Container(
-                        decoration: bilibiliVideo.status == VideoStatus.customized
+                        decoration: bilibiliVideo.category == VideoCategory.customized
                             ? const BoxDecoration(
                                 borderRadius:
                                     BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
@@ -228,7 +228,7 @@ class RoomCard extends StatelessWidget {
                                 ]),
                               )
                             : null,
-                        color: bilibiliVideo.status == VideoStatus.published
+                        color: bilibiliVideo.category == VideoCategory.published
                             ? Colors.black.withValues(alpha: 0)
                             : null, // Adjust the opacity as needed
                       ),
@@ -255,7 +255,8 @@ class RoomCard extends StatelessWidget {
                   ),
                 ),
                 child: ListTile(
-                  leading: bilibiliVideo.status == VideoStatus.published || bilibiliVideo.status == VideoStatus.series
+                  leading: bilibiliVideo.category == VideoCategory.published ||
+                          bilibiliVideo.category == VideoCategory.series
                       ? CircleAvatar(
                           foregroundImage: bilibiliVideo.upic!.isNotEmpty ? getRoomAvatar(bilibiliVideo.upic!) : null,
                           backgroundColor: Theme.of(context).disabledColor,
@@ -298,7 +299,7 @@ class RoomCard extends StatelessWidget {
                 ),
               ),
             ),
-            if (bilibiliVideo.status == VideoStatus.published)
+            if (bilibiliVideo.category == VideoCategory.published)
               Positioned(
                 right: 2,
                 bottom: 2,
@@ -342,7 +343,7 @@ class RoomCard extends StatelessWidget {
         await Utils.showEditDialog(isEdit: true, title: bilibiliVideo.title!, author: bilibiliVideo.author!);
     if (result != null) {
       settings.editMusicAlbum(
-        BilibiliVideo(
+        BilibiliVideoItem(
           id: bilibiliVideo.id,
           title: result['title'],
           author: result['author'],

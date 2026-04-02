@@ -3,10 +3,10 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:bilibilimusic/core/util.dart';
 import 'package:bilibilimusic/utils/text_util.dart';
-import 'package:bilibilimusic/models/up_user_info.dart';
+import 'package:bilibilimusic/models/bili_up_info.dart';
 import 'package:bilibilimusic/plugins/http_client.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
-import 'package:bilibilimusic/models/live_media_info.dart';
+import 'package:bilibilimusic/models/video_media_info.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
 
 class BiliBiliSite {
@@ -65,10 +65,10 @@ class BiliBiliSite {
         },
       );
 
-      var items = <BilibiliVideo>[];
+      var items = <BilibiliVideoItem>[];
       var queryList = result["data"]["result"] ?? [];
       for (var item in queryList ?? []) {
-        var roomItem = BilibiliVideo(
+        var roomItem = BilibiliVideoItem(
           id: item["id"] ?? 0,
           title: item["title"].replaceAll(RegExp(r"<.*?em.*?>"), "") ?? "",
           author: item["author"] ?? "",
@@ -79,7 +79,7 @@ class BiliBiliSite {
           bvid: item["bvid"] ?? "",
           aid: item["aid"] ?? 0,
           play: item["play"] ?? 0,
-          status: VideoStatus.published,
+          category: VideoCategory.published,
         );
 
         items.add(roomItem);
@@ -91,11 +91,11 @@ class BiliBiliSite {
     }
   }
 
-  Future<List<LiveMediaInfo>> getRoomListDetail(String bvid) async {
+  Future<List<VideoMediaInfo>> getRoomListDetail(String bvid) async {
     try {
       cookie = settings.bilibiliCookie.value;
 
-      List<LiveMediaInfo> videoList = [];
+      List<VideoMediaInfo> videoList = [];
       var result = await HttpClient.instance.getJson(
         "https://api.bilibili.com/x/web-interface/view",
         queryParameters: {
@@ -120,7 +120,7 @@ class BiliBiliSite {
         var owner = videoDetails["owner"];
         var stat = videoDetails["stat"];
         for (var item in queryList ?? []) {
-          var videoItem = LiveMediaInfo(
+          var videoItem = VideoMediaInfo(
             cid: item["cid"] ?? 0,
             page: item["page"] ?? 0,
             from: item["from"] ?? "",
@@ -150,9 +150,9 @@ class BiliBiliSite {
     }
   }
 
-  Future<SeriesLiveMedia> getAllVideos(String mid) async {
+  Future<VideoMediaSeries> getAllVideos(String mid) async {
     cookie = settings.bilibiliCookie.value;
-    List<LiveMediaInfo> videoList = [];
+    List<VideoMediaInfo> videoList = [];
     try {
       var sign = await getSignedParams({
         "mid": mid,
@@ -174,7 +174,7 @@ class BiliBiliSite {
         for (var item in queryList.take(20)) {
           var meta = item["meta"];
           var length = item['length'];
-          var videoItem = LiveMediaInfo(
+          var videoItem = VideoMediaInfo(
             cid: item["cid"] ?? 0,
             page: 0,
             from: "",
@@ -200,17 +200,17 @@ class BiliBiliSite {
     } catch (e) {
       log(e.toString(), name: 'getAllVideos');
     }
-    return SeriesLiveMedia(
+    return VideoMediaSeries(
       name: 'TA的视频',
       total: videoList.length,
-      mediaType: VideoMediaTypes.allVideos,
-      liveMediaInfoList: videoList,
+      mediaType: VideoMediaType.allVideos,
+      mediaList: videoList,
     );
   }
 
-  Future<SeriesLiveMedia> getMasterpiece(String mid) async {
+  Future<VideoMediaSeries> getMasterpiece(String mid) async {
     cookie = settings.bilibiliCookie.value;
-    List<LiveMediaInfo> videoList = [];
+    List<VideoMediaInfo> videoList = [];
     try {
       var header = _buildCommonHeaders(referer: "https://space.bilibili.com/$mid");
       var result = await HttpClient.instance.getJson(
@@ -225,7 +225,7 @@ class BiliBiliSite {
         for (var item in queryList.take(10) ?? []) {
           var stat = item["stat"];
           var owner = item["owner"];
-          var videoItem = LiveMediaInfo(
+          var videoItem = VideoMediaInfo(
             cid: item["cid"] ?? 0,
             page: item["page"] ?? 0,
             from: item["from"] ?? "",
@@ -251,17 +251,17 @@ class BiliBiliSite {
     } catch (e) {
       log(e.toString(), name: 'getMasterpiece');
     }
-    return SeriesLiveMedia(
+    return VideoMediaSeries(
       name: '代表作',
       total: videoList.length,
-      mediaType: VideoMediaTypes.masterpiece,
-      liveMediaInfoList: videoList,
+      mediaType: VideoMediaType.masterpiece,
+      mediaList: videoList,
     );
   }
 
-  Future<List<SeriesLiveMedia>> getSeasonsSeries(String mid) async {
+  Future<List<VideoMediaSeries>> getSeasonsSeries(String mid) async {
     cookie = settings.bilibiliCookie.value;
-    List<SeriesLiveMedia> seriesLiveList = [];
+    List<VideoMediaSeries> seriesLiveList = [];
     try {
       var header = _buildCommonHeaders(referer: "https://space.bilibili.com/$mid");
       var result = await HttpClient.instance.getJson(
@@ -276,11 +276,11 @@ class BiliBiliSite {
       if (result["code"] == 0) {
         var queryList = result["data"]['items_lists']['seasons_list'] ?? [];
         for (var item in queryList ?? []) {
-          List<LiveMediaInfo> videoList = [];
+          List<VideoMediaInfo> videoList = [];
           var archives = item['archives'] ?? [];
           var meta = item['meta'];
           for (var archive in archives.take(10) ?? []) {
-            var videoItem = LiveMediaInfo(
+            var videoItem = VideoMediaInfo(
               cid: archive["cid"] ?? 0,
               page: 0,
               from: "",
@@ -302,11 +302,11 @@ class BiliBiliSite {
             );
             videoList.add(videoItem);
           }
-          seriesLiveList.add(SeriesLiveMedia(
+          seriesLiveList.add(VideoMediaSeries(
             name: meta['name'] ?? '',
             total: videoList.length,
-            liveMediaInfoList: videoList,
-            mediaType: VideoMediaTypes.series,
+            mediaList: videoList,
+            mediaType: VideoMediaType.series,
             sessionId: meta['season_id'] ?? 0,
           ));
         }
@@ -317,7 +317,7 @@ class BiliBiliSite {
     return seriesLiveList;
   }
 
-  Future<LiveMediaInfoData?> getVideoDetail(int avid, int cid, String bvid, {String qn = '80'}) async {
+  Future<VideoPlaySource?> getVideoDetail(int avid, int cid, String bvid, {String qn = '80'}) async {
     try {
       cookie = settings.bilibiliCookie.value;
       var header = _buildCommonHeaders(referer: "https://www.bilibili.com/video/$bvid");
@@ -343,7 +343,7 @@ class BiliBiliSite {
         for (var item in result["data"]["accept_quality"]) {
           acceptQuality.add(item);
         }
-        return LiveMediaInfoData(
+        return VideoPlaySource(
           url: result["data"]["durl"][0]["url"],
           quality: result["data"]["quality"],
           format: result["data"]["format"],
@@ -358,9 +358,9 @@ class BiliBiliSite {
     return null;
   }
 
-  Future<UpUserInfo> getVidoeInfo(BilibiliVideo video) async {
-    if (video.status == VideoStatus.customized) {
-      return UpUserInfo(
+  Future<BiliUpInfo> getVidoeInfo(BilibiliVideoItem video) async {
+    if (video.category == VideoCategory.customized) {
+      return BiliUpInfo(
         name: "",
         desc: "",
         face: "",
@@ -383,7 +383,7 @@ class BiliBiliSite {
       if (result["code"] == 0) {
         var videoDetails = result["data"];
         var owner = videoDetails["Card"];
-        return UpUserInfo(
+        return BiliUpInfo(
           name: owner["card"]['name'] ?? "",
           desc: owner['card']['sign'] ?? "",
           face: owner['card']['face'] ?? "",
@@ -396,7 +396,7 @@ class BiliBiliSite {
     } catch (e) {
       log(e.toString(), name: 'getVidoeInfo');
     }
-    return UpUserInfo(
+    return BiliUpInfo(
       name: "",
       desc: "",
       face: "",
@@ -407,7 +407,7 @@ class BiliBiliSite {
     );
   }
 
-  Future<LiveMediaInfoData?> getAudioDetail(int avid, int cid, String bvid, {String qn = '32'}) async {
+  Future<VideoPlaySource?> getAudioDetail(int avid, int cid, String bvid, {String qn = '32'}) async {
     try {
       cookie = settings.bilibiliCookie.value;
 
@@ -434,7 +434,7 @@ class BiliBiliSite {
             baseUrl = audio.last["baseUrl"];
           }
         }
-        return LiveMediaInfoData(
+        return VideoPlaySource(
           url: baseUrl,
           quality: result["data"]["quality"],
           format: result["data"]["format"],
@@ -582,10 +582,10 @@ class BiliBiliSite {
     }
   }
 
-  Future<List<LiveMediaInfo>> getArchivesVideos(
+  Future<List<VideoMediaInfo>> getArchivesVideos(
       int page, int pageSize, String mid, int sessionId, String avatar, String name, int like) async {
     cookie = settings.bilibiliCookie.value;
-    List<LiveMediaInfo> videoList = [];
+    List<VideoMediaInfo> videoList = [];
     try {
       var sign = await getSignedParams({
         "mid": mid,
@@ -605,7 +605,7 @@ class BiliBiliSite {
         List queryList = result["data"]['archives'] ?? [];
         var meta = result["data"]['meta'];
         for (var item in queryList) {
-          var videoItem = LiveMediaInfo(
+          var videoItem = VideoMediaInfo(
             cid: item["cid"] ?? 0,
             page: 0,
             from: "",
@@ -634,9 +634,9 @@ class BiliBiliSite {
     return videoList;
   }
 
-  Future<List<LiveMediaInfo>> getUpAllVideos(int page, int size, String mid) async {
+  Future<List<VideoMediaInfo>> getUpAllVideos(int page, int size, String mid) async {
     cookie = settings.bilibiliCookie.value;
-    List<LiveMediaInfo> videoList = [];
+    List<VideoMediaInfo> videoList = [];
     try {
       var sign = await getSignedParams({
         "mid": mid,
@@ -658,7 +658,7 @@ class BiliBiliSite {
         for (var item in queryList) {
           var meta = item["meta"];
           var length = item['length'];
-          var videoItem = LiveMediaInfo(
+          var videoItem = VideoMediaInfo(
             cid: item["cid"] ?? 0,
             page: 0,
             from: "",
@@ -687,8 +687,8 @@ class BiliBiliSite {
     return videoList;
   }
 
-  Future<List<LiveMediaInfo>> playAlbumAllVideos(int aid, String bvid) async {
-    List<LiveMediaInfo> videoList = [];
+  Future<List<VideoMediaInfo>> playAlbumAllVideos(int aid, String bvid) async {
+    List<VideoMediaInfo> videoList = [];
     cookie = settings.bilibiliCookie.value;
     var header = _buildCommonHeaders(referer: "https://www.bilibili.com/video/$bvid");
     var result = await HttpClient.instance.getJson(
@@ -709,7 +709,7 @@ class BiliBiliSite {
           var arc = item["arc"];
           var queryList = item["pages"];
           for (var queryItem in queryList ?? []) {
-            var videoItem = LiveMediaInfo(
+            var videoItem = VideoMediaInfo(
               cid: queryItem["cid"] ?? 0,
               page: queryItem["page"] ?? 0,
               from: queryItem["from"] ?? "",
@@ -739,10 +739,10 @@ class BiliBiliSite {
     return videoList;
   }
 
-  Future<List<LiveMediaInfo>> getMediaList(String medisListId, String lastAid,
+  Future<List<VideoMediaInfo>> getMediaList(String medisListId, String lastAid,
       {int page = 1, int pageSize = 20}) async {
     cookie = settings.bilibiliCookie.value;
-    List<LiveMediaInfo> videoList = [];
+    List<VideoMediaInfo> videoList = [];
     var header = _buildCommonHeaders(referer: "https://www.bilibili.com/list/$medisListId");
     var result = await HttpClient.instance.getJson(
       "https://api.bilibili.com/x/v2/medialist/resource/list",
@@ -768,7 +768,7 @@ class BiliBiliSite {
           var pages = item["pages"] ?? [];
           var upper = item["upper"];
           for (var page in pages) {
-            var videoItem = LiveMediaInfo(
+            var videoItem = VideoMediaInfo(
               cid: 0,
               page: item["page"] ?? 0,
               from: page["from"] ?? "",
@@ -802,7 +802,7 @@ class BiliBiliSite {
 
 class VideoSearchResult {
   final bool hasMore;
-  final List<BilibiliVideo> items;
+  final List<BilibiliVideoItem> items;
   VideoSearchResult({
     required this.hasMore,
     required this.items,

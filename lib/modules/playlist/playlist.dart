@@ -5,10 +5,11 @@ import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/routes/route_path.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:bilibilimusic/services/audio_service.dart';
-import 'package:bilibilimusic/models/live_media_info.dart';
+import 'package:bilibilimusic/models/video_media_info.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_multi_select_items/flutter_multi_select_items.dart';
 
 class PlayListPage extends GetView<PlayListController> {
   const PlayListPage({super.key});
@@ -37,12 +38,13 @@ class PlayListPage extends GetView<PlayListController> {
                   child: Text(
                     '删除',
                     style: TextStyle(
-                        color:
-                            controller.bilibiliVideo.status == VideoStatus.customized ? Colors.black : Colors.black45),
+                        color: controller.bilibiliVideo.category == VideoCategory.customized
+                            ? Colors.black
+                            : Colors.black45),
                   ),
                 ),
                 onTap: () {
-                  if (controller.bilibiliVideo.status == VideoStatus.customized) {
+                  if (controller.bilibiliVideo.category == VideoCategory.customized) {
                     Navigator.of(Get.context!).pop('2');
                   }
                 },
@@ -76,16 +78,16 @@ class PlayListPage extends GetView<PlayListController> {
                   runSpacing: 12,
                   spacing: 12,
                   children: settings.musicPlaylists
-                      .where((el) => el.status == VideoStatus.customized)
+                      .where((el) => el.category == VideoCategory.customized)
                       .where((el) => el.id != controller.bilibiliVideo.id)
                       .map(
-                        (BilibiliVideo item) => TextButton(
+                        (BilibiliVideoItem item) => TextButton(
                           onPressed: () {
-                            List<LiveMediaInfo> list = controller.list.value
-                                .where((el) => el.selected)
-                                .map((item) => item.liveMediaInfo)
-                                .toList();
-                            settings.addMusicToAlbum(item.id, list);
+                            List<int> selectedIndexes = controller.multiSelectController.getSelectedItems();
+                            List<VideoMediaInfo> selectedList =
+                                selectedIndexes.map((idx) => controller.list[idx]).toList();
+
+                            settings.addMusicToAlbum(item.id, selectedList);
                             Navigator.of(Get.context!).pop();
                             SmartDialog.showToast('添加成功');
                           },
@@ -105,18 +107,17 @@ class PlayListPage extends GetView<PlayListController> {
     if (result == '1') {
       showMusicAlbumSelectorDialog();
     } else if (result == '2') {
-      // 删除
-      List<LiveMediaInfo> list =
-          controller.list.value.where((el) => el.selected).map((item) => item.liveMediaInfo).toList();
-      List<LiveMediaInfo> sourcelist =
-          controller.settingsService.deleteMusicFromAlbum(controller.bilibiliVideo.id, list);
-      List<PlayItems> playitems = [];
-      for (var i = 0; i < sourcelist.length; i++) {
-        playitems.add(PlayItems(liveMediaInfo: sourcelist[i], index: i, selected: false));
-      }
-      controller.list.value = playitems;
+      List<int> selectedIndexes = controller.multiSelectController.getSelectedItems();
+      List<VideoMediaInfo> deleteList = selectedIndexes.map((idx) => controller.list[idx]).toList();
+
+      List<VideoMediaInfo> sourcelist =
+          controller.settingsService.deleteMusicFromAlbum(controller.bilibiliVideo.id, deleteList);
+      controller.list.value = sourcelist;
+      controller.multiSelectController.deselectAll();
+
       SmartDialog.showToast('删除成功');
       controller.refreshData();
+
       if (controller.bilibiliVideo.id == controller.settingsService.favoriteMusicPlaylistId) {
         final AudioController audioController = Get.find<AudioController>();
         audioController.isFavorite.value = controller.settingsService.isInFavoriteMusic(
@@ -151,7 +152,7 @@ class PlayListPage extends GetView<PlayListController> {
                 if (controller.bilibiliVideo.id == controller.settingsService.favoriteMusicPlaylistId) {
                   SmartDialog.showToast('系统预设歌单不可修改');
                 } else {
-                  var list = controller.list.value.map((item) => item.liveMediaInfo).toList();
+                  var list = controller.list.value.toList();
                   log(controller.bilibiliVideo.toJson().toString());
                   controller.settingsService.toggleCollectMusic(controller.bilibiliVideo, list);
                 }
@@ -202,39 +203,29 @@ class PlayListPage extends GetView<PlayListController> {
                           icon: const FaIcon(FontAwesomeIcons.headphones),
                           onPressed: () {
                             if (controller.list.isNotEmpty) {
-                              var list = controller.list.value.map((item) => item.liveMediaInfo).toList();
+                              var list = controller.list.value.toList();
                               controller.settingsService.setCurrentMusicList(list);
                             }
                           }),
                       if (controller.showSelectBox.value)
-                        Obx(() => IconButton(
-                            icon: controller.isCheckAll.value
-                                ? FaIcon(FontAwesomeIcons.squareCheck)
-                                : FaIcon(FontAwesomeIcons.square),
+                        IconButton(
+                            icon: const FaIcon(FontAwesomeIcons.squareCheck),
                             onPressed: () {
-                              if (controller.list.isNotEmpty) {
-                                controller.handleCheckAll();
-                              }
-                            })),
+                              controller.multiSelectController.selectAll();
+                            }),
                       IconButton(
                           icon: const Icon(Icons.select_all_outlined),
                           onPressed: () {
                             if (controller.list.isNotEmpty) {
                               controller.showSelectBox.toggle();
-                              if (controller.showSelectBox.value) {
-                                controller.isCheckAll.value = false;
-                              }
+                              controller.multiSelectController.deselectAll();
                             }
                           }),
                       IconButton(
                           icon: const FaIcon(FontAwesomeIcons.penToSquare),
                           onPressed: () {
                             if (controller.showSelectBox.value) {
-                              List<LiveMediaInfo> list = controller.list.value
-                                  .where((el) => el.selected)
-                                  .map((item) => item.liveMediaInfo)
-                                  .toList();
-                              if (list.isNotEmpty) {
+                              if (controller.multiSelectController.getSelectedItems().isNotEmpty) {
                                 handleMusicAlbumSelector();
                               } else {
                                 SmartDialog.showToast('请选择歌曲');
@@ -251,58 +242,90 @@ class PlayListPage extends GetView<PlayListController> {
                 ],
               ),
             ),
-            // 分割线
             const Divider(height: 1, color: Color.fromARGB(255, 196, 191, 191)),
-
             Expanded(
               child: EasyRefresh(
                 controller: controller.easyRefreshController,
                 onRefresh: controller.refreshData,
                 onLoad: controller.loadData,
-                child: ListView.builder(
-                  itemCount: controller.list.length,
-                  itemBuilder: (context, index) {
-                    PlayItems playItems = controller.list[index];
-                    LiveMediaInfo mediaInfo = playItems.liveMediaInfo;
-                    return Obx(
-                      () => Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                        color:
-                            controller.settingsService.isCurrentMedia(mediaInfo) ? Get.theme.colorScheme.primary : null,
-                        elevation: 4,
-                        child: InkWell(
-                          onTap: () {
-                            var list = controller.list.value.map((item) => item.liveMediaInfo).toList();
-                            controller.audioController.startPlayAtIndex(index, list);
+                child: controller.showSelectBox.value
+                    ? MultiSelectCheckList(
+                        controller: controller.multiSelectController,
+                        textStyles: const MultiSelectTextStyles(
+                          selectedTextStyle: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        itemsDecoration: MultiSelectDecorations(
+                          selectedDecoration: BoxDecoration(
+                            color: Colors.indigo.withAlpha(200),
+                          ),
+                        ),
+                        listViewSettings: ListViewSettings(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          separatorBuilder: (context, index) => const Divider(height: 0),
+                        ),
+                        items: List.generate(
+                          controller.list.length,
+                          (index) {
+                            final mediaInfo = controller.list[index];
+                            return CheckListCard(
+                              value: index,
+                              title: Text(
+                                '${index + 1}. ${removeNumberPrefix(mediaInfo.part)}',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: controller.settingsService.isCurrentMedia(mediaInfo)
+                                      ? Colors.white
+                                      : Colors.black,
+                                ),
+                              ),
+                              selectedColor: Colors.white,
+                              checkColor: Colors.indigo,
+                              checkBoxBorderSide: const BorderSide(color: Colors.blue),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            );
                           },
-                          child: ListTile(
-                            leading: controller.showSelectBox.value
-                                ? Obx(() => IconButton(
-                                    onPressed: () {
-                                      controller.handleToggleItem(index);
-                                    },
-                                    icon: FaIcon(
-                                      playItems.selected ? FontAwesomeIcons.squareCheck : FontAwesomeIcons.square,
+                        ),
+                        onChange: (allSelectedItems, selectedItem) {},
+                      )
+                    : ListView.builder(
+                        itemCount: controller.list.length,
+                        itemBuilder: (context, index) {
+                          VideoMediaInfo mediaInfo = controller.list[index];
+                          return Obx(
+                            () => Card(
+                              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                              color: controller.settingsService.isCurrentMedia(mediaInfo)
+                                  ? Get.theme.colorScheme.primary
+                                  : null,
+                              elevation: 4,
+                              child: InkWell(
+                                onTap: () {
+                                  var list = controller.list.value.toList();
+                                  controller.audioController.startPlayAtIndex(index, list);
+                                },
+                                child: ListTile(
+                                  title: Text(
+                                    '${index + 1}. ${removeNumberPrefix(mediaInfo.part)}',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
                                       color: controller.settingsService.isCurrentMedia(mediaInfo)
                                           ? Colors.white
                                           : Colors.black,
-                                    )))
-                                : null,
-                            title: Text(
-                              '${index + 1}. ${removeNumberPrefix(mediaInfo.part)}',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color:
-                                    controller.settingsService.isCurrentMedia(mediaInfo) ? Colors.white : Colors.black,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
               ),
             ),
           ],
@@ -314,7 +337,7 @@ class PlayListPage extends GetView<PlayListController> {
 }
 
 class SimpleVideoCard extends StatelessWidget {
-  final LiveMediaInfo mediaInfo;
+  final VideoMediaInfo mediaInfo;
   final Function() onTap;
 
   const SimpleVideoCard({
@@ -328,7 +351,6 @@ class SimpleVideoCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(left: 5, right: 5),
       decoration: BoxDecoration(
-        // 添加边框
         border: Border.all(color: Colors.grey.shade300, width: 1.0),
       ),
       child: InkWell(

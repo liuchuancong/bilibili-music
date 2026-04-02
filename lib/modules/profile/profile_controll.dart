@@ -2,12 +2,12 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:bilibilimusic/services/index.dart';
 import 'package:bilibilimusic/core/bilibili_site.dart';
-import 'package:bilibilimusic/models/up_user_info.dart';
-import 'package:bilibilimusic/models/live_media_info.dart';
+import 'package:bilibilimusic/models/bili_up_info.dart';
+import 'package:bilibilimusic/models/video_media_info.dart';
 import 'package:bilibilimusic/common/base/base_controller.dart';
 
 class ProfileController extends BasePageController {
-  final UpUserInfo upUserInfo;
+  final BiliUpInfo upUserInfo;
   ProfileController({required this.upUserInfo});
   AppSettingsService settingsService = Get.find<AppSettingsService>();
   final followed = false.obs;
@@ -19,19 +19,19 @@ class ProfileController extends BasePageController {
   final allVideosController = ScrollController();
 
   final seasonsSeriesController = ScrollController();
-  var masterpiece = SeriesLiveMedia(
+  var masterpiece = VideoMediaSeries(
     name: '代表作',
     total: 0,
-    liveMediaInfoList: [],
+    mediaList: [],
   ).obs;
 
-  var allVideos = SeriesLiveMedia(
+  var allVideos = VideoMediaSeries(
     name: 'TA的视频',
     total: 0,
-    liveMediaInfoList: [],
+    mediaList: [],
   ).obs;
 
-  var seasonsSeries = <SeriesLiveMedia>[].obs;
+  var seasonsSeries = <VideoMediaSeries>[].obs;
   @override
   void onInit() {
     super.onInit();

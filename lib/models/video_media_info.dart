@@ -1,23 +1,68 @@
-class LiveMediaInfo {
+/// 视频分类类型枚举
+enum VideoMediaType {
+  masterpiece, // 精品视频
+  series, // 系列合集
+  allVideos, // 全部视频
+  customized, // 自定义分类
+}
+
+/// 视频分集信息实体（单P视频信息）
+class VideoMediaInfo {
+  /// 稿件aid
   final int aid;
+
+  /// 视频分P总数
   final int videos;
+
+  /// 发布时间戳
   final int pubdate;
+
+  /// 收藏数
   final int favorite;
+
+  /// 分集cid
   final int cid;
+
+  /// 分P页码
   final int page;
+
+  /// 来源
   final String from;
+
+  /// 分P标题
   final String part;
+
+  /// 视频时长（秒）
   final int duration;
+
+  /// 视频源ID
   final String vid;
+
+  /// 网页链接
   final String weblink;
+
+  /// 首帧封面
   final String firstFrame;
+
+  /// 分区名称
   final String tname;
+
+  /// 视频封面
   final String pic;
+
+  /// 视频标题
   final String title;
+
+  /// UP主头像
   final String face;
+
+  /// UP主名称
   final String name;
+
+  /// 视频bvid
   final String bvid;
-  LiveMediaInfo({
+
+  VideoMediaInfo({
     required this.aid,
     required this.videos,
     required this.pubdate,
@@ -38,13 +83,14 @@ class LiveMediaInfo {
     required this.bvid,
   });
 
-  factory LiveMediaInfo.fromJson(Map<String, dynamic> json) {
-    return LiveMediaInfo(
-      cid: json['cid'],
+  /// JSON 转实体
+  factory VideoMediaInfo.fromJson(Map<String, dynamic> json) {
+    return VideoMediaInfo(
       aid: json['aid'],
       videos: json['videos'],
       pubdate: json['pubdate'],
       favorite: json['favorite'],
+      cid: json['cid'],
       page: json['page'],
       from: json['from'] ?? '',
       part: json['part'] ?? '',
@@ -61,13 +107,14 @@ class LiveMediaInfo {
     );
   }
 
+  /// 实体转 JSON
   Map<String, dynamic> toJson() {
     return {
-      'cid': cid,
       'aid': aid,
       'videos': videos,
       'pubdate': pubdate,
       'favorite': favorite,
+      'cid': cid,
       'page': page,
       'from': from,
       'part': part,
@@ -86,29 +133,29 @@ class LiveMediaInfo {
 
   @override
   String toString() {
-    return 'LiveMediaInfo{aid: $aid, videos: $videos, pubdate: $pubdate, favorite: $favorite, cid: $cid, page: $page, from: $from, part: $part, duration: $duration, vid: $vid, weblink: $weblink, firstFrame: $firstFrame, tname: $tname, pic: $pic, title: $title, face: $face, name: $name, bvid: $bvid}';
+    return 'VideoMediaInfo{aid: $aid, videos: $videos, pubdate: $pubdate, favorite: $favorite, cid: $cid, page: $page, from: $from, part: $part, duration: $duration, vid: $vid, weblink: $weblink, firstFrame: $firstFrame, tname: $tname, pic: $pic, title: $title, face: $face, name: $name, bvid: $bvid}';
   }
 }
 
-enum VideoMediaTypes { masterpiece, series, allVideos, customized }
-
-class SeriesLiveMedia {
+/// 视频系列/合集实体
+class VideoMediaSeries {
   final String name;
   final int total;
-  final List<LiveMediaInfo> liveMediaInfoList;
-  int? sessionId = 0;
-  VideoMediaTypes? mediaType;
+  final List<VideoMediaInfo> mediaList;
+  final int? sessionId;
+  final VideoMediaType mediaType;
 
-  SeriesLiveMedia({
+  VideoMediaSeries({
     required this.name,
     required this.total,
-    required this.liveMediaInfoList,
-    this.mediaType = VideoMediaTypes.masterpiece,
+    required this.mediaList,
+    this.mediaType = VideoMediaType.masterpiece,
     this.sessionId = 0,
   });
 }
 
-class LiveMediaInfoData {
+/// 视频播放地址信息（清晰度、链接、格式等）
+class VideoPlaySource {
   final String url;
   final int quality;
   final String format;
@@ -116,7 +163,7 @@ class LiveMediaInfoData {
   final String time;
   final List<int> acceptQuality;
 
-  LiveMediaInfoData({
+  VideoPlaySource({
     required this.url,
     required this.quality,
     required this.format,
@@ -125,14 +172,14 @@ class LiveMediaInfoData {
     required this.acceptQuality,
   });
 
-  factory LiveMediaInfoData.fromJson(Map<String, dynamic> json) {
-    return LiveMediaInfoData(
+  factory VideoPlaySource.fromJson(Map<String, dynamic> json) {
+    return VideoPlaySource(
       url: json['url'],
       quality: json['quality'],
       format: json['format'],
       size: json['size'],
       time: json['time'],
-      acceptQuality: json['accept_quality'].cast<int>(),
+      acceptQuality: List<int>.from(json['accept_quality'] ?? []),
     );
   }
 
@@ -149,17 +196,6 @@ class LiveMediaInfoData {
 
   @override
   String toString() {
-    return 'LiveMediaInfoData{url: $url, quality: $quality, format: $format, size: $size, time: $time, acceptQuality: $acceptQuality}';
+    return 'VideoPlaySource{url: $url, quality: $quality, format: $format, size: $size, time: $time, acceptQuality: $acceptQuality}';
   }
-}
-
-class PlayItems {
-  LiveMediaInfo liveMediaInfo;
-  int index;
-  bool selected;
-  PlayItems({
-    required this.liveMediaInfo,
-    required this.index,
-    this.selected = false,
-  });
 }

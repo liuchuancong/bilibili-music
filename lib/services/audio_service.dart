@@ -7,7 +7,7 @@ import 'package:media_kit/media_kit.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/core/bilibili_site.dart';
-import 'package:bilibilimusic/models/live_media_info.dart';
+import 'package:bilibilimusic/models/video_media_info.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
 import 'package:bilibilimusic/play/lyric/lyric_ui/ui_netease.dart';
 import 'package:bilibilimusic/play/lyric/lyrics_reader_model.dart';
@@ -33,7 +33,7 @@ class AudioController extends GetxController {
   late UINetease lyricUI;
   AudioPlayer get audioPlayer => _audioPlayer;
   Player get desktopPlayer => player;
-  List<LiveMediaInfo> get playlist => settingsService.currentPlaylist.value;
+  List<VideoMediaInfo> get playlist => settingsService.currentPlaylist.value;
   final isPlaying = false.obs;
   final showLyric = false.obs;
   final isFavorite = false.obs;
@@ -148,7 +148,7 @@ class AudioController extends GetxController {
     }
   }
 
-  void setPlaylist(List<LiveMediaInfo> urls) {
+  void setPlaylist(List<VideoMediaInfo> urls) {
     settingsService.currentPlaylist.assignAll(urls);
   }
 
@@ -162,7 +162,7 @@ class AudioController extends GetxController {
     isFavorite.toggle();
   }
 
-  Future<void> startPlay(LiveMediaInfo mediaInfo, {bool isAutoPlay = true}) async {
+  Future<void> startPlay(VideoMediaInfo mediaInfo, {bool isAutoPlay = true}) async {
     isFavorite.value = settingsService.isInFavoriteMusic(mediaInfo);
     isPlaying.value = false;
     if (Platform.isAndroid) {
@@ -170,7 +170,7 @@ class AudioController extends GetxController {
     } else {
       player.stop();
     }
-    LiveMediaInfoData? videoInfoData =
+    VideoPlaySource? videoInfoData =
         await BiliBiliSite().getAudioDetail(mediaInfo.aid, mediaInfo.cid, mediaInfo.bvid);
     if (videoInfoData != null) {
       getLyric(mediaInfo);
@@ -219,12 +219,12 @@ class AudioController extends GetxController {
     }
   }
 
-  Future<void> retryStartPlay(LiveMediaInfo mediaInfo) async {
+  Future<void> retryStartPlay(VideoMediaInfo mediaInfo) async {
     await Future.delayed(const Duration(seconds: 2));
     await startPlay(mediaInfo);
   }
 
-  LiveMediaInfo get currentMediaInfo => settingsService.currentPlaylist[settingsService.currentPlayIndex.value];
+  VideoMediaInfo get currentMediaInfo => settingsService.currentPlaylist[settingsService.currentPlayIndex.value];
 
   Future<void> play() async {
     if (Platform.isAndroid) {
@@ -283,7 +283,7 @@ class AudioController extends GetxController {
     }
   }
 
-  Future<void> getLyric(LiveMediaInfo mediaInfo) async {
+  Future<void> getLyric(VideoMediaInfo mediaInfo) async {
     lyricStatus.value = LyricStatus.loading;
     normalLyric.value = '';
     currentMusicInfo.value = {
@@ -337,7 +337,7 @@ class AudioController extends GetxController {
     }
   }
 
-  Map<String, String> getHeaders(LiveMediaInfo mediaInfo) {
+  Map<String, String> getHeaders(VideoMediaInfo mediaInfo) {
     Map<String, String> header = {
       "cookie": settingsService.bilibiliCookie.value,
       "authority": "api.bilibili.com",
@@ -370,7 +370,7 @@ class AudioController extends GetxController {
     }
   }
 
-  Future<void> startPlayAtIndex(int index, List<LiveMediaInfo> currentPlaylist) async {
+  Future<void> startPlayAtIndex(int index, List<VideoMediaInfo> currentPlaylist) async {
     settingsService.currentPlaylist.assignAll(currentPlaylist);
     settingsService.currentPlayIndex.value = index;
     await startPlay(currentPlaylist[index]);
@@ -429,7 +429,7 @@ class AudioController extends GetxController {
   }
 
   Future<void> showMenuMedias() async {
-    List<LiveMediaInfo> list = settingsService.currentPlaylist.value;
+    List<VideoMediaInfo> list = settingsService.currentPlaylist.value;
     Timer(const Duration(milliseconds: 500), () {
       _scrollController.jumpTo(settingsService.currentPlayIndex.value * 32.0 - 200);
     });

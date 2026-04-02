@@ -1,12 +1,12 @@
 import 'package:get/get.dart';
 import 'package:bilibilimusic/common/index.dart';
-import 'package:bilibilimusic/models/up_user_info.dart';
-import 'package:bilibilimusic/models/live_media_info.dart';
+import 'package:bilibilimusic/models/bili_up_info.dart';
+import 'package:bilibilimusic/models/video_media_info.dart';
 import 'package:bilibilimusic/modules/archives/archives_grid_controller.dart';
 
 class ArchivesController extends GetxController with GetSingleTickerProviderStateMixin {
-  final List<SeriesLiveMedia> seriesLiveList;
-  final UpUserInfo upUserInfo;
+  final List<VideoMediaSeries> seriesLiveList;
+  final BiliUpInfo upUserInfo;
   final int sessionId;
   late TabController tabController;
 

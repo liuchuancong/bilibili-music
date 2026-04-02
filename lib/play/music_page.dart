@@ -250,9 +250,9 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
                   runSpacing: 12,
                   spacing: 12,
                   children: audioController.settingsService.musicPlaylists
-                      .where((el) => el.status == VideoStatus.customized)
+                      .where((el) => el.category == VideoCategory.customized)
                       .map(
-                        (BilibiliVideo item) => TextButton(
+                        (BilibiliVideoItem item) => TextButton(
                           onPressed: () {
                             if (audioController.settingsService
                                 .isExistInMusicAlbum(item.id, audioController.currentMediaInfo)) {

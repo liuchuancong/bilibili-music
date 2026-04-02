@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:bilibilimusic/routes/app_navigation.dart';
-import 'package:bilibilimusic/models/live_media_info.dart';
+import 'package:bilibilimusic/models/video_media_info.dart';
 import 'package:bilibilimusic/modules/playlist/playlist.dart';
 import 'package:bilibilimusic/modules/area_rooms/area_rooms_controller.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -48,7 +48,7 @@ class _AreasRoomPageState extends State<AreasRoomPage> {
           //     if (value == '播放全部') {
           //       var first = controller.list.first;
           //       AppNavigator.toLiveRoomDetailList(
-          //         bilibiliVideo: BilibiliVideo(
+          //         bilibiliVideo: BilibiliVideoItem(
           //           aid: first.aid,
           //           bvid: first.bvid,
           //           title: first.title,
@@ -58,10 +58,10 @@ class _AreasRoomPageState extends State<AreasRoomPage> {
           //           pubdate: first.pubdate,
           //           author: controller.upUserInfo.name,
           //           upic: controller.upUserInfo.face,
-          //           status: VideoStatus.allVideos,
+          //           status: VideoCategory.allVideos,
           //           mid: controller.upUserInfo.mid,
           //         ),
-          //         mediaType: VideoMediaTypes.allVideos,
+          //         mediaType: VideoMediaType.allVideos,
           //       );
           //     }
           //   },
@@ -89,14 +89,14 @@ class _AreasRoomPageState extends State<AreasRoomPage> {
                 onTap: () {
                   var e = controller.list.value[index];
                   AppNavigator.toLiveRoomDetailList(
-                    bilibiliVideo: BilibiliVideo(
+                    bilibiliVideo: BilibiliVideoItem(
                       aid: e.aid,
                       bvid: e.bvid,
                       title: e.title,
                       pic: e.pic,
                       author: e.part,
                     ),
-                    mediaType: VideoMediaTypes.masterpiece,
+                    mediaType: VideoMediaType.masterpiece,
                   );
                 },
               ),

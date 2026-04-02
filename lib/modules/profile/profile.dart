@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:bilibilimusic/routes/route_path.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:bilibilimusic/routes/app_navigation.dart';
-import 'package:bilibilimusic/models/live_media_info.dart';
+import 'package:bilibilimusic/models/video_media_info.dart';
 import 'package:bilibilimusic/widgets/section_listtile.dart';
 import 'package:bilibilimusic/modules/playlist/playlist.dart';
 import 'package:bilibilimusic/play/bottom_music_control.dart';
@@ -29,19 +29,19 @@ class ProfilePage extends GetView<ProfileController> {
                           child: ListView(
                               controller: controller.masterpieceController,
                               scrollDirection: Axis.horizontal,
-                              children: controller.masterpiece.value.liveMediaInfoList
+                              children: controller.masterpiece.value.mediaList
                                   .map((e) => SimpleVideoCard(
                                         mediaInfo: e,
                                         onTap: () {
                                           AppNavigator.toLiveRoomDetailList(
-                                            bilibiliVideo: BilibiliVideo(
+                                            bilibiliVideo: BilibiliVideoItem(
                                               aid: e.aid,
                                               bvid: e.bvid,
                                               title: e.title,
                                               pic: e.pic,
                                               author: e.part,
                                             ),
-                                            mediaType: VideoMediaTypes.masterpiece,
+                                            mediaType: VideoMediaType.masterpiece,
                                           );
                                         },
                                       ))
@@ -82,21 +82,21 @@ class ProfilePage extends GetView<ProfileController> {
                                 controller: controller.allVideosController,
                                 crossAxisCount: 2,
                                 crossAxisSpacing: 10,
-                                itemCount: controller.allVideos.value.liveMediaInfoList.length,
+                                itemCount: controller.allVideos.value.mediaList.length,
                                 itemBuilder: (context, index) {
                                   return SimpleVideoCard(
-                                    mediaInfo: controller.allVideos.value.liveMediaInfoList[index],
+                                    mediaInfo: controller.allVideos.value.mediaList[index],
                                     onTap: () {
-                                      var e = controller.allVideos.value.liveMediaInfoList[index];
+                                      var e = controller.allVideos.value.mediaList[index];
                                       AppNavigator.toLiveRoomDetailList(
-                                        bilibiliVideo: BilibiliVideo(
+                                        bilibiliVideo: BilibiliVideoItem(
                                           aid: e.aid,
                                           bvid: e.bvid,
                                           title: e.title,
                                           pic: e.pic,
                                           author: e.part,
                                         ),
-                                        mediaType: VideoMediaTypes.masterpiece,
+                                        mediaType: VideoMediaType.masterpiece,
                                       );
                                     },
                                   );
@@ -108,7 +108,7 @@ class ProfilePage extends GetView<ProfileController> {
     );
   }
 
-  Widget buildSeasonsSeriesListItem(SeriesLiveMedia series) {
+  Widget buildSeasonsSeriesListItem(VideoMediaSeries series) {
     final seasonsSeriesController = ScrollController();
     return series.total == 0
         ? Container()
@@ -138,18 +138,18 @@ class ProfilePage extends GetView<ProfileController> {
                       itemCount: series.total,
                       itemBuilder: (context, index) {
                         return SimpleVideoCard(
-                          mediaInfo: series.liveMediaInfoList[index],
+                          mediaInfo: series.mediaList[index],
                           onTap: () {
-                            var e = controller.allVideos.value.liveMediaInfoList[index];
+                            var e = controller.allVideos.value.mediaList[index];
                             AppNavigator.toLiveRoomDetailList(
-                              bilibiliVideo: BilibiliVideo(
+                              bilibiliVideo: BilibiliVideoItem(
                                 aid: e.aid,
                                 bvid: e.bvid,
                                 title: e.title,
                                 pic: e.pic,
                                 author: e.part,
                               ),
-                              mediaType: VideoMediaTypes.masterpiece,
+                              mediaType: VideoMediaType.masterpiece,
                             );
                           },
                         );

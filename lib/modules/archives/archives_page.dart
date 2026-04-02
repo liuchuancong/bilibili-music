@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:bilibilimusic/routes/app_navigation.dart';
-import 'package:bilibilimusic/models/live_media_info.dart';
+import 'package:bilibilimusic/models/video_media_info.dart';
 import 'package:bilibilimusic/play/bottom_music_control.dart';
 import 'package:bilibilimusic/modules/archives/archives_grid_view.dart';
 import 'package:bilibilimusic/modules/archives/archives_controller.dart';
@@ -53,7 +53,7 @@ class ArchivesPage extends GetView<ArchivesController> {
                   if (gridController.list.isNotEmpty) {
                     var first = gridController.list.first;
                     AppNavigator.toLiveRoomDetailList(
-                      bilibiliVideo: BilibiliVideo(
+                      bilibiliVideo: BilibiliVideoItem(
                         aid: first.aid,
                         bvid: first.bvid,
                         title: first.title,
@@ -63,9 +63,8 @@ class ArchivesPage extends GetView<ArchivesController> {
                         pubdate: first.pubdate,
                         author: first.name,
                         upic: first.face,
-                        status: VideoStatus.series,
                       ),
-                      mediaType: VideoMediaTypes.series,
+                      mediaType: VideoMediaType.series,
                     );
                   }
                 }
@@ -77,7 +76,7 @@ class ArchivesPage extends GetView<ArchivesController> {
         body: TabBarView(
           controller: controller.tabController,
           children: controller.seriesLiveList
-              .map((SeriesLiveMedia e) => ArchivesGridView(
+              .map((VideoMediaSeries e) => ArchivesGridView(
                     tag: e.sessionId.toString(),
                   ))
               .toList(),

@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:bilibilimusic/style/theme.dart';
 import 'package:flutter_color/flutter_color.dart';
-import 'package:bilibilimusic/models/up_user_info.dart';
+import 'package:bilibilimusic/models/bili_up_info.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:bilibilimusic/utils/hive_pref_util.dart';
@@ -12,7 +12,7 @@ import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:bilibilimusic/services/audio_service.dart';
-import 'package:bilibilimusic/models/live_media_info.dart';
+import 'package:bilibilimusic/models/video_media_info.dart';
 import 'package:bilibilimusic/services/bilibili_account_service.dart';
 
 class AppSettingsService extends GetxController {
@@ -63,7 +63,7 @@ class AppSettingsService extends GetxController {
   // ❤️ 关注 UP 主
   // ==============================
   final followedUpList =
-      ((HivePrefUtil.getStringList('followed_up_list') ?? []).map((e) => UpUserInfo.fromJson(jsonDecode(e))).toList())
+      ((HivePrefUtil.getStringList('followed_up_list') ?? []).map((e) => BiliUpInfo.fromJson(jsonDecode(e))).toList())
           .obs;
 
   // ==============================
@@ -74,12 +74,12 @@ class AppSettingsService extends GetxController {
   final currentPlayDuration = (HivePrefUtil.getInt('current_play_duration') ?? 0).obs;
 
   final currentPlaylist = (HivePrefUtil.getStringList('current_playlist') ?? [])
-      .map((e) => LiveMediaInfo.fromJson(jsonDecode(e)))
+      .map((e) => VideoMediaInfo.fromJson(jsonDecode(e)))
       .toList()
       .obs;
 
   final musicPlaylists = (HivePrefUtil.getStringList('music_playlists') ?? [])
-      .map((e) => BilibiliVideo.fromJson(jsonDecode(e)))
+      .map((e) => BilibiliVideoItem.fromJson(jsonDecode(e)))
       .toList()
       .obs;
 
@@ -230,17 +230,17 @@ class AppSettingsService extends GetxController {
     return followedUpList.any((e) => e.mid == mid);
   }
 
-  void follow(UpUserInfo user) {
+  void follow(BiliUpInfo user) {
     if (!isFollowed(user.mid)) {
       followedUpList.add(user);
     }
   }
 
-  void toggleFollow(UpUserInfo user) {
+  void toggleFollow(BiliUpInfo user) {
     isFollowed(user.mid) ? followedUpList.remove(user) : followedUpList.add(user);
   }
 
-  void unFollow(UpUserInfo user) {
+  void unFollow(BiliUpInfo user) {
     followedUpList.remove(user);
   }
 
@@ -251,35 +251,35 @@ class AppSettingsService extends GetxController {
   void setCurrentMusicPosition(int position) => currentPlayPosition.value = position;
   void setCurrentMediaIndex(int index) => currentPlayIndex.value = index;
 
-  void setCurrentMedia(LiveMediaInfo mediaInfo) {
+  void setCurrentMedia(VideoMediaInfo mediaInfo) {
     setCurrentMediaIndex(currentPlaylist.indexWhere((e) => e.cid == mediaInfo.cid));
   }
 
-  Future<void> startPlayVideoAtIndex(int index, List<LiveMediaInfo> playlist) async {
+  Future<void> startPlayVideoAtIndex(int index, List<VideoMediaInfo> playlist) async {
     currentPlaylist.assignAll(playlist);
     currentPlayIndex.value = index;
   }
 
-  LiveMediaInfo getCurrentVideoInfo() => currentPlaylist[currentPlayIndex.value];
+  VideoMediaInfo getCurrentVideoInfo() => currentPlaylist[currentPlayIndex.value];
 
-  LiveMediaInfo getNextVideoInfo() {
+  VideoMediaInfo getNextVideoInfo() {
     int next = currentPlayIndex.value + 1;
     setCurrentMediaIndex(next < currentPlaylist.length ? next : 0);
     return currentPlaylist[currentPlayIndex.value];
   }
 
-  LiveMediaInfo getPreviousVideoInfo() {
+  VideoMediaInfo getPreviousVideoInfo() {
     int prev = currentPlayIndex.value - 1;
     setCurrentMediaIndex(prev >= 0 ? prev : currentPlaylist.length - 1);
     return currentPlaylist[currentPlayIndex.value];
   }
 
-  bool isCurrentMedia(LiveMediaInfo mediaInfo) {
+  bool isCurrentMedia(VideoMediaInfo mediaInfo) {
     if (currentPlaylist.isEmpty) return false;
     return currentPlaylist[currentPlayIndex.value].cid == mediaInfo.cid;
   }
 
-  void setCurrentMusicList(List<LiveMediaInfo> medias) {
+  void setCurrentMusicList(List<VideoMediaInfo> medias) {
     currentPlaylist.value = medias;
     currentPlayIndex.value = 0;
     final audioController = Get.find<AudioController>();
@@ -291,23 +291,23 @@ class AppSettingsService extends GetxController {
   // ==============================
   void initFavoriteMusic() {
     if (!musicPlaylists.any((e) => e.id == favoriteMusicPlaylistId)) {
-      var video = BilibiliVideo(
+      var video = BilibiliVideoItem(
         id: favoriteMusicPlaylistId,
         title: '我喜欢的',
         author: '我喜欢的音乐',
         pubdate: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        status: VideoStatus.customized,
+        category: VideoCategory.customized,
       );
       musicPlaylists.insert(0, video);
     }
   }
 
-  bool isInFavoriteMusic(LiveMediaInfo mediaInfo) {
+  bool isInFavoriteMusic(VideoMediaInfo mediaInfo) {
     final album = musicPlaylists.firstWhere((e) => e.id == favoriteMusicPlaylistId);
     return album.medias.any((e) => e.cid == mediaInfo.cid);
   }
 
-  void addInFavoriteMusic(LiveMediaInfo mediaInfo) {
+  void addInFavoriteMusic(VideoMediaInfo mediaInfo) {
     final album = musicPlaylists.firstWhere((e) => e.id == favoriteMusicPlaylistId);
     if (!album.medias.any((e) => e.cid == mediaInfo.cid)) {
       album.medias.add(mediaInfo);
@@ -315,13 +315,13 @@ class AppSettingsService extends GetxController {
     }
   }
 
-  void removeInFavoriteMusic(LiveMediaInfo mediaInfo) {
+  void removeInFavoriteMusic(VideoMediaInfo mediaInfo) {
     final album = musicPlaylists.firstWhere((e) => e.id == favoriteMusicPlaylistId);
     album.medias.removeWhere((e) => e.cid == mediaInfo.cid);
     musicPlaylists.refresh();
   }
 
-  void toggleFavoriteMusic(LiveMediaInfo mediaInfo) {
+  void toggleFavoriteMusic(VideoMediaInfo mediaInfo) {
     final album = musicPlaylists.firstWhere((e) => e.id == favoriteMusicPlaylistId);
     if (album.medias.any((e) => e.cid == mediaInfo.cid)) {
       album.medias.removeWhere((e) => e.cid == mediaInfo.cid);
@@ -331,7 +331,7 @@ class AppSettingsService extends GetxController {
     musicPlaylists.refresh();
   }
 
-  void addToPlaylist(int playlistId, LiveMediaInfo mediaInfo) {
+  void addToPlaylist(int playlistId, VideoMediaInfo mediaInfo) {
     final album = musicPlaylists.firstWhere((e) => e.id == playlistId);
     if (!album.medias.any((e) => e.cid == mediaInfo.cid)) {
       album.medias.add(mediaInfo);
@@ -339,14 +339,14 @@ class AppSettingsService extends GetxController {
     }
   }
 
-  void addMusicPlaylist(BilibiliVideo video, List<LiveMediaInfo> medias) {
+  void addMusicPlaylist(BilibiliVideoItem video, List<VideoMediaInfo> medias) {
     if (!musicPlaylists.any((e) => e.id == video.id)) {
       video.medias = medias;
       musicPlaylists.add(video);
     }
   }
 
-  void toggleCollectMusic(BilibiliVideo video, List<LiveMediaInfo> medias) {
+  void toggleCollectMusic(BilibiliVideoItem video, List<VideoMediaInfo> medias) {
     if (musicPlaylists.any((e) => e.id == video.id)) {
       musicPlaylists.removeWhere((e) => e.id == video.id);
     } else {
@@ -355,9 +355,9 @@ class AppSettingsService extends GetxController {
     }
   }
 
-  bool isExistMusicAlbum(BilibiliVideo video) => musicPlaylists.any((e) => e.id == video.id);
+  bool isExistMusicAlbum(BilibiliVideoItem video) => musicPlaylists.any((e) => e.id == video.id);
 
-  void editMusicAlbum(BilibiliVideo video) {
+  void editMusicAlbum(BilibiliVideoItem video) {
     final idx = musicPlaylists.indexWhere((e) => e.id == video.id);
     if (idx != -1) {
       musicPlaylists[idx].title = video.title;
@@ -367,25 +367,25 @@ class AppSettingsService extends GetxController {
     }
   }
 
-  void removeMusicAlbum(BilibiliVideo video) {
+  void removeMusicAlbum(BilibiliVideoItem video) {
     musicPlaylists.removeWhere((e) => e.id == video.id);
   }
 
-  bool isInMusicAlbum(BilibiliVideo video) => musicPlaylists.any((e) => e.id == video.id);
+  bool isInMusicAlbum(BilibiliVideoItem video) => musicPlaylists.any((e) => e.id == video.id);
 
-  void moveMusicToTop(BilibiliVideo video) {
+  void moveMusicToTop(BilibiliVideoItem video) {
     if (musicPlaylists.any((e) => e.id == video.id)) {
       musicPlaylists.removeWhere((e) => e.id == video.id);
       musicPlaylists.insert(0, video);
     }
   }
 
-  bool isExistInMusicAlbum(int? id, LiveMediaInfo media) {
+  bool isExistInMusicAlbum(int? id, VideoMediaInfo media) {
     final album = musicPlaylists.firstWhere((e) => e.id == id);
     return album.medias.any((e) => e.cid == media.cid);
   }
 
-  void addMusicToAlbum(int? id, List<LiveMediaInfo> medias) {
+  void addMusicToAlbum(int? id, List<VideoMediaInfo> medias) {
     final album = musicPlaylists.firstWhere((e) => e.id == id);
     for (var m in medias) {
       if (!album.medias.any((e) => e.cid == m.cid)) {
@@ -395,7 +395,7 @@ class AppSettingsService extends GetxController {
     musicPlaylists.refresh();
   }
 
-  List<LiveMediaInfo> deleteMusicFromAlbum(int? id, List<LiveMediaInfo> medias) {
+  List<VideoMediaInfo> deleteMusicFromAlbum(int? id, List<VideoMediaInfo> medias) {
     final album = musicPlaylists.firstWhere((e) => e.id == id);
     for (var m in medias) {
       album.medias.removeWhere((e) => e.cid == m.cid);
@@ -492,11 +492,11 @@ class AppSettingsService extends GetxController {
     enableBackgroundPlay.value = json['enable_background_play'] ?? false;
 
     musicPlaylists.value =
-        (json['music_playlists'] as List?)?.map((e) => BilibiliVideo.fromJson(jsonDecode(e))).toList() ?? [];
+        (json['music_playlists'] as List?)?.map((e) => BilibiliVideoItem.fromJson(jsonDecode(e))).toList() ?? [];
     currentPlaylist.value =
-        (json['current_playlist'] as List?)?.map((e) => LiveMediaInfo.fromJson(jsonDecode(e))).toList() ?? [];
+        (json['current_playlist'] as List?)?.map((e) => VideoMediaInfo.fromJson(jsonDecode(e))).toList() ?? [];
     followedUpList.value =
-        (json['followed_up_list'] as List?)?.map((e) => UpUserInfo.fromJson(jsonDecode(e))).toList() ?? [];
+        (json['followed_up_list'] as List?)?.map((e) => BiliUpInfo.fromJson(jsonDecode(e))).toList() ?? [];
 
     currentPlayIndex.value = json['current_play_index'] ?? 0;
     currentPlayPosition.value = json['current_play_position'] ?? 0;

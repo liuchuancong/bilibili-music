@@ -5,16 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:screen_brightness/screen_brightness.dart';
-import 'package:bilibilimusic/models/live_media_info.dart';
+import 'package:bilibilimusic/models/video_media_info.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
 import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:bilibilimusic/modules/live_play/live_play_controller.dart';
 
 class VideoController with ChangeNotifier {
-  final LiveMediaInfo mediaInfo;
+  final VideoMediaInfo mediaInfo;
 
-  final LiveMediaInfoData videoInfoData;
+  final VideoPlaySource videoInfoData;
   var initialized = false.obs;
   ScreenBrightness brightnessController = ScreenBrightness();
   final int initPosition;

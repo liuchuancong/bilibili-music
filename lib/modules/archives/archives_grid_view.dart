@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:bilibilimusic/routes/app_navigation.dart';
-import 'package:bilibilimusic/models/live_media_info.dart';
+import 'package:bilibilimusic/models/video_media_info.dart';
 import 'package:bilibilimusic/modules/playlist/playlist.dart';
 import 'package:bilibilimusic/modules/archives/archives_grid_controller.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -40,14 +40,14 @@ class _ArchivesGridViewState extends State<ArchivesGridView> {
                 onTap: () {
                   var e = controller.list.value[index];
                   AppNavigator.toLiveRoomDetailList(
-                    bilibiliVideo: BilibiliVideo(
+                    bilibiliVideo: BilibiliVideoItem(
                       aid: e.aid,
                       bvid: e.bvid,
                       title: e.title,
                       pic: e.pic,
                       author: e.part,
                     ),
-                    mediaType: VideoMediaTypes.masterpiece,
+                    mediaType: VideoMediaType.masterpiece,
                   );
                 },
               ),

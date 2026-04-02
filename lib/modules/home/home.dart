@@ -15,12 +15,12 @@ class HomePage extends GetView<HomeController> {
     Map<String, String?>? result = await Utils.showEditDialog();
     if (result != null) {
       controller.settingsService.addMusicPlaylist(
-        BilibiliVideo(
+        BilibiliVideoItem(
           id: Utils.getRandomId(),
           title: result['title'],
           author: result['author'],
           pubdate: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-          status: VideoStatus.customized,
+          category: VideoCategory.customized,
           play: 0,
           favorites: 0,
         ),
