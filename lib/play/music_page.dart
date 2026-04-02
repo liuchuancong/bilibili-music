@@ -362,7 +362,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
     _overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
         left: position.dx + (renderBox.size.width - 40) / 2,
-        top: position.dy - _barHeight - 8,
+        top: position.dy - _barHeight - 38,
         width: 40,
         height: _barHeight,
         child: _buildVolumeBar(),

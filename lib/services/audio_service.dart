@@ -170,8 +170,7 @@ class AudioController extends GetxController {
     } else {
       player.stop();
     }
-    VideoPlaySource? videoInfoData =
-        await BiliBiliSite().getAudioDetail(mediaInfo.aid, mediaInfo.cid, mediaInfo.bvid);
+    VideoPlaySource? videoInfoData = await BiliBiliSite().getAudioDetail(mediaInfo.aid, mediaInfo.cid, mediaInfo.bvid);
     if (videoInfoData != null) {
       getLyric(mediaInfo);
       developer.log('videoInfoData: ${videoInfoData.url}', name: 'audioPlayerSetUrl');
@@ -430,75 +429,84 @@ class AudioController extends GetxController {
 
   Future<void> showMenuMedias() async {
     List<VideoMediaInfo> list = settingsService.currentPlaylist.value;
-    Timer(const Duration(milliseconds: 500), () {
-      _scrollController.jumpTo(settingsService.currentPlayIndex.value * 32.0 - 200);
+    int currentIndex = settingsService.currentPlayIndex.value;
+
+    // 先计算要滚动的位置（精准居中）
+    double itemHeight = 36; // 每行高度
+    double screenHeight = 400; // 弹窗高度
+    double targetOffset = currentIndex * itemHeight - (screenHeight / 2) + (itemHeight / 2);
+
+    // 延迟一帧确保布局完成后滚动（不抖动）
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(targetOffset.clamp(0.0, _scrollController.position.maxScrollExtent));
+      }
     });
 
-    showDialog(
-        context: Get.context!,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 8),
-                      child: Text('正在播放', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              '播放列表',
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+            ),
+            IconButton(
+              icon: const Icon(Icons.close, size: 20),
+              onPressed: () {
+                Navigator.of(Get.context!).pop();
+              },
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: Get.width * 0.8,
+          height: 420,
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              children: list.asMap().entries.map((entry) {
+                int index = entry.key;
+                VideoMediaInfo item = entry.value;
+                bool isPlaying = settingsService.isCurrentMedia(item);
+
+                return InkWell(
+                  onTap: () {
+                    if (isPlaying) {
+                      SmartDialog.showToast("已在播放中");
+                      return;
+                    }
+                    settingsService.currentPlayIndex.value = index;
+                    startPlay(item);
+                    Navigator.of(Get.context!).pop();
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    child: Text(
+                      "${index + 1}. ${item.part}",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 15,
+                        height: 1.2,
+                        fontWeight: isPlaying ? FontWeight.w600 : FontWeight.w400,
+                        color: isPlaying ? Theme.of(Get.context!).colorScheme.primary : Colors.grey[800],
+                      ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () {
-                        Navigator.of(Get.context!).pop();
-                      },
-                    )
-                  ],
-                ),
-                const Divider(height: 1, color: Colors.black)
-              ],
+                  ),
+                );
+              }).toList(),
             ),
-            content: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.8,
-              height: 400,
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: list
-                      .map((item) => InkWell(
-                            onTap: () {
-                              if (settingsService.currentPlayIndex.value == list.indexOf(item)) {
-                                SmartDialog.showToast("当前正在播放");
-                              } else {
-                                int currentIndex = settingsService.currentPlaylist.indexWhere((element) =>
-                                    element.aid == item.aid && element.cid == item.cid && element.bvid == item.bvid);
-                                settingsService.currentPlayIndex.value = currentIndex;
-                                startPlay(item);
-                              }
-                              Navigator.of(Get.context!).pop();
-                            },
-                            child: SizedBox(
-                              width: double.infinity,
-                              height: 32,
-                              child: Text(item.part,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: settingsService.isCurrentMedia(item)
-                                          ? Theme.of(context).colorScheme.primary
-                                          : Colors.black)),
-                            ),
-                          ))
-                      .toList(),
-                ),
-              ),
-            ),
-          );
-        });
+          ),
+        ),
+      ),
+      barrierDismissible: true,
+    );
   }
 
   @override
