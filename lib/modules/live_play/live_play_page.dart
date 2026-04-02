@@ -11,7 +11,7 @@ import 'package:bilibilimusic/modules/live_play/live_play_controller.dart';
 class LivePlayPage extends GetWidget<LivePlayController> {
   LivePlayPage({super.key});
 
-  final SettingsService settings = Get.find<SettingsService>();
+  final AppSettingsService settings = Get.find<AppSettingsService>();
   Future<bool> onWillPop() async {
     try {
       var exit = await controller.onBackPressed();

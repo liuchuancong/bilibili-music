@@ -10,7 +10,7 @@ class LivePlayController extends StateController {
   // 控制唯一子组件
   VideoController? videoController;
   final LiveMediaInfo mediaInfo;
-  SettingsService settingsService = Get.find<SettingsService>();
+  AppSettingsService settingsService = Get.find<AppSettingsService>();
   LivePlayController({required this.mediaInfo});
 
   var success = false.obs;

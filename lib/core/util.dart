@@ -141,11 +141,11 @@ Map<String, dynamic> encWbi(Map<String, dynamic> params, String imgKey, String s
 }
 
 Future<Map<String, dynamic>> getWbiKeys() async {
-  final SettingsService settings = Get.find<SettingsService>();
+  final AppSettingsService settings = Get.find<AppSettingsService>();
   final DateTime nowDate = DateTime.now();
-  if (settings.webKeys.isNotEmpty &&
-      DateTime.fromMillisecondsSinceEpoch(settings.webKeyTimeStamp.value).day == nowDate.day) {
-    return Map.from(jsonDecode(settings.webKeys.value));
+  if (settings.bilibiliWebKeys.isNotEmpty &&
+      DateTime.fromMillisecondsSinceEpoch(settings.webKeyTimestamp.value).day == nowDate.day) {
+    return Map.from(jsonDecode(settings.bilibiliWebKeys.value));
   }
   headers['cookie'] = settings.bilibiliCookie.value;
   final result = await HttpClient.instance.getJson('https://api.bilibili.com/x/web-interface/nav', header: headers);
@@ -154,8 +154,8 @@ Future<Map<String, dynamic>> getWbiKeys() async {
     final subUrl = result["data"]["wbi_img"]["sub_url"];
     final imgKey = imgUrl.split('/').last.split('.').first.toString();
     final subKey = subUrl.split('/').last.split('.').first.toString();
-    settings.webKeys.value = jsonEncode({'imgKey': imgKey, 'subKey': subKey});
-    settings.webKeyTimeStamp.value = nowDate.millisecondsSinceEpoch;
+    settings.bilibiliWebKeys.value = jsonEncode({'imgKey': imgKey, 'subKey': subKey});
+    settings.webKeyTimestamp.value = nowDate.millisecondsSinceEpoch;
     return {'imgKey': imgKey, 'subKey': subKey};
   } else {
     SmartDialog.showToast(result['message']);

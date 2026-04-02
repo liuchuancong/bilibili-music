@@ -1,54 +1,20 @@
 import 'dart:io';
 import 'package:get/get.dart';
-import 'package:media_kit/media_kit.dart';
 import 'package:bilibilimusic/style/theme.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:bilibilimusic/routes/app_pages.dart';
 import 'package:bilibilimusic/routes/route_path.dart';
+import 'package:bilibilimusic/common/global/initialized.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
-import 'package:windows_single_instance/windows_single_instance.dart';
+import 'package:bilibilimusic/common/global/platform_utils.dart';
+import 'package:bilibilimusic/common/global/platform/desktop_manager.dart';
+import 'package:bilibilimusic/common/global/platform/background_server.dart';
 
 void main(List<String> args) async {
-  WidgetsFlutterBinding.ensureInitialized();
-  MediaKit.ensureInitialized();
-  PrefUtil.prefs = await SharedPreferences.getInstance();
-  // 初始化服务
-
-  if (Platform.isWindows) {
-    await WindowsSingleInstance.ensureSingleInstance(args, "bilibili_music_live_instance_checker");
-    await windowManager.ensureInitialized();
-    WindowOptions windowOptions = const WindowOptions(size: Size(480, 820), center: false);
-    windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.show();
-      await windowManager.focus();
-    });
-  } else {}
-  initRefresh();
+  // 初始化
+  await AppInitializer().initialize(args);
   runApp(const MyApp());
-}
-
-void initRefresh() {
-  EasyRefresh.defaultHeaderBuilder = () => const ClassicHeader(
-        armedText: '松开加载',
-        dragText: '上拉刷新',
-        readyText: '加载中...',
-        processingText: '正在刷新...',
-        noMoreText: '没有更多数据了',
-        failedText: '加载失败',
-        messageText: '上次加载时间 %T',
-        processedText: '加载成功',
-      );
-  EasyRefresh.defaultFooterBuilder = () => const ClassicFooter(
-        armedText: '松开加载',
-        dragText: '下拉刷新',
-        readyText: '加载中...',
-        processingText: '正在刷新...',
-        noMoreText: '没有更多数据了',
-        failedText: '加载失败',
-        messageText: '上次加载时间 %T',
-        processedText: '加载成功',
-      );
 }
 
 class MyApp extends StatefulWidget {
@@ -58,8 +24,8 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with WindowListener {
-  final settings = Get.find<SettingsService>();
+class _MyAppState extends State<MyApp> with DesktopWindowMixin {
+  final settings = Get.find<AppSettingsService>();
 
   @override
   void initState() {
@@ -76,8 +42,17 @@ class _MyAppState extends State<MyApp> with WindowListener {
   }
 
   void _init() async {
-    await windowManager.setTitle('Bilibili Music');
-    setState(() {});
+    if (PlatformUtils.isDesktop) {
+      DesktopManager.initializeListeners(this);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (Platform.isAndroid && settings.enableBackgroundPlay.value) {
+        bool hasPermission = await BackgroundService.requestPlatformPermissions();
+        if (!hasPermission) {
+          SmartDialog.showToast("如果需要后台播放，建议开启此权限");
+        }
+      }
+    });
   }
 
   @override
@@ -89,17 +64,31 @@ class _MyAppState extends State<MyApp> with WindowListener {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      var themeColor = HexColor(settings.themeColorSwitch.value);
+      var themeColor = HexColor(settings.themeColorHex.value);
       var lightTheme = MyTheme(primaryColor: themeColor).lightThemeData;
       var darkTheme = MyTheme(primaryColor: themeColor).darkThemeData;
       return GetMaterialApp(
         title: 'Bilibili Music',
         debugShowCheckedModeBanner: false,
-        themeMode: SettingsService.themeModes[settings.themeModeName.value]!,
-        theme: lightTheme,
+        themeMode: AppThemeConstants.themeModes[settings.themeModeName.value]!,
+        theme: lightTheme.copyWith(
+          appBarTheme: AppBarTheme(surfaceTintColor: Colors.transparent),
+          pageTransitionsTheme: const PageTransitionsTheme(
+            builders: <TargetPlatform, PageTransitionsBuilder>{
+              TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+            },
+          ),
+        ),
         darkTheme: darkTheme,
         navigatorObservers: [FlutterSmartDialog.observer],
-        builder: FlutterSmartDialog.init(),
+        builder: FlutterSmartDialog.init(
+          builder: (context, child) {
+            if (PlatformUtils.isDesktopNotMac) {
+              return DesktopManager.buildWithTitleBar(child);
+            }
+            return child ?? const SizedBox.shrink();
+          },
+        ),
         initialRoute: RoutePath.kInitial,
         defaultTransition: Transition.native,
         getPages: AppPages.routes,

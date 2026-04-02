@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'dart:developer';
 import 'package:get/get.dart';
-import 'package:bilibilimusic/main.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:audio_service/audio_service.dart';
+import 'package:bilibilimusic/plugins/global.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:bilibilimusic/utils/hive_pref_util.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
@@ -29,6 +29,7 @@ class AppInitializer {
     if (_isInitialized) return;
     WidgetsFlutterBinding.ensureInitialized();
 
+    MediaKit.ensureInitialized();
     String instanceId = getInstanceIdFromArgs(args);
 
     if (PlatformUtils.isDesktopNotMac) {
@@ -40,10 +41,9 @@ class AppInitializer {
 
     final appDir = await getApplicationDocumentsDirectory();
     String path =
-        '${appDir.path}${Platform.pathSeparator}pure_live${instanceId.isNotEmpty ? "${Platform.pathSeparator}$instanceId" : ""}';
+        '${appDir.path}${Platform.pathSeparator}bilibili-music${instanceId.isNotEmpty ? "${Platform.pathSeparator}$instanceId" : ""}';
 
     try {
-      PrefUtil.prefs = await SharedPreferences.getInstance();
       await Hive.initFlutter(path);
       await HivePrefUtil.init();
       initService();
@@ -51,8 +51,6 @@ class AppInitializer {
       log("Hive Init Error: $e");
       exit(0);
     }
-
-    MediaKit.ensureInitialized();
     if (PlatformUtils.isDesktop) {
       await DesktopManager.initialize();
       await DesktopManager.postInitialize();
@@ -99,10 +97,10 @@ class AppInitializer {
       launchAtStartup.setup(
         appName: packageInfo.appName,
         appPath: Platform.resolvedExecutable,
-        packageName: 'dev.leanflutter.puretech.pure_live',
+        packageName: 'dev.leanflutter.puretech.bilibili-music',
       );
-      var settings = Get.find<SettingsService>();
-      if (settings.enableStartUp.value) {
+      var settings = Get.find<AppSettingsService>();
+      if (settings.enableLaunchAtStartup.value) {
         if (!await launchAtStartup.isEnabled()) {
           await launchAtStartup.enable();
         }
@@ -113,7 +111,7 @@ class AppInitializer {
   }
 
   void initService() {
-    Get.put(SettingsService());
+    Get.put(AppSettingsService());
     Get.put(BiliBiliAccountService());
     Get.put(AudioController());
   }

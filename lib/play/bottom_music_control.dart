@@ -136,7 +136,7 @@ class BottomMusicControl extends GetWidget<AudioController> {
               ],
             ),
             Obx(() => ProgressBar(
-                  progress: controller.currentMusicPosition.value,
+                  progress: controller.currentPlayPosition.value,
                   barHeight: 5,
                   thumbRadius: 4,
                   thumbGlowRadius: 8,

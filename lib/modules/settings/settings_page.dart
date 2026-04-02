@@ -9,7 +9,7 @@ import 'package:bilibilimusic/widgets/section_listtile.dart';
 import 'package:bilibilimusic/modules/backup/backup_page.dart';
 // ignore_for_file: deprecated_member_use
 
-class SettingsPage extends GetView<SettingsService> {
+class SettingsPage extends GetView<AppSettingsService> {
   const SettingsPage({super.key});
 
   BuildContext get context => Get.context!;
@@ -41,7 +41,7 @@ class SettingsPage extends GetView<SettingsService> {
               width: 44,
               height: 44,
               borderRadius: 4,
-              color: HexColor(controller.themeColorSwitch.value),
+              color: HexColor(controller.themeColorHex.value),
               onSelectFocus: false,
             ),
             onTap: colorPickerDialog,
@@ -57,13 +57,13 @@ class SettingsPage extends GetView<SettingsService> {
           ListTile(
             title: const Text("定时关闭时间"),
             subtitle: const Text("定时关闭app"),
-            trailing: Obx(() => Text('${controller.autoShutDownTime} minute')),
+            trailing: Obx(() => Text('${controller.autoExitAfterMinutes} minute')),
             onTap: showAutoShutDownTimeSetDialog,
           ),
           ListTile(
             title: const Text("歌词源"),
             subtitle: const Text("选择播放的歌词匹配源"),
-            trailing: Obx(() => Text('歌词源${controller.lrcApiIndex.value + 1}')),
+            trailing: Obx(() => Text('歌词源${controller.lyricApiIndex.value + 1}')),
             onTap: showLyricsSelectorDialog,
           ),
           const SectionTitle(title: "备份与恢复"),
@@ -93,18 +93,14 @@ class SettingsPage extends GetView<SettingsService> {
         builder: (BuildContext context) {
           return SimpleDialog(
             title: const Text("主题模式"),
-            children: SettingsService.themeModes.keys.map<Widget>((name) {
+            children: AppThemeConstants.themeModes.keys.map<Widget>((name) {
               return RadioListTile<String>(
                 activeColor: Theme.of(context).colorScheme.primary,
-                // ignore: duplicate_ignore
-                // ignore: deprecated_member_use
                 groupValue: controller.themeModeName.value,
                 value: name,
                 title: Text(name),
-                // ignore: duplicate_ignore
-                // ignore: deprecated_member_use
                 onChanged: (value) {
-                  controller.changeThemeMode(value!);
+                  controller.updateThemeMode(value!);
                   Navigator.of(context).pop();
                 },
               );
@@ -119,8 +115,8 @@ class SettingsPage extends GetView<SettingsService> {
         builder: (BuildContext context) {
           return SimpleDialog(
             title: const Text("歌词源"),
-            children: controller.lrcApiUrl.map<Widget>((name) {
-              int index = controller.lrcApiUrl.indexOf(name);
+            children: controller.lyricApiList.map<Widget>((name) {
+              int index = controller.lyricApiList.indexOf(name);
               return RadioListTile<String>(
                 activeColor: Theme.of(context).colorScheme.primary,
                 groupValue: controller.themeModeName.value,
@@ -128,7 +124,7 @@ class SettingsPage extends GetView<SettingsService> {
                 title: Text("歌词源${index + 1}"),
                 onChanged: (value) {
                   if (value != null) {
-                    int setIndex = controller.lrcApiUrl.indexOf(value);
+                    int setIndex = controller.lyricApiList.indexOf(value);
                     controller.changeLrcApiIndex(setIndex);
                   }
                   Navigator.of(context).pop();
@@ -141,9 +137,9 @@ class SettingsPage extends GetView<SettingsService> {
 
   Future<bool> colorPickerDialog() async {
     return ColorPicker(
-      color: HexColor(controller.themeColorSwitch.value),
+      color: HexColor(controller.themeColorHex.value),
       onColorChanged: (Color color) {
-        controller.themeColorSwitch.value = color.hex;
+        controller.themeColorHex.value = color.hex;
         var themeColor = color;
         var lightTheme = MyTheme(primaryColor: themeColor).lightThemeData;
         var darkTheme = MyTheme(primaryColor: themeColor).darkThemeData;
@@ -179,7 +175,7 @@ class SettingsPage extends GetView<SettingsService> {
       colorCodeTextStyle: Theme.of(context).textTheme.bodyMedium,
       colorCodePrefixStyle: Theme.of(context).textTheme.bodySmall,
       selectedPickerTypeColor: Theme.of(context).colorScheme.primary,
-      customColorSwatchesAndNames: controller.colorsNameMap,
+      customColorSwatchesAndNames: controller.themeColorMap,
       pickersEnabled: const <ColorPickerType, bool>{
         ColorPickerType.both: false,
         ColorPickerType.primary: true,
@@ -285,21 +281,21 @@ class SettingsPage extends GetView<SettingsService> {
               children: [
                 SwitchListTile(
                   title: const Text("定时关闭app"),
-                  value: controller.enableAutoShutDownTime.value,
+                  value: controller.enableAutoExit.value,
                   activeColor: Theme.of(context).colorScheme.primary,
-                  onChanged: (bool value) => controller.enableAutoShutDownTime.value = value,
+                  onChanged: (bool value) => controller.enableAutoExit.value = value,
                 ),
                 Slider(
                   min: 1,
                   max: 1200,
                   label: "定时关闭时间",
-                  value: controller.autoShutDownTime.toDouble(),
+                  value: controller.autoExitAfterMinutes.toDouble(),
                   onChanged: (value) {
-                    controller.autoShutDownTime.value = value.toInt();
+                    controller.autoExitAfterMinutes.value = value.toInt();
                   },
                 ),
                 Text('定时关闭时间:'
-                    ' ${controller.autoShutDownTime} minute'),
+                    ' ${controller.autoExitAfterMinutes} minute'),
               ],
             )),
       ),

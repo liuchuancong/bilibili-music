@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
 import 'dart:async';
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -100,17 +99,15 @@ class DesktopManager {
   }
 
   static Widget buildWithTitleBar(Widget? child) {
-    return Obx(() {
-      if (!PlatformUtils.isWindows) {
-        return child ?? const SizedBox.shrink();
-      }
-      return Column(
-        children: [
-          const CustomTitleBar(),
-          if (child != null) Expanded(child: child),
-        ],
-      );
-    });
+    if (!PlatformUtils.isWindows) {
+      return child ?? const SizedBox.shrink();
+    }
+    return Column(
+      children: [
+        const CustomTitleBar(),
+        if (child != null) Expanded(child: child),
+      ],
+    );
   }
 
   static Future<void> _initTray() async {
@@ -224,77 +221,75 @@ class CustomTitleBar extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return Obx(() {
-      bool isFull = false;
-      // 背景色控制
-      final Color bgColor = isFull || isDark ? Colors.black : theme.scaffoldBackgroundColor;
-      final Color baseIconColor = isFull || isDark ? Colors.white.withValues(alpha: 0.7) : Colors.black54;
+    bool isFull = false;
+    // 背景色控制
+    final Color bgColor = isFull || isDark ? Colors.black : theme.scaffoldBackgroundColor;
+    final Color baseIconColor = isFull || isDark ? Colors.white.withValues(alpha: 0.7) : Colors.black54;
 
-      // 普通按钮颜色配置
-      final buttonColors = WindowButtonColors(
-        iconNormal: baseIconColor,
-        mouseOver: isDark ? Colors.white.withValues(alpha: 0.1) : theme.colorScheme.primary.withValues(alpha: 0.1),
-        mouseDown: isDark ? Colors.white.withValues(alpha: 0.2) : Colors.grey.shade300,
-        iconMouseOver: isDark ? Colors.white : theme.colorScheme.primary,
-        iconMouseDown: isDark ? Colors.white : theme.colorScheme.primary,
-      );
+    // 普通按钮颜色配置
+    final buttonColors = WindowButtonColors(
+      iconNormal: baseIconColor,
+      mouseOver: isDark ? Colors.white.withValues(alpha: 0.1) : theme.colorScheme.primary.withValues(alpha: 0.1),
+      mouseDown: isDark ? Colors.white.withValues(alpha: 0.2) : Colors.grey.shade300,
+      iconMouseOver: isDark ? Colors.white : theme.colorScheme.primary,
+      iconMouseDown: isDark ? Colors.white : theme.colorScheme.primary,
+    );
 
-      // 关闭按钮颜色配置
-      final closeButtonColors = WindowButtonColors(
-        iconNormal: baseIconColor,
-        mouseOver: const Color(0xFFD32F2F),
-        mouseDown: const Color(0xFFB71C1C),
-        iconMouseOver: Colors.white,
-        iconMouseDown: Colors.white,
-      );
+    // 关闭按钮颜色配置
+    final closeButtonColors = WindowButtonColors(
+      iconNormal: baseIconColor,
+      mouseOver: const Color(0xFFD32F2F),
+      mouseDown: const Color(0xFFB71C1C),
+      iconMouseOver: Colors.white,
+      iconMouseDown: Colors.white,
+    );
 
-      return Container(
-        height: 32,
-        color: bgColor,
-        child: WindowTitleBarBox(
-          child: Row(
-            children: [
-              // 拖动区域
-              Expanded(
-                child: MoveWindow(
-                  child: Container(
-                    padding: const EdgeInsets.only(left: 12),
-                    alignment: Alignment.centerLeft,
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () async {
-                          final url = Uri.parse('https://github.com/liuchuancong/bilibili-music');
-                          if (await canLaunchUrl(url)) await launchUrl(url);
-                        },
-                        child: Text(
-                          "Bilibili Music",
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: baseIconColor,
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.none,
-                            decorationColor: baseIconColor,
-                          ),
+    return Container(
+      height: 32,
+      color: bgColor,
+      child: WindowTitleBarBox(
+        child: Row(
+          children: [
+            // 拖动区域
+            Expanded(
+              child: MoveWindow(
+                child: Container(
+                  padding: const EdgeInsets.only(left: 12),
+                  alignment: Alignment.centerLeft,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () async {
+                        final url = Uri.parse('https://github.com/liuchuancong/bilibili-music');
+                        if (await canLaunchUrl(url)) await launchUrl(url);
+                      },
+                      child: Text(
+                        "Bilibili Music",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: baseIconColor,
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.none,
+                          decorationColor: baseIconColor,
                         ),
                       ),
                     ),
                   ),
                 ),
               ),
-              // 右侧控制按钮
-              Row(
-                children: [
-                  MinimizeWindowButton(colors: buttonColors, onPressed: () => windowManager.minimize()),
-                  _MaximizeButton(colors: buttonColors),
-                  CloseWindowButton(colors: closeButtonColors, onPressed: () => DesktopManager.handleWindowClose()),
-                ],
-              ),
-            ],
-          ),
+            ),
+            // 右侧控制按钮
+            Row(
+              children: [
+                MinimizeWindowButton(colors: buttonColors, onPressed: () => windowManager.minimize()),
+                _MaximizeButton(colors: buttonColors),
+                CloseWindowButton(colors: closeButtonColors, onPressed: () => DesktopManager.handleWindowClose()),
+              ],
+            ),
+          ],
         ),
-      );
-    });
+      ),
+    );
   }
 }
 

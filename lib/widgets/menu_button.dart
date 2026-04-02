@@ -36,7 +36,7 @@ class MenuListTile extends StatelessWidget {
   }
 }
 
-class MenuButton extends GetView<SettingsService> {
+class MenuButton extends GetView<AppSettingsService> {
   const MenuButton({super.key});
 
   final menuRoutes = const [

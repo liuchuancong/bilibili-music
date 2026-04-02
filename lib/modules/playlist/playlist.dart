@@ -63,7 +63,7 @@ class PlayListPage extends GetView<PlayListController> {
   }
 
   void showMusicAlbumSelectorDialog() {
-    final SettingsService settings = Get.find<SettingsService>();
+    final AppSettingsService settings = Get.find<AppSettingsService>();
     showDialog(
         context: Get.context!,
         builder: (BuildContext context) {
@@ -75,7 +75,7 @@ class PlayListPage extends GetView<PlayListController> {
                 child: Wrap(
                   runSpacing: 12,
                   spacing: 12,
-                  children: settings.musicAlbum
+                  children: settings.musicPlaylists
                       .where((el) => el.status == VideoStatus.customized)
                       .where((el) => el.id != controller.bilibiliVideo.id)
                       .map(
@@ -117,10 +117,10 @@ class PlayListPage extends GetView<PlayListController> {
       controller.list.value = playitems;
       SmartDialog.showToast('删除成功');
       controller.refreshData();
-      if (controller.bilibiliVideo.id == controller.settingsService.favoriteId) {
+      if (controller.bilibiliVideo.id == controller.settingsService.favoriteMusicPlaylistId) {
         final AudioController audioController = Get.find<AudioController>();
         audioController.isFavorite.value = controller.settingsService.isInFavoriteMusic(
-            controller.settingsService.currentMediaList[controller.settingsService.currentMediaIndex.value]);
+            controller.settingsService.currentPlaylist[controller.settingsService.currentPlayIndex.value]);
       }
     }
   }
@@ -148,7 +148,7 @@ class PlayListPage extends GetView<PlayListController> {
                     : Icons.add_circle_outline_rounded,
               ),
               onPressed: () {
-                if (controller.bilibiliVideo.id == controller.settingsService.favoriteId) {
+                if (controller.bilibiliVideo.id == controller.settingsService.favoriteMusicPlaylistId) {
                   SmartDialog.showToast('系统预设歌单不可修改');
                 } else {
                   var list = controller.list.value.map((item) => item.liveMediaInfo).toList();
@@ -267,9 +267,8 @@ class PlayListPage extends GetView<PlayListController> {
                     return Obx(
                       () => Card(
                         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                        color: controller.settingsService.isCurrentMedia(mediaInfo)
-                            ? Get.theme.colorScheme.primary
-                            : null,
+                        color:
+                            controller.settingsService.isCurrentMedia(mediaInfo) ? Get.theme.colorScheme.primary : null,
                         elevation: 4,
                         child: InkWell(
                           onTap: () {

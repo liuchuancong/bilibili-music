@@ -52,7 +52,7 @@ class FileRecoverUtils {
   }
 
   Future<String?> createBackup(String backupDirectory) async {
-    final settings = Get.find<SettingsService>();
+    final settings = Get.find<AppSettingsService>();
     if (Platform.isAndroid || Platform.isIOS) {
       final granted = await requestStoragePermission();
       if (!granted) {
@@ -71,11 +71,11 @@ class FileRecoverUtils {
       [yyyy, '-', mm, '-', dd, 'T', HH, '_', nn, '_', ss],
     );
     final file = File('$selectedDirectory/bilibilimusic_backup_$dateStr.txt');
-    if (settings.backup(file)) {
+    if (settings.backupToFile(file)) {
       SnackBarUtil.success("创建备份成功");
       // 首次同步备份目录
-      if (settings.backupDirectory.isEmpty) {
-        settings.backupDirectory.value = selectedDirectory;
+      if (settings.backupFolderPath.isEmpty) {
+        settings.backupFolderPath.value = selectedDirectory;
       }
       return selectedDirectory;
     } else {
@@ -85,7 +85,7 @@ class FileRecoverUtils {
   }
 
   void recoverBackup() async {
-    final settings = Get.find<SettingsService>();
+    final settings = Get.find<AppSettingsService>();
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       dialogTitle: "选择备份文件",
       type: FileType.custom,
@@ -94,7 +94,7 @@ class FileRecoverUtils {
     if (result == null || result.files.single.path == null) return;
 
     final file = File(result.files.single.path!);
-    if (settings.recover(file)) {
+    if (settings.restoreFromFile(file)) {
       SnackBarUtil.success("恢复备份成功");
     } else {
       SnackBarUtil.error("恢复备份失败");
@@ -103,10 +103,10 @@ class FileRecoverUtils {
 
   // 选择备份目录
   Future<String?> selectBackupDirectory(String backupDirectory) async {
-    final settings = Get.find<SettingsService>();
+    final settings = Get.find<AppSettingsService>();
     String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
     if (selectedDirectory == null) return null;
-    settings.backupDirectory.value = selectedDirectory;
+    settings.backupFolderPath.value = selectedDirectory;
     return selectedDirectory;
   }
 }

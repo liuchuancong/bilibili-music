@@ -4,7 +4,7 @@ import 'package:ffi/ffi.dart';
 import 'package:win32/win32.dart';
 
 class WindowUtils {
-  static final String _propName = "PureLive_InstanceID";
+  static final String _propName = "BilibiliMusic_InstanceID";
 
   static bool _findAndWake(int targetId) {
     bool found = false;

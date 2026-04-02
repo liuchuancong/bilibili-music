@@ -171,7 +171,7 @@ class RoomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final SettingsService service = Get.find<SettingsService>();
+    final AppSettingsService service = Get.find<AppSettingsService>();
     final LiveMediaInfo currentMedia = service.getCurrentVideoInfo();
     return Card(
       margin: const EdgeInsets.all(7.5),
@@ -322,13 +322,13 @@ class RoomCard extends StatelessWidget {
 
   Future<void> handleMore() async {
     var result = await Utils.showBottomSheet();
-    final settings = Get.find<SettingsService>();
+    final settings = Get.find<AppSettingsService>();
     if (result == '1') {
       settings.moveMusicToTop(bilibiliVideo);
     } else if (result == '2') {
       editMuiscAlbum();
     } else if (result == '3') {
-      if (bilibiliVideo.id == settings.favoriteId) {
+      if (bilibiliVideo.id == settings.favoriteMusicPlaylistId) {
         SmartDialog.showToast("系统预设不允许删除");
       } else {
         settings.removeMusicAlbum(bilibiliVideo);
@@ -337,7 +337,7 @@ class RoomCard extends StatelessWidget {
   }
 
   Future<void> editMuiscAlbum() async {
-    final settings = Get.find<SettingsService>();
+    final settings = Get.find<AppSettingsService>();
     Map<String, String?>? result =
         await Utils.showEditDialog(isEdit: true, title: bilibiliVideo.title!, author: bilibiliVideo.author!);
     if (result != null) {

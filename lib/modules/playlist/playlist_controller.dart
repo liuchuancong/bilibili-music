@@ -15,7 +15,7 @@ class PlayListController extends BasePageController<PlayItems> {
   PlayListController({required this.bilibiliVideo, required this.mediaType})
       : currentbilibiliVideo = bilibiliVideo,
         currentMediaType = mediaType;
-  SettingsService settingsService = Get.find<SettingsService>();
+  AppSettingsService settingsService = Get.find<AppSettingsService>();
   StreamSubscription<dynamic>? subscription;
   var showSelectBox = false.obs;
   var isCheckAll = false.obs;

@@ -249,7 +249,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
                 child: Wrap(
                   runSpacing: 12,
                   spacing: 12,
-                  children: audioController.settingsService.musicAlbum
+                  children: audioController.settingsService.musicPlaylists
                       .where((el) => el.status == VideoStatus.customized)
                       .map(
                         (BilibiliVideo item) => TextButton(
@@ -316,7 +316,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
     return LyricsReader(
       padding: const EdgeInsets.symmetric(horizontal: 5.0),
       model: lyricModel,
-      position: audioController.currentMusicPosition.value.inMilliseconds,
+      position: audioController.currentPlayPosition.value.inMilliseconds,
       lyricUi: lyricUI,
       playing: audioController.isPlaying.value,
       size: Size(double.infinity, MediaQuery.of(context).size.height * 0.55),
@@ -570,7 +570,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Obx(() => ProgressBar(
-            progress: audioController.currentMusicPosition.value,
+            progress: audioController.currentPlayPosition.value,
             barHeight: 5,
             thumbRadius: 4,
             thumbGlowRadius: 8,

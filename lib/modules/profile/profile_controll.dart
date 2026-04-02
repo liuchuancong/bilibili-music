@@ -9,7 +9,7 @@ import 'package:bilibilimusic/common/base/base_controller.dart';
 class ProfileController extends BasePageController {
   final UpUserInfo upUserInfo;
   ProfileController({required this.upUserInfo});
-  SettingsService settingsService = Get.find<SettingsService>();
+  AppSettingsService settingsService = Get.find<AppSettingsService>();
   final followed = false.obs;
 
   final innerController = ScrollController();

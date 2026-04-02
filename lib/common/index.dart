@@ -6,7 +6,6 @@ export 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 export 'package:easy_refresh/easy_refresh.dart';
 export 'package:path_provider/path_provider.dart';
 export 'package:share_handler/share_handler.dart';
-export 'package:shared_preferences/shared_preferences.dart';
 
 export 'package:bilibilimusic/utils/cache_manager.dart';
 export 'package:bilibilimusic/utils/index.dart';

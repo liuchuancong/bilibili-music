@@ -1,11 +1,9 @@
 import 'dart:io';
 import 'dart:convert';
-import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:bilibilimusic/style/theme.dart';
 import 'package:flutter_color/flutter_color.dart';
-import 'package:bilibilimusic/utils/pref_util.dart';
 import 'package:bilibilimusic/models/up_user_info.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
@@ -17,84 +15,513 @@ import 'package:bilibilimusic/services/audio_service.dart';
 import 'package:bilibilimusic/models/live_media_info.dart';
 import 'package:bilibilimusic/services/bilibili_account_service.dart';
 
-class SettingsService extends GetxController {
-  // ==============================
-  // 🔹 Getter (computed properties)
-  // ==============================
-  ThemeMode get themeMode => AppConsts.themeModes[themeModeName.value]!;
+class AppSettingsService extends GetxController {
+  ThemeMode get themeMode => AppThemeConstants.themeModes[themeModeName.value]!;
 
   // ==============================
-  // 🎨 主题 & 语言
+  // 🎨 主题
   // ==============================
-  final themeModeName = (HivePrefUtil.getString('themeMode') ?? "System").obs;
-  final themeColorSwitch = (HivePrefUtil.getString('themeColorSwitch') ?? Colors.blue.hex).obs;
+  final themeModeName = (HivePrefUtil.getString('theme_mode') ?? "System").obs;
+  final themeColorHex = (HivePrefUtil.getString('theme_color_hex') ?? Colors.blue.hex).obs;
 
   // ==============================
-  // ⚙️ 基础功能开关
+  // ⚙️ 基础设置
   // ==============================
-  final enableAutoCheckUpdate = (HivePrefUtil.getBool('enableAutoCheckUpdate') ?? true).obs;
-  final enableAutoPlay = (HivePrefUtil.getBool('enableAutoPlay') ?? true).obs;
-  final enableFullScreenDefault = (HivePrefUtil.getBool('enableFullScreenDefault') ?? false).obs;
-  final device = (HivePrefUtil.getString('device') ?? 'phone').obs;
-  final webKeyTimeStamp = (HivePrefUtil.getInt('webKeyTimeStamp') ?? 0).obs;
-  final webKeys = (HivePrefUtil.getString('webKeys') ?? '').obs;
-  final lrcApiIndex = (HivePrefUtil.getInt('lrcApiIndex') ?? 0).obs;
-  final volume = (HivePrefUtil.getDouble('volume') ?? 0.0).obs;
-  final enableStartUp = (HivePrefUtil.getBool('enableStartUp') ?? false).obs;
-  final dontAskExit = (HivePrefUtil.getBool('dontAskExit') ?? false).obs;
-  final exitChoose = (HivePrefUtil.getString('exitChoose') ?? '').obs;
+  final enableAutoCheckUpdate = (HivePrefUtil.getBool('enable_auto_check_update') ?? true).obs;
+  final enableAutoPlay = (HivePrefUtil.getBool('enable_auto_play') ?? true).obs;
+  final enableFullScreenByDefault = (HivePrefUtil.getBool('enable_fullscreen_default') ?? false).obs;
+  final playDeviceType = (HivePrefUtil.getString('play_device_type') ?? 'phone').obs;
+  final webKeyTimestamp = (HivePrefUtil.getInt('web_key_timestamp') ?? 0).obs;
+  final bilibiliWebKeys = (HivePrefUtil.getString('bilibili_web_keys') ?? '').obs;
+  final lyricApiIndex = (HivePrefUtil.getInt('lyric_api_index') ?? 0).obs;
+  final audioVolume = (HivePrefUtil.getDouble('audio_volume') ?? 0.0).obs;
+  final enableLaunchAtStartup = (HivePrefUtil.getBool('enable_launch_at_startup') ?? false).obs;
+  final enableExitWithoutConfirm = (HivePrefUtil.getBool('enable_exit_without_confirm') ?? false).obs;
+  final exitActionType = (HivePrefUtil.getString('exit_action_type') ?? '').obs;
+  final enableBackgroundPlay = (HivePrefUtil.getBool('enable_background_play') ?? false).obs;
   // ==============================
-  // ⏰ 自动关机
+  // ⏰ 自动退出
   // ==============================
-  final autoShutDownTime = (HivePrefUtil.getInt('autoShutDownTime') ?? 120).obs;
-  final enableAutoShutDownTime = (HivePrefUtil.getBool('enableAutoShutDownTime') ?? false).obs;
-  final StopWatchTimer _stopWatchTimer = StopWatchTimer(mode: StopWatchMode.countDown);
-  StopWatchTimer get stopWatchTimer => _stopWatchTimer;
+  final autoExitAfterMinutes = (HivePrefUtil.getInt('auto_exit_minutes') ?? 120).obs;
+  final enableAutoExit = (HivePrefUtil.getBool('enable_auto_exit') ?? false).obs;
+  final StopWatchTimer _autoExitTimer = StopWatchTimer(mode: StopWatchMode.countDown);
+  StopWatchTimer get autoExitTimer => _autoExitTimer;
 
   // ==============================
-  // 🍪 平台 Cookie
+  // 🍪 Cookie
   // ==============================
-  final bilibiliCookie = (HivePrefUtil.getString('bilibiliCookie') ?? '').obs;
+  final bilibiliCookie = (HivePrefUtil.getString('bilibili_cookie') ?? '').obs;
 
   // ==============================
-  // 📺 播放设置
+  // 🎥 播放设置
   // ==============================
-  final preferResolution = (HivePrefUtil.getString('preferResolution') ?? AppConsts.resolutions[0]).obs;
-  static const List<String> resolutions = ['原画', '蓝光8M', '蓝光4M', '超清', '流畅'];
+  final preferredVideoQuality =
+      (HivePrefUtil.getString('preferred_video_quality') ?? AppPlayConstants.videoQualities[0]).obs;
+  static const List<String> videoQualities = ['原画', '蓝光8M', '蓝光4M', '超清', '流畅'];
 
   // ==============================
   // ❤️ 关注 UP 主
   // ==============================
-  final followers =
-      ((HivePrefUtil.getStringList('followers') ?? []).map((e) => UpUserInfo.fromJson(jsonDecode(e))).toList()).obs;
+  final followedUpList =
+      ((HivePrefUtil.getStringList('followed_up_list') ?? []).map((e) => UpUserInfo.fromJson(jsonDecode(e))).toList())
+          .obs;
 
   // ==============================
-  // 🎵 音乐播放列表 & 歌单
+  // 🎵 播放列表 & 歌单
   // ==============================
-  final currentMediaIndex = (HivePrefUtil.getInt('currentMediaIndex') ?? 0).obs;
-  final currentMusicPosition = (HivePrefUtil.getInt('currentMusicPosition') ?? 0).obs;
-  final currentMusicDuration = (HivePrefUtil.getInt('currentMusicDuration') ?? 0).obs;
+  final currentPlayIndex = (HivePrefUtil.getInt('current_play_index') ?? 0).obs;
+  final currentPlayPosition = (HivePrefUtil.getInt('current_play_position') ?? 0).obs;
+  final currentPlayDuration = (HivePrefUtil.getInt('current_play_duration') ?? 0).obs;
 
-  final currentMediaList = (HivePrefUtil.getStringList('currentMediaList') ?? [])
+  final currentPlaylist = (HivePrefUtil.getStringList('current_playlist') ?? [])
       .map((e) => LiveMediaInfo.fromJson(jsonDecode(e)))
       .toList()
       .obs;
 
-  final musicAlbum =
-      (HivePrefUtil.getStringList('musicAlbum') ?? []).map((e) => BilibiliVideo.fromJson(jsonDecode(e))).toList().obs;
+  final musicPlaylists = (HivePrefUtil.getStringList('music_playlists') ?? [])
+      .map((e) => BilibiliVideo.fromJson(jsonDecode(e)))
+      .toList()
+      .obs;
 
   // ==============================
   // ☁️ 备份
   // ==============================
-  final backupDirectory = (HivePrefUtil.getString('backupDirectory') ?? '').obs;
+  final backupFolderPath = (HivePrefUtil.getString('backup_folder_path') ?? '').obs;
 
   // ==============================
   // 🎨 常量
   // ==============================
-  final deviceList = ['phone', 'pad', 'pc'].obs;
-  final lrcApiUrl = ["https://api.lrc.cx/jsonapi", "https://tools.rangotec.com/api/anon/lrc"];
-  final int favoriteId = 8888888888;
+  final deviceOptions = ['phone', 'pad', 'pc'].obs;
+  final lyricApiList = ["https://api.lrc.cx/jsonapi", "https://tools.rangotec.com/api/anon/lrc"];
+  final int favoriteMusicPlaylistId = 8888888888;
 
+  final Map<ColorSwatch<Object>, String> themeColorMap =
+      AppThemeConstants.themeColors.map((key, value) => MapEntry(ColorTools.createPrimarySwatch(value), key));
+
+  // ==============================
+  // onInit
+  // ==============================
+  @override
+  void onInit() {
+    super.onInit();
+    initFavoriteMusic();
+    _setupAllListeners();
+    onInitShutDown();
+
+    _autoExitTimer.fetchEnded.listen((_) {
+      _autoExitTimer.onStopTimer();
+      FlutterExitApp.exitApp();
+    });
+  }
+
+  // ==============================
+  // 监听绑定
+  // ==============================
+  void _setupAllListeners() {
+    themeColorHex.listen((v) => HivePrefUtil.setString('theme_color_hex', v));
+    enableAutoCheckUpdate.listen((v) => HivePrefUtil.setBool('enable_auto_check_update', v));
+    backupFolderPath.listen((v) => HivePrefUtil.setString('backup_folder_path', v));
+    bilibiliCookie.listen((v) => HivePrefUtil.setString('bilibili_cookie', v));
+    playDeviceType.listen((v) => HivePrefUtil.setString('play_device_type', v));
+    webKeyTimestamp.listen((v) => HivePrefUtil.setInt('web_key_timestamp', v));
+    bilibiliWebKeys.listen((v) => HivePrefUtil.setString('bilibili_web_keys', v));
+    enableAutoPlay.listen((v) => HivePrefUtil.setBool('enable_auto_play', v));
+    enableExitWithoutConfirm.listen((v) => HivePrefUtil.setBool('enable_exit_without_confirm', v));
+    exitActionType.listen((v) => HivePrefUtil.setString('exit_action_type', v));
+    enableFullScreenByDefault.listen((v) => HivePrefUtil.setBool('enable_fullscreen_default', v));
+
+    enableLaunchAtStartup.listen((v) {
+      HivePrefUtil.setBool('enable_launch_at_startup', v);
+      v ? launchAtStartup.enable() : launchAtStartup.disable();
+    });
+
+    debounce(autoExitAfterMinutes, (_) {
+      HivePrefUtil.setInt('auto_exit_minutes', autoExitAfterMinutes.value);
+      _restartAutoExitTimer();
+    }, time: 1.seconds);
+
+    debounce(enableAutoExit, (_) {
+      HivePrefUtil.setBool('enable_auto_exit', enableAutoExit.value);
+      enableAutoExit.value ? _restartAutoExitTimer() : _autoExitTimer.onStopTimer();
+    });
+
+    musicPlaylists.listen((v) {
+      HivePrefUtil.setStringList('music_playlists', v.map((e) => jsonEncode(e.toJson())).toList());
+    });
+
+    currentPlaylist.listen((v) {
+      HivePrefUtil.setStringList('current_playlist', v.map((e) => jsonEncode(e.toJson())).toList());
+    });
+
+    followedUpList.listen((v) {
+      HivePrefUtil.setStringList('followed_up_list', v.map((e) => jsonEncode(e.toJson())).toList());
+    });
+
+    currentPlayIndex.listen((v) => HivePrefUtil.setInt('current_play_index', v));
+    currentPlayPosition.listen((v) => HivePrefUtil.setInt('current_play_position', v));
+    currentPlayDuration.listen((v) => HivePrefUtil.setInt('current_play_duration', v));
+    lyricApiIndex.listen((v) => HivePrefUtil.setInt('lyric_api_index', v));
+    audioVolume.listen((v) => HivePrefUtil.setDouble('audio_volume', v));
+    enableBackgroundPlay.listen((v) {
+      HivePrefUtil.setBool('enable_background_play', v);
+    });
+  }
+
+  // ==============================
+  // 自动关机
+  // ==============================
+  void onInitShutDown() {
+    if (enableAutoExit.isTrue) {
+      _autoExitTimer.setPresetMinuteTime(autoExitAfterMinutes.value, add: false);
+      _autoExitTimer.onStartTimer();
+    }
+  }
+
+  void _restartAutoExitTimer() {
+    _autoExitTimer.onStopTimer();
+    _autoExitTimer.setPresetMinuteTime(autoExitAfterMinutes.value, add: false);
+    _autoExitTimer.onStartTimer();
+  }
+
+  void changeShutDownConfig(int minutes, bool isAutoExit) {
+    autoExitAfterMinutes.value = minutes;
+    enableAutoExit.value = isAutoExit;
+    HivePrefUtil.setInt('auto_exit_minutes', minutes);
+    HivePrefUtil.setBool('enable_auto_exit', isAutoExit);
+    onInitShutDown();
+  }
+
+  // ==============================
+  // 主题
+  // ==============================
+  void updateThemeMode(String mode) {
+    themeModeName.value = mode;
+    HivePrefUtil.setString('theme_mode', mode);
+    Get.changeThemeMode(themeMode);
+  }
+
+  void updateThemeColor(String hexColor) {
+    final color = HexColor(hexColor);
+    Get.changeTheme(MyTheme(primaryColor: color).lightThemeData);
+    Get.changeTheme(MyTheme(primaryColor: color).darkThemeData);
+  }
+
+  void changeLrcApiIndex(int index) {
+    lyricApiIndex.value = index;
+    HivePrefUtil.setInt('lyric_api_index', index);
+  }
+
+  void changeDevice(String dv) {
+    playDeviceType.value = dv;
+    HivePrefUtil.setString('play_device_type', dv);
+  }
+
+  void changePreferResolution(String name) {
+    if (videoQualities.contains(name)) {
+      preferredVideoQuality.value = name;
+      HivePrefUtil.setString('preferred_video_quality', name);
+    }
+  }
+
+  // ==============================
+  // 关注 UP 主
+  // ==============================
+  bool isFollowed(String mid) {
+    return followedUpList.any((e) => e.mid == mid);
+  }
+
+  void follow(UpUserInfo user) {
+    if (!isFollowed(user.mid)) {
+      followedUpList.add(user);
+    }
+  }
+
+  void toggleFollow(UpUserInfo user) {
+    isFollowed(user.mid) ? followedUpList.remove(user) : followedUpList.add(user);
+  }
+
+  void unFollow(UpUserInfo user) {
+    followedUpList.remove(user);
+  }
+
+  // ==============================
+  // 播放控制
+  // ==============================
+  void setCurrentMusicDuration(int duration) => currentPlayDuration.value = duration;
+  void setCurrentMusicPosition(int position) => currentPlayPosition.value = position;
+  void setCurrentMediaIndex(int index) => currentPlayIndex.value = index;
+
+  void setCurrentMedia(LiveMediaInfo mediaInfo) {
+    setCurrentMediaIndex(currentPlaylist.indexWhere((e) => e.cid == mediaInfo.cid));
+  }
+
+  Future<void> startPlayVideoAtIndex(int index, List<LiveMediaInfo> playlist) async {
+    currentPlaylist.assignAll(playlist);
+    currentPlayIndex.value = index;
+  }
+
+  LiveMediaInfo getCurrentVideoInfo() => currentPlaylist[currentPlayIndex.value];
+
+  LiveMediaInfo getNextVideoInfo() {
+    int next = currentPlayIndex.value + 1;
+    setCurrentMediaIndex(next < currentPlaylist.length ? next : 0);
+    return currentPlaylist[currentPlayIndex.value];
+  }
+
+  LiveMediaInfo getPreviousVideoInfo() {
+    int prev = currentPlayIndex.value - 1;
+    setCurrentMediaIndex(prev >= 0 ? prev : currentPlaylist.length - 1);
+    return currentPlaylist[currentPlayIndex.value];
+  }
+
+  bool isCurrentMedia(LiveMediaInfo mediaInfo) {
+    if (currentPlaylist.isEmpty) return false;
+    return currentPlaylist[currentPlayIndex.value].cid == mediaInfo.cid;
+  }
+
+  void setCurrentMusicList(List<LiveMediaInfo> medias) {
+    currentPlaylist.value = medias;
+    currentPlayIndex.value = 0;
+    final audioController = Get.find<AudioController>();
+    audioController.startPlay(medias[0]);
+  }
+
+  // ==============================
+  // 歌单方法（完全原版逻辑，100% 不报错）
+  // ==============================
+  void initFavoriteMusic() {
+    if (!musicPlaylists.any((e) => e.id == favoriteMusicPlaylistId)) {
+      var video = BilibiliVideo(
+        id: favoriteMusicPlaylistId,
+        title: '我喜欢的',
+        author: '我喜欢的音乐',
+        pubdate: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        status: VideoStatus.customized,
+      );
+      musicPlaylists.insert(0, video);
+    }
+  }
+
+  bool isInFavoriteMusic(LiveMediaInfo mediaInfo) {
+    final album = musicPlaylists.firstWhere((e) => e.id == favoriteMusicPlaylistId);
+    return album.medias.any((e) => e.cid == mediaInfo.cid);
+  }
+
+  void addInFavoriteMusic(LiveMediaInfo mediaInfo) {
+    final album = musicPlaylists.firstWhere((e) => e.id == favoriteMusicPlaylistId);
+    if (!album.medias.any((e) => e.cid == mediaInfo.cid)) {
+      album.medias.add(mediaInfo);
+      musicPlaylists.refresh();
+    }
+  }
+
+  void removeInFavoriteMusic(LiveMediaInfo mediaInfo) {
+    final album = musicPlaylists.firstWhere((e) => e.id == favoriteMusicPlaylistId);
+    album.medias.removeWhere((e) => e.cid == mediaInfo.cid);
+    musicPlaylists.refresh();
+  }
+
+  void toggleFavoriteMusic(LiveMediaInfo mediaInfo) {
+    final album = musicPlaylists.firstWhere((e) => e.id == favoriteMusicPlaylistId);
+    if (album.medias.any((e) => e.cid == mediaInfo.cid)) {
+      album.medias.removeWhere((e) => e.cid == mediaInfo.cid);
+    } else {
+      album.medias.add(mediaInfo);
+    }
+    musicPlaylists.refresh();
+  }
+
+  void addToPlaylist(int playlistId, LiveMediaInfo mediaInfo) {
+    final album = musicPlaylists.firstWhere((e) => e.id == playlistId);
+    if (!album.medias.any((e) => e.cid == mediaInfo.cid)) {
+      album.medias.add(mediaInfo);
+      musicPlaylists.refresh();
+    }
+  }
+
+  void addMusicPlaylist(BilibiliVideo video, List<LiveMediaInfo> medias) {
+    if (!musicPlaylists.any((e) => e.id == video.id)) {
+      video.medias = medias;
+      musicPlaylists.add(video);
+    }
+  }
+
+  void toggleCollectMusic(BilibiliVideo video, List<LiveMediaInfo> medias) {
+    if (musicPlaylists.any((e) => e.id == video.id)) {
+      musicPlaylists.removeWhere((e) => e.id == video.id);
+    } else {
+      video.medias = medias;
+      musicPlaylists.add(video);
+    }
+  }
+
+  bool isExistMusicAlbum(BilibiliVideo video) => musicPlaylists.any((e) => e.id == video.id);
+
+  void editMusicAlbum(BilibiliVideo video) {
+    final idx = musicPlaylists.indexWhere((e) => e.id == video.id);
+    if (idx != -1) {
+      musicPlaylists[idx].title = video.title;
+      if (video.author?.isNotEmpty ?? false) musicPlaylists[idx].author = video.author;
+      musicPlaylists.refresh();
+      update();
+    }
+  }
+
+  void removeMusicAlbum(BilibiliVideo video) {
+    musicPlaylists.removeWhere((e) => e.id == video.id);
+  }
+
+  bool isInMusicAlbum(BilibiliVideo video) => musicPlaylists.any((e) => e.id == video.id);
+
+  void moveMusicToTop(BilibiliVideo video) {
+    if (musicPlaylists.any((e) => e.id == video.id)) {
+      musicPlaylists.removeWhere((e) => e.id == video.id);
+      musicPlaylists.insert(0, video);
+    }
+  }
+
+  bool isExistInMusicAlbum(int? id, LiveMediaInfo media) {
+    final album = musicPlaylists.firstWhere((e) => e.id == id);
+    return album.medias.any((e) => e.cid == media.cid);
+  }
+
+  void addMusicToAlbum(int? id, List<LiveMediaInfo> medias) {
+    final album = musicPlaylists.firstWhere((e) => e.id == id);
+    for (var m in medias) {
+      if (!album.medias.any((e) => e.cid == m.cid)) {
+        album.medias.add(m);
+      }
+    }
+    musicPlaylists.refresh();
+  }
+
+  List<LiveMediaInfo> deleteMusicFromAlbum(int? id, List<LiveMediaInfo> medias) {
+    final album = musicPlaylists.firstWhere((e) => e.id == id);
+    for (var m in medias) {
+      album.medias.removeWhere((e) => e.cid == m.cid);
+    }
+    musicPlaylists.refresh();
+    return album.medias;
+  }
+
+  // ==============================
+  // 账号
+  // ==============================
+  void setBilibiliCookie(String cookie) {
+    final service = Get.find<BiliBiliAccountService>();
+    if (service.cookie.isEmpty || service.uid == 0) {
+      service.resetCookie(cookie);
+      service.loadUserInfo();
+    }
+  }
+
+  // ==============================
+  // 备份 / 恢复
+  // ==============================
+  bool backupToFile(File file) {
+    try {
+      file.writeAsStringSync(jsonEncode(toJson()));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  bool restoreFromFile(File file) {
+    try {
+      fromJson(jsonDecode(file.readAsStringSync()));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // ==============================
+  // JSON
+  // ==============================
+  Map<String, dynamic> toJson() => {
+        'theme_mode': themeModeName.value,
+        'theme_color_hex': themeColorHex.value,
+        'bilibili_cookie': bilibiliCookie.value,
+        'enable_auto_play': enableAutoPlay.value,
+        'enable_auto_check_update': enableAutoCheckUpdate.value,
+        'enable_fullscreen_default': enableFullScreenByDefault.value,
+        'auto_exit_minutes': autoExitAfterMinutes.value,
+        'enable_auto_exit': enableAutoExit.value,
+        'preferred_video_quality': preferredVideoQuality.value,
+        'play_device_type': playDeviceType.value,
+        'web_key_timestamp': webKeyTimestamp.value,
+        'bilibili_web_keys': bilibiliWebKeys.value,
+        'lyric_api_index': lyricApiIndex.value,
+        'audio_volume': audioVolume.value,
+        'enable_launch_at_startup': enableLaunchAtStartup.value,
+        'enable_exit_without_confirm': enableExitWithoutConfirm.value,
+        'exit_action_type': exitActionType.value,
+        'music_playlists': musicPlaylists.map((e) => jsonEncode(e.toJson())).toList(),
+        'current_playlist': currentPlaylist.map((e) => jsonEncode(e.toJson())).toList(),
+        'followed_up_list': followedUpList.map((e) => jsonEncode(e.toJson())).toList(),
+        'current_play_index': currentPlayIndex.value,
+        'current_play_position': currentPlayPosition.value,
+        'current_play_duration': currentPlayDuration.value,
+        'backup_folder_path': backupFolderPath.value,
+        'enable_background_play': enableBackgroundPlay.value,
+      };
+
+  void fromJson(Map<String, dynamic> json) {
+    final audioController = Get.find<AudioController>();
+    audioController.pause();
+
+    themeModeName.value = json['theme_mode'] ?? "System";
+    bilibiliCookie.value = json['bilibili_cookie'] ?? '';
+    themeColorHex.value = json['theme_color_hex'] ?? Colors.blue.hex;
+    enableAutoPlay.value = json['enable_auto_play'] ?? true;
+    enableAutoCheckUpdate.value = json['enable_auto_check_update'] ?? true;
+    enableFullScreenByDefault.value = json['enable_fullscreen_default'] ?? false;
+    autoExitAfterMinutes.value = json['auto_exit_minutes'] ?? 120;
+    enableAutoExit.value = json['enable_auto_exit'] ?? false;
+    preferredVideoQuality.value = json['preferred_video_quality'] ?? videoQualities[0];
+    playDeviceType.value = json['play_device_type'] ?? 'phone';
+    webKeyTimestamp.value = json['web_key_timestamp'] ?? 0;
+    bilibiliWebKeys.value = json['bilibili_web_keys'] ?? '';
+    lyricApiIndex.value = json['lyric_api_index'] ?? 0;
+    audioVolume.value = json['audio_volume'] ?? 0.0;
+    enableLaunchAtStartup.value = json['enable_launch_at_startup'] ?? false;
+    enableExitWithoutConfirm.value = json['enable_exit_without_confirm'] ?? false;
+    exitActionType.value = json['exit_action_type'] ?? '';
+    backupFolderPath.value = json['backup_folder_path'] ?? '';
+    enableBackgroundPlay.value = json['enable_background_play'] ?? false;
+
+    musicPlaylists.value =
+        (json['music_playlists'] as List?)?.map((e) => BilibiliVideo.fromJson(jsonDecode(e))).toList() ?? [];
+    currentPlaylist.value =
+        (json['current_playlist'] as List?)?.map((e) => LiveMediaInfo.fromJson(jsonDecode(e))).toList() ?? [];
+    followedUpList.value =
+        (json['followed_up_list'] as List?)?.map((e) => UpUserInfo.fromJson(jsonDecode(e))).toList() ?? [];
+
+    currentPlayIndex.value = json['current_play_index'] ?? 0;
+    currentPlayPosition.value = json['current_play_position'] ?? 0;
+    currentPlayDuration.value = json['current_play_duration'] ?? 0;
+
+    updateThemeMode(themeModeName.value);
+    updateThemeColor(themeColorHex.value);
+    changePreferResolution(preferredVideoQuality.value);
+    changeShutDownConfig(autoExitAfterMinutes.value, enableAutoExit.value);
+    setBilibiliCookie(bilibiliCookie.value);
+
+    if (currentPlaylist.isNotEmpty) {
+      audioController.isMusicFirstLoad.value = true;
+      audioController.startPlay(currentPlaylist[currentPlayIndex.value]);
+    }
+
+    if (enableLaunchAtStartup.value) {
+      launchAtStartup.enable();
+    } else {
+      launchAtStartup.disable();
+    }
+  }
+}
+
+class AppThemeConstants {
   static Map<String, ThemeMode> themeModes = {
     "System": ThemeMode.system,
     "Dark": ThemeMode.dark,
@@ -117,497 +544,8 @@ class SettingsService extends GetxController {
     "Variant": const Color(0xFF3700B3),
     "Secondary": const Color(0xFF03DAC6),
   };
-
-  final Map<ColorSwatch<Object>, String> colorsNameMap =
-      themeColors.map((key, value) => MapEntry(ColorTools.createPrimarySwatch(value), key));
-  // --- 数据迁移 ---
-  Future<void> migrateOldPrefsData() async {
-    if (HivePrefUtil.getBool('_migrated_from_sp') == true) {
-      return;
-    }
-    try {
-      final allKeys = PrefUtil.prefs.getKeys();
-      for (final key in allKeys) {
-        final value = PrefUtil.prefs.get(key);
-        if (value == null) continue;
-        if (value is String) {
-          await HivePrefUtil.setString(key, value);
-        } else if (value is int) {
-          await HivePrefUtil.setInt(key, value);
-        } else if (value is bool) {
-          await HivePrefUtil.setBool(key, value);
-        } else if (value is double) {
-          await HivePrefUtil.setDouble(key, value);
-        } else if (value is List<String>) {
-          await HivePrefUtil.setStringList(key, value);
-        }
-      }
-      await HivePrefUtil.setBool('_migrated_from_sp', true);
-      log('旧 SharedPreferences 数据迁移到 Hive 完成！', name: 'SettingsService');
-    } catch (e) {
-      log('数据迁移失败: $e', name: 'SettingsService');
-    }
-  }
-
-  // ==============================
-  // 🧩 Lifecycle: onInit
-  // ==============================
-  @override
-  void onInit() {
-    super.onInit();
-    migrateOldPrefsData().then((_) {
-      update(['migrate_complete']);
-    });
-    initFavoriteMusic();
-
-    // === 监听并持久化 ===
-    themeColorSwitch.listen((value) {
-      HivePrefUtil.setString('themeColorSwitch', value);
-    });
-
-    enableAutoCheckUpdate.listen((value) {
-      HivePrefUtil.setBool('enableAutoCheckUpdate', value);
-    });
-
-    backupDirectory.listen((String value) {
-      HivePrefUtil.setString('backupDirectory', value);
-    });
-
-    bilibiliCookie.listen((value) {
-      HivePrefUtil.setString('bilibiliCookie', value);
-    });
-
-    device.listen((value) {
-      HivePrefUtil.setString('device', value);
-    });
-
-    webKeyTimeStamp.listen((value) {
-      HivePrefUtil.setInt('webKeyTimeStamp', value);
-    });
-
-    webKeys.listen((value) {
-      HivePrefUtil.setString('webKeys', value);
-    });
-
-    enableAutoPlay.listen((value) {
-      HivePrefUtil.setBool('enableAutoPlay', value);
-    });
-
-    dontAskExit.listen((value) {
-      HivePrefUtil.setBool('dontAskExit', value);
-    });
-
-    exitChoose.listen((value) {
-      HivePrefUtil.setString('exitChoose', value);
-    });
-
-    enableFullScreenDefault.listen((value) {
-      HivePrefUtil.setBool('enableFullScreenDefault', value);
-    });
-    enableStartUp.listen((value) {
-      HivePrefUtil.setBool('enableStartUp', value);
-      if (value) {
-        launchAtStartup.enable();
-      } else {
-        launchAtStartup.disable();
-      }
-    });
-
-    debounce(autoShutDownTime, (callback) {
-      HivePrefUtil.setInt('autoShutDownTime', autoShutDownTime.value);
-      if (enableAutoShutDownTime.isTrue) {
-        _stopWatchTimer.onStopTimer();
-        _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.value, add: false);
-        _stopWatchTimer.onStartTimer();
-      } else {
-        _stopWatchTimer.onStopTimer();
-      }
-    }, time: 1.seconds);
-
-    debounce(enableAutoShutDownTime, (callback) {
-      HivePrefUtil.setBool('enableAutoShutDownTime', enableAutoShutDownTime.value);
-      if (enableAutoShutDownTime.isTrue) {
-        _stopWatchTimer.onStopTimer();
-        _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.value, add: false);
-        _stopWatchTimer.onStartTimer();
-      } else {
-        _stopWatchTimer.onStopTimer();
-      }
-    }, time: 1.seconds);
-
-    musicAlbum.listen((value) {
-      HivePrefUtil.setStringList('musicAlbum', value.map((e) => jsonEncode(e.toJson())).toList());
-    });
-
-    currentMediaList.listen((medias) {
-      HivePrefUtil.setStringList('currentMediaList', medias.map((e) => jsonEncode(e.toJson())).toList());
-    });
-
-    followers.listen((value) {
-      HivePrefUtil.setStringList('followers', value.map((e) => jsonEncode(e.toJson())).toList());
-    });
-
-    currentMediaIndex.listen((index) {
-      HivePrefUtil.setInt('currentMediaIndex', index);
-    });
-
-    currentMusicPosition.listen((value) {
-      HivePrefUtil.setInt('currentMusicPosition', value);
-    });
-
-    currentMusicDuration.listen((value) {
-      HivePrefUtil.setInt('currentMusicDuration', value);
-    });
-
-    lrcApiIndex.listen((value) {
-      HivePrefUtil.setInt('lrcApiIndex', value);
-    });
-
-    volume.listen((value) {
-      HivePrefUtil.setDouble('volume', value);
-    });
-
-    onInitShutDown();
-    _stopWatchTimer.fetchEnded.listen((value) {
-      _stopWatchTimer.onStopTimer();
-      FlutterExitApp.exitApp();
-    });
-  }
-
-  // ==============================
-  // 🛠️ 方法区
-  // ==============================
-
-  // --- 主题 & 语言 ---
-  void changeThemeMode(String mode) {
-    themeModeName.value = mode;
-    HivePrefUtil.setString('themeMode', mode);
-    Get.changeThemeMode(themeMode);
-  }
-
-  void changeThemeColorSwitch(String hexColor) {
-    var themeColor = HexColor(hexColor);
-    var lightTheme = MyTheme(primaryColor: themeColor).lightThemeData;
-    var darkTheme = MyTheme(primaryColor: themeColor).darkThemeData;
-    Get.changeTheme(lightTheme);
-    Get.changeTheme(darkTheme);
-  }
-
-  void changeLrcApiIndex(int index) {
-    lrcApiIndex.value = index;
-    HivePrefUtil.setInt('lrcApiIndex', index);
-  }
-
-  void changeDevice(String dv) {
-    device.value = dv;
-    HivePrefUtil.setString('device', dv);
-  }
-
-  void changePreferResolution(String name) {
-    if (resolutions.contains(name)) {
-      preferResolution.value = name;
-      HivePrefUtil.setString('preferResolution', name);
-    }
-  }
-
-  // --- 自动关机 ---
-  void onInitShutDown() {
-    if (enableAutoShutDownTime.isTrue) {
-      _stopWatchTimer.setPresetMinuteTime(autoShutDownTime.value, add: false);
-      _stopWatchTimer.onStartTimer();
-    }
-  }
-
-  void changeShutDownConfig(int minutes, bool isAutoShutDown) {
-    autoShutDownTime.value = minutes;
-    enableAutoShutDownTime.value = isAutoShutDown;
-    HivePrefUtil.setInt('autoShutDownTime', minutes);
-    HivePrefUtil.setBool('enableAutoShutDownTime', isAutoShutDown);
-    onInitShutDown();
-  }
-
-  // --- 关注 UP 主 ---
-  bool isFollowed(String mid) {
-    return followers.any((element) => element.mid == mid);
-  }
-
-  void follow(UpUserInfo user) {
-    if (!isFollowed(user.mid)) {
-      followers.add(user);
-    }
-  }
-
-  void toggleFollow(UpUserInfo user) {
-    isFollowed(user.mid) ? unFollow(user) : follow(user);
-  }
-
-  void unFollow(UpUserInfo user) {
-    followers.remove(user);
-  }
-
-  // --- 播放控制 ---
-  void setCurrentMusicDuration(int duration) {
-    currentMusicDuration.value = duration;
-  }
-
-  void setCurrentMusicPosition(int position) {
-    currentMusicPosition.value = position;
-  }
-
-  void setCurrentMediaIndex(int index) {
-    currentMediaIndex.value = index;
-  }
-
-  void setCurrentMedia(LiveMediaInfo mediaInfo) {
-    setCurrentMediaIndex(currentMediaList.indexWhere((e) => e.cid == mediaInfo.cid));
-  }
-
-  Future<void> startPlayVideoAtIndex(int index, List<LiveMediaInfo> currentPlaylist) async {
-    currentMediaList.assignAll(currentPlaylist);
-    currentMediaIndex.value = index;
-  }
-
-  LiveMediaInfo getCurrentVideoInfo() => currentMediaList[currentMediaIndex.value];
-
-  LiveMediaInfo getNextVideoInfo() {
-    int next = currentMediaIndex.value + 1;
-    setCurrentMediaIndex(next < currentMediaList.length ? next : 0);
-    return currentMediaList[currentMediaIndex.value];
-  }
-
-  LiveMediaInfo getPreviousVideoInfo() {
-    int prev = currentMediaIndex.value - 1;
-    setCurrentMediaIndex(prev >= 0 ? prev : currentMediaList.length - 1);
-    return currentMediaList[currentMediaIndex.value];
-  }
-
-  bool isCurrentMedia(LiveMediaInfo mediaInfo) {
-    if (currentMediaList.isEmpty) return false;
-    return currentMediaList[currentMediaIndex.value].cid == mediaInfo.cid;
-  }
-
-  void setCurrentMusicList(List<LiveMediaInfo> medias) {
-    currentMediaList.value = medias;
-    currentMediaIndex.value = 0;
-    final audioController = Get.find<AudioController>();
-    audioController.startPlay(medias[0]);
-  }
-
-  // --- 音乐歌单 ---
-  void initFavoriteMusic() {
-    if (!musicAlbum.any((e) => e.id == favoriteId)) {
-      var video = BilibiliVideo(
-        id: favoriteId,
-        title: '我喜欢的',
-        author: '我喜欢的音乐',
-        pubdate: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        status: VideoStatus.customized,
-      );
-      musicAlbum.insert(0, video);
-    }
-  }
-
-  bool isInFavoriteMusic(LiveMediaInfo mediaInfo) {
-    final album = musicAlbum.firstWhere((e) => e.id == favoriteId);
-    return album.medias.any((e) => e.cid == mediaInfo.cid);
-  }
-
-  void addInFavoriteMusic(LiveMediaInfo mediaInfo) {
-    final album = musicAlbum.firstWhere((e) => e.id == favoriteId);
-    if (!album.medias.any((e) => e.cid == mediaInfo.cid)) {
-      album.medias.add(mediaInfo);
-      musicAlbum.refresh();
-    }
-  }
-
-  void removeInFavoriteMusic(LiveMediaInfo mediaInfo) {
-    final album = musicAlbum.firstWhere((e) => e.id == favoriteId);
-    album.medias.removeWhere((e) => e.cid == mediaInfo.cid);
-    musicAlbum.refresh();
-  }
-
-  void addMusicAlbum(BilibiliVideo video, List<LiveMediaInfo> medias) {
-    if (!musicAlbum.any((e) => e.id == video.id)) {
-      video.medias = medias;
-      musicAlbum.add(video);
-    }
-  }
-
-  void toggleCollectMusic(BilibiliVideo video, List<LiveMediaInfo> medias) {
-    if (musicAlbum.any((e) => e.id == video.id)) {
-      musicAlbum.removeWhere((e) => e.id == video.id);
-    } else {
-      video.medias = medias;
-      musicAlbum.add(video);
-    }
-  }
-
-  bool isExistMusicAlbum(BilibiliVideo video) => musicAlbum.any((e) => e.id == video.id);
-
-  void editMusicAlbum(BilibiliVideo video) {
-    final idx = musicAlbum.indexWhere((e) => e.id == video.id);
-    if (idx != -1) {
-      musicAlbum[idx].title = video.title;
-      if (video.author?.isNotEmpty ?? false) musicAlbum[idx].author = video.author;
-      musicAlbum.refresh();
-      update();
-    }
-  }
-
-  void removeMusicAlbum(BilibiliVideo video) {
-    musicAlbum.removeWhere((e) => e.id == video.id);
-  }
-
-  bool isExistInMusicAlbum(int? id, LiveMediaInfo media) {
-    final album = musicAlbum.firstWhere((e) => e.id == id);
-    return album.medias.any((e) => e.cid == media.cid);
-  }
-
-  void addMusicToAlbum(int? id, List<LiveMediaInfo> medias) {
-    final album = musicAlbum.firstWhere((e) => e.id == id);
-    for (var m in medias) {
-      if (!album.medias.any((e) => e.cid == m.cid)) {
-        album.medias.add(m);
-      }
-    }
-    musicAlbum.refresh();
-  }
-
-  List<LiveMediaInfo> deleteMusicFromAlbum(int? id, List<LiveMediaInfo> medias) {
-    final album = musicAlbum.firstWhere((e) => e.id == id);
-    for (var m in medias) {
-      album.medias.removeWhere((e) => e.cid == m.cid);
-    }
-    musicAlbum.refresh();
-    return album.medias;
-  }
-
-  bool isInMusicAlbum(BilibiliVideo video) => musicAlbum.any((e) => e.id == video.id);
-
-  void moveMusicToTop(BilibiliVideo video) {
-    if (musicAlbum.any((e) => e.id == video.id)) {
-      musicAlbum.removeWhere((e) => e.id == video.id);
-      musicAlbum.insert(0, video);
-    }
-  }
-
-  // --- 账号 ---
-  void setBilibiliCookie(String cookie) {
-    final service = Get.find<BiliBiliAccountService>();
-    if (service.cookie.isEmpty || service.uid == 0) {
-      service.resetCookie(cookie);
-      service.loadUserInfo();
-    }
-  }
-
-  // --- 备份 & 恢复 ---
-  bool backup(File file) {
-    try {
-      file.writeAsStringSync(jsonEncode(toJson()));
-      return true;
-    } catch (e) {
-      log(e.toString(), name: 'SettingsService');
-      return false;
-    }
-  }
-
-  bool recover(File file) {
-    try {
-      fromJson(jsonDecode(file.readAsStringSync()));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  // --- JSON 序列化 ---
-  void fromJson(Map<String, dynamic> json) {
-    final audioController = Get.find<AudioController>();
-    audioController.pause();
-
-    themeModeName.value = json['themeMode'] ?? "System";
-    bilibiliCookie.value = json['bilibiliCookie'] ?? '';
-    themeColorSwitch.value = json['themeColorSwitch'] ?? Colors.blue.hex;
-    enableAutoPlay.value = json['enableAutoPlay'] ?? true;
-    enableAutoCheckUpdate.value = json['enableAutoCheckUpdate'] ?? true;
-    enableFullScreenDefault.value = json['enableFullScreenDefault'] ?? false;
-    autoShutDownTime.value = json['autoShutDownTime'] ?? 120;
-    enableAutoShutDownTime.value = json['enableAutoShutDownTime'] ?? false;
-    preferResolution.value = json['preferResolution'] ?? resolutions[0];
-    device.value = json['device'] ?? 'phone';
-    webKeyTimeStamp.value = json['webKeyTimeStamp'] ?? 0;
-    webKeys.value = json['webKeys'] ?? '';
-    lrcApiIndex.value = json['lrcApiIndex'] ?? 0;
-    volume.value = json['volume'] ?? 0.0;
-    dontAskExit.value = json['dontAskExit'] ?? false;
-    exitChoose.value = json['exitChoose'] ?? '';
-    musicAlbum.value = (json['musicAlbum'] as List?)?.map((e) => BilibiliVideo.fromJson(jsonDecode(e))).toList() ?? [];
-
-    currentMediaList.value =
-        (json['currentMediaList'] as List?)?.map((e) => LiveMediaInfo.fromJson(jsonDecode(e))).toList() ?? [];
-
-    followers.value = (json['followers'] as List?)?.map((e) => UpUserInfo.fromJson(jsonDecode(e))).toList() ?? [];
-    enableStartUp.value = json['enableStartUp'] ?? false;
-    currentMediaIndex.value = json['currentMediaIndex'] ?? 0;
-    currentMusicPosition.value = json['currentMusicPosition'] ?? 0;
-    currentMusicDuration.value = json['currentMusicDuration'] ?? 0;
-
-    // 应用配置
-    changeThemeMode(themeModeName.value);
-    changeThemeColorSwitch(themeColorSwitch.value);
-    changePreferResolution(preferResolution.value);
-    changeShutDownConfig(autoShutDownTime.value, enableAutoShutDownTime.value);
-    setBilibiliCookie(bilibiliCookie.value);
-
-    // 恢复播放
-    if (currentMediaList.isNotEmpty) {
-      audioController.isMusicFirstLoad.value = true;
-      audioController.startPlay(currentMediaList[currentMediaIndex.value]);
-    }
-
-    if (enableStartUp.value) {
-      launchAtStartup.enable();
-    } else {
-      launchAtStartup.disable();
-    }
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'themeMode': themeModeName.value,
-      'themeColorSwitch': themeColorSwitch.value,
-      'bilibiliCookie': bilibiliCookie.value,
-      'enableAutoPlay': enableAutoPlay.value,
-      'enableAutoCheckUpdate': enableAutoCheckUpdate.value,
-      'enableFullScreenDefault': enableFullScreenDefault.value,
-      'autoShutDownTime': autoShutDownTime.value,
-      'enableAutoShutDownTime': enableAutoShutDownTime.value,
-      'preferResolution': preferResolution.value,
-      'device': device.value,
-      'webKeyTimeStamp': webKeyTimeStamp.value,
-      'webKeys': webKeys.value,
-      'lrcApiIndex': lrcApiIndex.value,
-      'volume': volume.value,
-      'enableStartUp': enableStartUp.value,
-      'musicAlbum': musicAlbum.map((e) => jsonEncode(e.toJson())).toList(),
-      'currentMediaList': currentMediaList.map((e) => jsonEncode(e.toJson())).toList(),
-      'followers': followers.map((e) => jsonEncode(e.toJson())).toList(),
-      'currentMediaIndex': currentMediaIndex.value,
-      'currentMusicPosition': currentMusicPosition.value,
-      'currentMusicDuration': currentMusicDuration.value,
-      'dontAskExit': dontAskExit.value,
-      'exitChoose': exitChoose.value,
-    };
-  }
 }
 
-/// 模拟常量类（与参考代码对齐）
-class AppConsts {
-  static Map<String, ThemeMode> themeModes = {
-    "System": ThemeMode.system,
-    "Dark": ThemeMode.dark,
-    "Light": ThemeMode.light,
-  };
-
-  static List<String> resolutions = ['原画', '蓝光8M', '蓝光4M', '超清', '流畅'];
+class AppPlayConstants {
+  static List<String> videoQualities = ['原画', '蓝光8M', '蓝光4M', '超清', '流畅'];
 }

@@ -11,10 +11,10 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class HomePage extends GetView<HomeController> {
   const HomePage({super.key});
-  Future<void> addMusicAlbum() async {
+  Future<void> addMusicPlaylist() async {
     Map<String, String?>? result = await Utils.showEditDialog();
     if (result != null) {
-      controller.settingsService.addMusicAlbum(
+      controller.settingsService.addMusicPlaylist(
         BilibiliVideo(
           id: Utils.getRandomId(),
           title: result['title'],
@@ -56,7 +56,7 @@ class HomePage extends GetView<HomeController> {
               icon: const Icon(Icons.search)),
           IconButton(
             onPressed: () {
-              addMusicAlbum();
+              addMusicPlaylist();
             },
             icon: const Icon(Icons.add),
           ),
@@ -73,18 +73,17 @@ class HomePage extends GetView<HomeController> {
 
 class MuiscGridView extends GetView<HomeController> {
   const MuiscGridView({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Obx(() => controller.settingsService.musicAlbum.isNotEmpty
+        Obx(() => controller.settingsService.musicPlaylists.isNotEmpty
             ? Expanded(
                 child: ListView.builder(
-                  itemCount: controller.settingsService.musicAlbum.length,
+                  itemCount: controller.settingsService.musicPlaylists.length,
                   itemBuilder: (context, index) {
                     return RoomCard(
-                      bilibiliVideo: controller.settingsService.musicAlbum[index],
+                      bilibiliVideo: controller.settingsService.musicPlaylists[index],
                       isVideo: false,
                       showTrailing: true,
                     );
@@ -109,18 +108,18 @@ class FavoriteView extends GetView<HomeController> {
     return Column(
       children: [
         Expanded(
-          child: Obx(() => controller.settingsService.followers.isNotEmpty
+          child: Obx(() => controller.settingsService.followedUpList.isNotEmpty
               ? MasonryGridView.count(
                   padding: const EdgeInsets.all(5),
                   controller: controller.scrollController,
                   crossAxisCount: 4,
                   mainAxisSpacing: 10,
                   crossAxisSpacing: 10,
-                  itemCount: controller.settingsService.followers.length,
+                  itemCount: controller.settingsService.followedUpList.length,
                   itemBuilder: (context, index) {
                     return InkWell(
                       onTap: () {
-                        Get.toNamed(RoutePath.kProfile, arguments: controller.settingsService.followers[index]);
+                        Get.toNamed(RoutePath.kProfile, arguments: controller.settingsService.followedUpList[index]);
                       },
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -128,11 +127,11 @@ class FavoriteView extends GetView<HomeController> {
                         children: [
                           CircleAvatar(
                             radius: 25,
-                            backgroundImage: NetworkImage(controller.settingsService.followers[index].face),
+                            backgroundImage: NetworkImage(controller.settingsService.followedUpList[index].face),
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            controller.settingsService.followers[index].name,
+                            controller.settingsService.followedUpList[index].name,
                             style: const TextStyle(fontSize: 14),
                             overflow: TextOverflow.ellipsis,
                           ),

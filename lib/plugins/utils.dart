@@ -360,18 +360,18 @@ class Utils {
   }
 
   static Future<bool> showExitDialog() async {
-    final settings = Get.find<SettingsService>();
-    final dontAsk = settings.dontAskExit.value;
-    final exitChoose = settings.exitChoose.value;
+    final settings = Get.find<AppSettingsService>();
+    final dontAsk = settings.enableExitWithoutConfirm.value;
+    final exitActionType = settings.exitActionType.value;
     if (dontAsk) {
-      if (exitChoose == 'exit') {
+      if (exitActionType == 'exit') {
         if (await windowManager.isPreventClose()) {
           await windowManager.setPreventClose(false);
         }
         WidgetsBinding.instance.addPostFrameCallback((_) {
           exit(0);
         });
-      } else if (exitChoose == 'minimize') {
+      } else if (exitActionType == 'minimize') {
         await _minimizeOrHideDesktopWindow();
         return true;
       }
@@ -412,8 +412,8 @@ class Utils {
             actions: [
               TextButton(
                 onPressed: () async {
-                  settings.dontAskExit.value = shouldNotAskAgain;
-                  settings.exitChoose.value = 'minimize';
+                  settings.enableExitWithoutConfirm.value = shouldNotAskAgain;
+                  settings.exitActionType.value = 'minimize';
                   Navigator.of(context).pop();
                   Future.delayed(const Duration(milliseconds: 200), () async {
                     await _minimizeOrHideDesktopWindow();
@@ -427,8 +427,8 @@ class Utils {
                   foregroundColor: Colors.white,
                 ),
                 onPressed: () async {
-                  settings.dontAskExit.value = shouldNotAskAgain;
-                  settings.exitChoose.value = 'exit';
+                  settings.enableExitWithoutConfirm.value = shouldNotAskAgain;
+                  settings.exitActionType.value = 'exit';
                   Navigator.of(context).pop();
                   if (await windowManager.isPreventClose()) {
                     await windowManager.setPreventClose(false);

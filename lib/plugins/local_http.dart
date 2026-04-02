@@ -17,7 +17,7 @@ class LocalHttpServer {
   LocalHttpServer() {
     server = Server();
   }
-  final SettingsService settings = Get.find<SettingsService>();
+  final AppSettingsService settings = Get.find<AppSettingsService>();
 
   Future<void> startServer() async {
     server.get('/', (req, res) {

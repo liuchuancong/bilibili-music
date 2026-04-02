@@ -13,7 +13,7 @@ class BiliBiliSite {
   String name = "哔哩哔哩直播";
   String cookie = "";
   int userId = 0;
-  final SettingsService settings = Get.find<SettingsService>();
+  final AppSettingsService settings = Get.find<AppSettingsService>();
 
   /// 构建通用请求 headers，避免在每个方法中重复定义
   Map<String, String> _buildCommonHeaders({String? referer}) {
@@ -547,8 +547,8 @@ class BiliBiliSite {
 
   Future<List<LyricResults>> getSearchLyrics(String title, String author) async {
     try {
-      var url = settings.lrcApiUrl[settings.lrcApiIndex.value];
-      bool isLrcApi = settings.lrcApiIndex.value == 0;
+      var url = settings.lyricApiList[settings.lyricApiIndex.value];
+      bool isLrcApi = settings.lyricApiIndex.value == 0;
       var result = await HttpClient.instance.getJson("$url?title=$title&artist=$author");
       List<dynamic> lyricResults = [];
       if (isLrcApi) {

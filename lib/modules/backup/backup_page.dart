@@ -12,8 +12,8 @@ class BackupPage extends StatefulWidget {
 }
 
 class _BackupPageState extends State<BackupPage> {
-  final settings = Get.find<SettingsService>();
-  late String backupDirectory = settings.backupDirectory.value;
+  final settings = Get.find<AppSettingsService>();
+  late String backupDirectory = settings.backupFolderPath.value;
   @override
   Widget build(BuildContext context) {
     return Scaffold(

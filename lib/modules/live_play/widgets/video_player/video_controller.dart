@@ -19,7 +19,7 @@ class VideoController with ChangeNotifier {
   ScreenBrightness brightnessController = ScreenBrightness();
   final int initPosition;
 
-  SettingsService settingsService = Get.find<SettingsService>();
+  AppSettingsService settingsService = Get.find<AppSettingsService>();
   VideoController({required this.mediaInfo, required this.videoInfoData, required this.initPosition}) {
     initVideoController();
   }

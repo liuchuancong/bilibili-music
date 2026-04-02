@@ -7,7 +7,7 @@ import 'package:bilibilimusic/plugins/local_http.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 
 class SyncController extends BaseController {
-  final settingServer = Get.find<SettingsService>();
+  final settingServer = Get.find<AppSettingsService>();
   NetworkInfo networkInfo = NetworkInfo();
   var ipAddress = ''.obs;
   var port = '8080'.obs;

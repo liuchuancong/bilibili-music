@@ -6,7 +6,7 @@ import 'package:bilibilimusic/common/base/base_controller.dart';
 import 'package:bilibilimusic/services/bilibili_account_service.dart';
 
 class AccountController extends BasePageController {
-  final SettingsService settingsService = Get.find<SettingsService>();
+  final AppSettingsService settingsService = Get.find<AppSettingsService>();
 
   void bilibiliTap() async {
     if (BiliBiliAccountService.instance.logined.value) {

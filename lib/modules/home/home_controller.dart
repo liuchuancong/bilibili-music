@@ -5,7 +5,7 @@ import 'package:bilibilimusic/services/index.dart';
 import 'package:bilibilimusic/services/audio_service.dart';
 
 class HomeController extends GetxController with GetTickerProviderStateMixin {
-  final SettingsService settingsService = Get.find<SettingsService>();
+  final AppSettingsService settingsService = Get.find<AppSettingsService>();
   final AudioController audioController = Get.find<AudioController>();
   late TabController tabController;
   final ScrollController scrollController = ScrollController();
