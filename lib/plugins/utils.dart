@@ -1,9 +1,24 @@
+import 'dart:io';
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:crypto/crypto.dart';
 import 'package:bilibilimusic/common/index.dart';
+import 'package:window_manager/window_manager.dart';
+import 'package:bilibilimusic/services/settings_service.dart';
 
 class Utils {
+  static Future<void> _minimizeOrHideDesktopWindow() async {
+    // macOS 上更符合习惯的是最小化到 Dock；直接 hide 在没有托盘/菜单栏入口时
+    // 容易让用户误以为 App 退出。
+    if (Platform.isMacOS) {
+      await windowManager.minimize();
+    } else {
+      if (await windowManager.isPreventClose()) {
+        await windowManager.hide();
+      }
+    }
+  }
+
   static int getRandomId() {
     const uuid = Uuid();
     final hashValue = sha256.convert(utf8.encode(uuid.v8())).toString();
@@ -342,5 +357,93 @@ class Utils {
       isDismissible: true,
     );
     return result;
+  }
+
+  static Future<bool> showExitDialog() async {
+    final settings = Get.find<SettingsService>();
+    final dontAsk = settings.dontAskExit.value;
+    final exitChoose = settings.exitChoose.value;
+    if (dontAsk) {
+      if (exitChoose == 'exit') {
+        if (await windowManager.isPreventClose()) {
+          await windowManager.setPreventClose(false);
+        }
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          exit(0);
+        });
+      } else if (exitChoose == 'minimize') {
+        await _minimizeOrHideDesktopWindow();
+        return true;
+      }
+    }
+    bool shouldNotAskAgain = false;
+    var result = await Get.dialog<bool>(
+      StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text('提示', style: Get.textTheme.titleLarge),
+            content: Container(
+              constraints: const BoxConstraints(maxHeight: 400),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('确定要退出吗？', style: Get.textTheme.titleMedium),
+                      SizedBox(height: 12),
+                      const Divider(height: 1),
+                      CheckboxListTile(
+                        title: Text('不再询问', style: Get.textTheme.titleSmall),
+                        value: shouldNotAskAgain,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            shouldNotAskAgain = value!;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            actionsAlignment: MainAxisAlignment.spaceBetween,
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  settings.dontAskExit.value = shouldNotAskAgain;
+                  settings.exitChoose.value = 'minimize';
+                  Navigator.of(context).pop();
+                  Future.delayed(const Duration(milliseconds: 200), () async {
+                    await _minimizeOrHideDesktopWindow();
+                  });
+                },
+                child: Text('最小化'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent,
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: () async {
+                  settings.dontAskExit.value = shouldNotAskAgain;
+                  settings.exitChoose.value = 'exit';
+                  Navigator.of(context).pop();
+                  if (await windowManager.isPreventClose()) {
+                    await windowManager.setPreventClose(false);
+                  }
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    exit(0);
+                  });
+                },
+                child: Text('退出'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+    return result ?? false;
   }
 }

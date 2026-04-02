@@ -4,6 +4,8 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   battery_plus
+  bitsdojo_window_windows
+  flutter_acrylic
   flutter_inappwebview_windows
   flutter_volume_controller
   media_kit_libs_windows_video
@@ -11,6 +13,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   permission_handler_windows
   screen_brightness_windows
   screen_retriever_windows
+  tray_manager
   url_launcher_windows
   window_manager
   windows_single_instance

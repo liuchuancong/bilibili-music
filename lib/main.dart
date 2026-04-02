@@ -3,14 +3,10 @@ import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:bilibilimusic/style/theme.dart';
 import 'package:bilibilimusic/common/index.dart';
-import 'package:audio_service/audio_service.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:bilibilimusic/routes/app_pages.dart';
 import 'package:bilibilimusic/routes/route_path.dart';
-import 'package:bilibilimusic/services/audio_service.dart';
-import 'package:bilibilimusic/services/audio_background.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
-import 'package:bilibilimusic/services/bilibili_account_service.dart';
 import 'package:windows_single_instance/windows_single_instance.dart';
 
 void main(List<String> args) async {
@@ -19,7 +15,6 @@ void main(List<String> args) async {
   PrefUtil.prefs = await SharedPreferences.getInstance();
   // 初始化服务
 
-  initService();
   if (Platform.isWindows) {
     await WindowsSingleInstance.ensureSingleInstance(args, "bilibili_music_live_instance_checker");
     await windowManager.ensureInitialized();
@@ -28,25 +23,9 @@ void main(List<String> args) async {
       await windowManager.show();
       await windowManager.focus();
     });
-  } else {
-    await AudioService.init(
-      builder: () => AudioPlayerHandler(),
-      config: const AudioServiceConfig(
-        androidNotificationChannelId: 'com.mystyle.bilibili.music',
-        androidNotificationChannelName: 'bilibili audio playback',
-        androidNotificationOngoing: true,
-        androidNotificationIcon: 'mipmap/launcher_icon',
-      ),
-    );
-  }
+  } else {}
   initRefresh();
   runApp(const MyApp());
-}
-
-void initService() {
-  Get.put(SettingsService());
-  Get.put(BiliBiliAccountService());
-  Get.put(AudioController());
 }
 
 void initRefresh() {

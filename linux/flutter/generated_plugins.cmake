@@ -3,11 +3,14 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  bitsdojo_window_linux
+  flutter_acrylic
   flutter_inappwebview_linux
   flutter_volume_controller
   media_kit_libs_linux
   media_kit_video
   screen_retriever_linux
+  tray_manager
   url_launcher_linux
   window_manager
 )
