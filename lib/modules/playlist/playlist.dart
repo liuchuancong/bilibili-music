@@ -62,7 +62,7 @@ class PlayListPage extends GetView<PlayListController> {
     return result;
   }
 
-  void showMusicAlubmSelectorDialog() {
+  void showMusicAlbumSelectorDialog() {
     final SettingsService settings = Get.find<SettingsService>();
     showDialog(
         context: Get.context!,
@@ -103,7 +103,7 @@ class PlayListPage extends GetView<PlayListController> {
   Future<void> handleMusicAlbumSelector() async {
     String? result = await showBottomSheet();
     if (result == '1') {
-      showMusicAlubmSelectorDialog();
+      showMusicAlbumSelectorDialog();
     } else if (result == '2') {
       // 删除
       List<LiveMediaInfo> list =
@@ -199,18 +199,18 @@ class PlayListPage extends GetView<PlayListController> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       IconButton(
-                          icon: const Icon(FontAwesomeIcons.headphones),
+                          icon: const FaIcon(FontAwesomeIcons.headphones),
                           onPressed: () {
                             if (controller.list.isNotEmpty) {
                               var list = controller.list.value.map((item) => item.liveMediaInfo).toList();
-                              controller.settingsService.setCurreentMusicList(list);
+                              controller.settingsService.setCurrentMusicList(list);
                             }
                           }),
                       if (controller.showSelectBox.value)
                         Obx(() => IconButton(
                             icon: controller.isCheckAll.value
-                                ? const Icon(FontAwesomeIcons.squareCheck)
-                                : const Icon(FontAwesomeIcons.square),
+                                ? FaIcon(FontAwesomeIcons.squareCheck)
+                                : FaIcon(FontAwesomeIcons.square),
                             onPressed: () {
                               if (controller.list.isNotEmpty) {
                                 controller.handleCheckAll();
@@ -227,7 +227,7 @@ class PlayListPage extends GetView<PlayListController> {
                             }
                           }),
                       IconButton(
-                          icon: const Icon(FontAwesomeIcons.penToSquare),
+                          icon: const FaIcon(FontAwesomeIcons.penToSquare),
                           onPressed: () {
                             if (controller.showSelectBox.value) {
                               List<LiveMediaInfo> list = controller.list.value
@@ -267,7 +267,7 @@ class PlayListPage extends GetView<PlayListController> {
                     return Obx(
                       () => Card(
                         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                        color: controller.settingsService.isCurrentMediia(mediaInfo)
+                        color: controller.settingsService.isCurrentMedia(mediaInfo)
                             ? Get.theme.colorScheme.primary
                             : null,
                         elevation: 4,
@@ -282,9 +282,9 @@ class PlayListPage extends GetView<PlayListController> {
                                     onPressed: () {
                                       controller.handleToggleItem(index);
                                     },
-                                    icon: Icon(
+                                    icon: FaIcon(
                                       playItems.selected ? FontAwesomeIcons.squareCheck : FontAwesomeIcons.square,
-                                      color: controller.settingsService.isCurrentMediia(mediaInfo)
+                                      color: controller.settingsService.isCurrentMedia(mediaInfo)
                                           ? Colors.white
                                           : Colors.black,
                                     )))
@@ -295,7 +295,7 @@ class PlayListPage extends GetView<PlayListController> {
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                                 color:
-                                    controller.settingsService.isCurrentMediia(mediaInfo) ? Colors.white : Colors.black,
+                                    controller.settingsService.isCurrentMedia(mediaInfo) ? Colors.white : Colors.black,
                               ),
                             ),
                           ),

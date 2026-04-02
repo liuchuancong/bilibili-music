@@ -18,7 +18,6 @@ import 'package:bilibilimusic/services/bilibili_account_service.dart';
 class SettingsService extends GetxController {
   SettingsService() {
     themeColorSwitch.listen((value) {
-      themeColorSwitch.value = value;
       PrefUtil.setString('themeColorSwitch', value);
     });
     enableAutoCheckUpdate.listen((value) {
@@ -73,16 +72,10 @@ class SettingsService extends GetxController {
       }
     }, time: 1.seconds);
 
-    backupDirectory.listen((String value) {
-      PrefUtil.setString('backupDirectory', value);
-    });
     onInitShutDown();
     _stopWatchTimer.fetchEnded.listen((value) {
       _stopWatchTimer.onStopTimer();
       FlutterExitApp.exitApp();
-    });
-    enableAutoCheckUpdate.listen((value) {
-      PrefUtil.setBool('enableAutoCheckUpdate', value);
     });
 
     musicAlbum.listen((value) {
@@ -313,7 +306,7 @@ class SettingsService extends GetxController {
     return currentMediaList[currentMediaList.length - 1];
   }
 
-  bool isCurrentMediia(LiveMediaInfo mediaInfo) {
+  bool isCurrentMedia(LiveMediaInfo mediaInfo) {
     if (currentMediaList.isEmpty) {
       return false;
     }
@@ -420,7 +413,7 @@ class SettingsService extends GetxController {
     }
   }
 
-  bool isExitMusicAlbum(int? id, LiveMediaInfo media) {
+  bool isExistInMusicAlbum(int? id, LiveMediaInfo media) {
     var album = musicAlbum.firstWhere((element) => element.id == id);
     int index = album.medias
         .indexWhere((element) => element.cid == media.cid && element.aid == media.aid && element.bvid == media.bvid);
@@ -462,7 +455,7 @@ class SettingsService extends GetxController {
     return musicAlbum.any((element) => element.id == video.id);
   }
 
-  void setCurreentMusicList(List<LiveMediaInfo> medias) {
+  void setCurrentMusicList(List<LiveMediaInfo> medias) {
     currentMediaList.value = medias;
     currentMediaIndex.value = 0;
     final AudioController audioController = Get.find<AudioController>();
@@ -493,7 +486,7 @@ class SettingsService extends GetxController {
     return true;
   }
 
-  void setBilibiliCookit(String cookie) {
+  void setBilibiliCookie(String cookie) {
     final BiliBiliAccountService biliAccountService = Get.find<BiliBiliAccountService>();
     if (biliAccountService.cookie.isEmpty || biliAccountService.uid == 0) {
       biliAccountService.resetCookie(cookie);
@@ -538,7 +531,7 @@ class SettingsService extends GetxController {
     changeThemeColorSwitch(themeColorSwitch.value);
     changePreferResolution(preferResolution.value);
     changeShutDownConfig(autoShutDownTime.value, enableAutoShutDownTime.value);
-    setBilibiliCookit(bilibiliCookie.value);
+    setBilibiliCookie(bilibiliCookie.value);
     audioController.isMusicFirstLoad.value = true;
     audioController.startPlay(currentMediaList[currentMediaIndex.value]);
   }

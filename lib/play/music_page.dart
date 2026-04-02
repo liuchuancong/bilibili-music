@@ -224,7 +224,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
                 IconButton(
                   padding: const EdgeInsets.only(top: 18.0, bottom: 18.0, right: 18.0),
                   onPressed: () {
-                    showMusicAlubmSelectorDialog();
+                    showMusicAlbumSelectorDialog();
                   },
                   icon: const Icon(
                     Icons.add_circle_outline_rounded,
@@ -237,7 +237,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
     );
   }
 
-  void showMusicAlubmSelectorDialog() {
+  void showMusicAlbumSelectorDialog() {
     showDialog(
         context: Get.context!,
         builder: (BuildContext context) {
@@ -255,7 +255,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
                         (BilibiliVideo item) => TextButton(
                           onPressed: () {
                             if (audioController.settingsService
-                                .isExitMusicAlbum(item.id, audioController.currentMediaInfo)) {
+                                .isExistInMusicAlbum(item.id, audioController.currentMediaInfo)) {
                               SmartDialog.showToast('歌曲已在歌单中');
                             } else {
                               audioController.settingsService.addMusicToAlbum(item.id, audioController.playlist);
@@ -408,11 +408,11 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
       });
     }
     final deltaRatio = -clampedDelta / _barHeight;
-    final newVolume = (audioController.currentVolumn.value + deltaRatio).clamp(0.0, 1.0);
+    final newVolume = (audioController.currentVolume.value + deltaRatio).clamp(0.0, 1.0);
 
-    if (newVolume != audioController.currentVolumn.value) {
+    if (newVolume != audioController.currentVolume.value) {
       setState(() {
-        audioController.currentVolumn.value = double.parse(newVolume.toStringAsFixed(2));
+        audioController.currentVolume.value = double.parse(newVolume.toStringAsFixed(2));
       });
       audioController.setVolume(newVolume);
       _overlayEntry?.markNeedsBuild();
@@ -422,7 +422,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
   }
 
   Widget _buildVolumeBar() {
-    final sliderPosition = (audioController.currentVolumn.value * _barHeight).clamp(10, _barHeight - 25).toDouble();
+    final sliderPosition = (audioController.currentVolume.value * _barHeight).clamp(10, _barHeight - 25).toDouble();
     return GestureDetector(
       onVerticalDragUpdate: _handleVolumeDrag,
       onTap: _hideVolumeBar,
@@ -493,9 +493,9 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
 
   IconData getVolumeIcon() {
     IconData iconData;
-    iconData = audioController.currentVolumn.value <= 0
+    iconData = audioController.currentVolume.value <= 0
         ? Icons.volume_off
-        : audioController.currentVolumn.value < 0.5
+        : audioController.currentVolume.value < 0.5
             ? Icons.volume_down
             : Icons.volume_up;
     return iconData;

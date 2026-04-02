@@ -41,7 +41,7 @@ class SearchMusicController extends BasePageController with GetSingleTickerProvi
     }
     BiliBiliSite()
         .getSearchVideoLists(searchController.text, orderList[index.value], page: 1)
-        .then((VideoSaerchResult value) {
+        .then((VideoSearchResult value) {
       list.value = value.items;
       canLoadMore.value = value.hasMore;
     });

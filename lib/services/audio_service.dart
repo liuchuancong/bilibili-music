@@ -37,7 +37,7 @@ class AudioController extends GetxController {
   final isPlaying = false.obs;
   final showLyric = false.obs;
   final isFavorite = false.obs;
-  final currentVolumn = 1.0.obs;
+  final currentVolume = 1.0.obs;
   int get currentIndex => settingsService.currentMediaIndex.value;
   final playMode = PlayMode.listLoop.obs; // 默认播放模式为列表循环
   final currentMusicDuration = const Duration(seconds: 0).obs;
@@ -130,7 +130,7 @@ class AudioController extends GetxController {
         );
       });
     }
-    currentVolumn.listen((value) {
+    currentVolume.listen((value) {
       double localVolume = settingsService.volume.value;
       if (localVolume != value) {
         settingsService.volume.value = value;
@@ -146,7 +146,6 @@ class AudioController extends GetxController {
     } else {
       player.dispose();
     }
-    _audioPlayer.dispose();
   }
 
   void setPlaylist(List<LiveMediaInfo> urls) {
@@ -196,7 +195,7 @@ class AudioController extends GetxController {
             play: isAutoPlay,
           );
           await getVolume();
-          await setVolume(currentVolumn.value);
+          await setVolume(currentVolume.value);
         }
         isMusicFirstLoad.value = false;
         if (isAutoPlay) {
@@ -204,7 +203,7 @@ class AudioController extends GetxController {
             Timer(const Duration(seconds: 1), () async {
               await _audioPlayer.play();
               await getVolume();
-              await setVolume(currentVolumn.value);
+              await setVolume(currentVolume.value);
             });
           }
         }
@@ -256,12 +255,12 @@ class AudioController extends GetxController {
     double localVolume = settingsService.volume.value;
     if (localVolume == 0.0) {
       if (Platform.isWindows) {
-        currentVolumn.value = player.state.volume / 100;
+        currentVolume.value = player.state.volume / 100;
       } else {
-        currentVolumn.value = (await FlutterVolumeController.getVolume())!;
+        currentVolume.value = (await FlutterVolumeController.getVolume())!;
       }
     } else {
-      currentVolumn.value = localVolume;
+      currentVolume.value = localVolume;
     }
   }
 
@@ -270,7 +269,7 @@ class AudioController extends GetxController {
     FlutterVolumeController.addListener((volume) {
       // 音量变化时的回调
       if (Platform.isAndroid) {
-        currentVolumn.value = volume;
+        currentVolume.value = volume;
       }
     });
   }
@@ -490,7 +489,7 @@ class AudioController extends GetxController {
                                   style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
-                                      color: settingsService.isCurrentMediia(item)
+                                      color: settingsService.isCurrentMedia(item)
                                           ? Theme.of(context).colorScheme.primary
                                           : Colors.black)),
                             ),
