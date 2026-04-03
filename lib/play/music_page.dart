@@ -189,7 +189,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
             child: IconButton(
               padding: const EdgeInsets.all(18.0),
               onPressed: () {
-                Get.back();
+                Navigator.of(Get.context!).pop();
               },
               icon: const Icon(
                 Icons.navigate_before,

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/plugins/http_client.dart';
-import 'package:bilibilimusic/utils/hive_pref_util.dart';
 import 'package:bilibilimusic/models/bili_user_profile.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -16,10 +15,9 @@ class BiliBiliAccountService extends GetxController {
   var cookie = "".obs;
   var uid = 0;
   var name = "未登录,请先登录哔哩哔哩".obs;
-  static const String kBilibiliCookie = "bilibiliCookie";
   @override
   void onInit() {
-    cookie.value = HivePrefUtil.getString(kBilibiliCookie) ?? '';
+    cookie.value = settingsService.bilibiliCookie.value;
     logined.value = cookie.isNotEmpty;
     loadUserInfo();
     super.onInit();
@@ -67,7 +65,7 @@ class BiliBiliAccountService extends GetxController {
     cookie.value = "";
     uid = 0;
     name.value = "未登录";
-    HivePrefUtil.setString(kBilibiliCookie, '');
+    settingsService.bilibiliCookie.value = "";
     logined.value = false;
     CookieManager cookieManager = CookieManager.instance();
     await cookieManager.deleteAllCookies();

@@ -64,7 +64,7 @@ class SettingsPage extends GetView<AppSettingsService> {
             Obx(
               () => SwitchListTile(
                 title: Text("后台播放"),
-                subtitle: Text("enable_background_play_subtitle"),
+                subtitle: Text("当暂时切出APP时，允许后台播放"),
                 value: controller.enableBackgroundPlay.value,
                 activeThumbColor: Theme.of(context).colorScheme.primary,
                 onChanged: (bool value) async {

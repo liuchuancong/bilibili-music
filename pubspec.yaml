@@ -49,7 +49,6 @@ dependencies:
   flutter_inappwebview: ^6.2.0-beta.2
   http: ^1.2.1
   marquee_list: ^1.0.0
-  parallax_cards: ^1.0.2
   crypto: ^3.0.3
   screen_brightness: ^2.0.0+2
   flutter_volume_controller: ^1.2.7
@@ -64,8 +63,6 @@ dependencies:
   audio_service: ^0.18.18
   window_manager: ^0.5.1
   windows_single_instance: ^1.0.1
-  flutter_animate: ^4.5.0
-  toggle_switch: ^2.3.0
   font_awesome_flutter: ^11.0.0
   uuid: ^4.4.2
   ripple_wave: ^0.1.5

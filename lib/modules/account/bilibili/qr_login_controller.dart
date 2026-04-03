@@ -84,7 +84,7 @@ class BiliBiliQRLoginController extends GetxController {
           var cookieStr = cookies.join(";");
           BiliBiliAccountService.instance.setCookie(cookieStr);
           await BiliBiliAccountService.instance.loadUserInfo();
-          Get.back();
+          Navigator.of(Get.context!).pop();
         }
       } else if (code == 86038) {
         qrStatus.value = QRStatus.expired;
