@@ -75,7 +75,9 @@ class BottomMusicControl extends GetWidget<AudioController> {
                     children: [
                       Row(
                         children: [
-                          Expanded(
+                          Flexible(
+                            flex: 1,
+                            fit: FlexFit.tight,
                             child: ListTile(
                               splashColor: Colors.transparent,
                               tileColor: Colors.transparent,
@@ -169,10 +171,12 @@ class BottomMusicControl extends GetWidget<AudioController> {
                               },
                             ),
                           ),
-                          SizedBox(
-                            width: 150,
+                          Flexible(
+                            fit: FlexFit.loose,
                             child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
                                   padding: EdgeInsets.zero,
@@ -187,7 +191,6 @@ class BottomMusicControl extends GetWidget<AudioController> {
                                 const SizedBox(width: 2),
                                 Obx(
                                   () => Container(
-                                    // 1. 这里的装饰保持不变，增加一点发光感
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: Colors.white,
@@ -222,7 +225,7 @@ class BottomMusicControl extends GetWidget<AudioController> {
                                   ),
                                   onPressed: controller.next,
                                 ),
-                                const SizedBox(width: 6),
+                                const SizedBox(width: 2),
                                 Obx(
                                   () => IconButton(
                                     padding: EdgeInsets.zero,
