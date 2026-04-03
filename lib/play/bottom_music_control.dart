@@ -174,17 +174,17 @@ class BottomMusicControl extends GetWidget<AudioController> {
                             mainAxisAlignment: MainAxisAlignment.end,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              IconButton(
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                                icon: const Icon(
+                              // 上一曲
+                              GestureDetector(
+                                onTap: controller.previous,
+                                child: const Icon(
                                   Icons.skip_previous_rounded,
                                   size: 26,
                                   color: Colors.white,
                                 ),
-                                onPressed: controller.previous,
                               ),
                               const SizedBox(width: 2),
+
                               Obx(
                                 () => Container(
                                   decoration: BoxDecoration(
@@ -211,31 +211,29 @@ class BottomMusicControl extends GetWidget<AudioController> {
                                 ),
                               ),
                               const SizedBox(width: 2),
-                              IconButton(
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                                icon: const Icon(
+
+                              GestureDetector(
+                                onTap: controller.next,
+                                child: const Icon(
                                   Icons.skip_next_rounded,
                                   size: 26,
                                   color: Colors.white,
                                 ),
-                                onPressed: controller.next,
                               ),
                               const SizedBox(width: 2),
+
                               Obx(
-                                () => IconButton(
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                  icon: Icon(
+                                () => GestureDetector(
+                                  onTap: () {
+                                    controller.toggleFavorite();
+                                  },
+                                  child: Icon(
                                     controller.isFavorite.value
                                         ? Icons.favorite_rounded
                                         : Icons.favorite_border_rounded,
                                     size: 24,
-                                    color: controller.isFavorite.value ? Color(0xFFFF3A3A) : Colors.white70,
+                                    color: controller.isFavorite.value ? const Color(0xFFFF3A3A) : Colors.white70,
                                   ),
-                                  onPressed: () {
-                                    controller.toggleFavorite();
-                                  },
                                 ),
                               ),
                             ],
