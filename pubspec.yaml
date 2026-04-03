@@ -46,7 +46,7 @@ dependencies:
   share_handler: ^0.0.19
   flutter_smart_dialog: ^5.1.0 #各种弹窗 Toast/Dialog/Popup
   easy_refresh: ^3.4.0
-  flutter_inappwebview: ^6.2.0-beta.2
+  flutter_inappwebview: ^6.2.0-beta.3
   http: ^1.2.1
   marquee_list: ^1.0.0
   crypto: ^3.0.3

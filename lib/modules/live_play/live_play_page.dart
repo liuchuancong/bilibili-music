@@ -44,8 +44,6 @@ class LivePlayPage extends GetView<LivePlayController> {
           child: mainUI,
         );
       }
-
-      // 正常模式 → 显示 AppBar（解决 Android 无返回栏）
       Widget mainUI = Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
