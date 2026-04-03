@@ -1,7 +1,7 @@
 name: bilibilimusic
 description: "使用B站API获取音乐数据，并播放音乐"
 version: 1.0.7+7
-
+publish_to: none
 environment:
   sdk: '>=3.4.0 <4.0.0'
 dependencies:
@@ -71,6 +71,18 @@ dependencies:
   flutter_acrylic: ^1.1.4
   bitsdojo_window: ^0.1.6
   win32: ^5.15.0
+  auto_orientation_v2: ^2.3.6
+  screen_retriever:
+    git:
+      url: https://github.com/MSOB7YY/screen_retriever.git
+      path: ./packages/screen_retriever
+      ref: main
+dependency_overrides:
+  screen_retriever:
+     git:
+      url: https://github.com/MSOB7YY/screen_retriever.git
+      path: ./packages/screen_retriever
+      ref: main
 dev_dependencies:
   flutter_test:
     sdk: flutter

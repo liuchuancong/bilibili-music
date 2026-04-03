@@ -31,7 +31,6 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
   void initState() {
     super.initState();
     if (Platform.isWindows) {
-      windowManager.addListener(this);
       _init();
     }
   }
@@ -57,7 +56,9 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
 
   @override
   void dispose() {
-    windowManager.removeListener(this);
+    if (PlatformUtils.isDesktop) {
+      DesktopManager.disposeListeners();
+    }
     super.dispose();
   }
 

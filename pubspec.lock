@@ -65,6 +65,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.3"
+  auto_orientation_v2:
+    dependency: "direct main"
+    description:
+      name: auto_orientation_v2
+      sha256: b246e1658b752ac3a882fb8bb1192309ef587e6ffeefa80bf414283fbcd4e2e3
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.3.7"
   battery_plus:
     dependency: "direct main"
     description:
@@ -1265,12 +1273,13 @@ packages:
     source: hosted
     version: "2.1.0"
   screen_retriever:
-    dependency: transitive
+    dependency: "direct main"
     description:
-      name: screen_retriever
-      sha256: "570dbc8e4f70bac451e0efc9c9bb19fa2d6799a11e6ef04f946d7886d2e23d0c"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "packages/screen_retriever"
+      ref: main
+      resolved-ref: b246b3963738d6cc159c921764c194c73dbdf2ad
+      url: "https://github.com/MSOB7YY/screen_retriever.git"
+    source: git
     version: "0.2.0"
   screen_retriever_linux:
     dependency: transitive

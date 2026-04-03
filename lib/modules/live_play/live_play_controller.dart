@@ -6,6 +6,8 @@ import 'package:bilibilimusic/models/video_media_info.dart';
 import 'package:bilibilimusic/services/settings_service.dart';
 import 'package:bilibilimusic/modules/live_play/widgets/video_player/video_controller.dart';
 
+enum VideoMode { normal, fullscreen }
+
 class LivePlayController extends StateController {
   // 控制唯一子组件
   VideoController? videoController;
@@ -16,6 +18,8 @@ class LivePlayController extends StateController {
   var success = false.obs;
   int lastExitTime = 0;
   int position = 0;
+  final screenMode = VideoMode.normal.obs;
+
   final AudioController audioController = Get.find<AudioController>();
   late VideoPlaySource videoInfoData;
   @override
@@ -36,6 +40,14 @@ class LivePlayController extends StateController {
     }
     audioController.play();
     super.onClose();
+  }
+
+  void setNormalScreen() {
+    screenMode.value = VideoMode.normal;
+  }
+
+  void setFullScreen() {
+    screenMode.value = VideoMode.fullscreen;
   }
 
   Future onInitPlayer() async {

@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart';
+import 'package:bilibilimusic/play/fullscreen.dart';
+import 'package:bilibilimusic/play/player_state.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:bilibilimusic/models/video_media_info.dart';
@@ -27,10 +29,8 @@ class VideoController with ChangeNotifier {
   LivePlayController livePlayController = Get.find<LivePlayController>();
   // Battery level control
   final batteryLevel = 100.obs;
-  final showController = true.obs;
   final hasError = false.obs;
   final isPlaying = false.obs;
-  Timer? showControllerTimer;
   final isMuted = false.obs;
   final hasDestory = false.obs;
   var duration = 0.obs;
@@ -42,13 +42,6 @@ class VideoController with ChangeNotifier {
   // CeoController] to handle video output from [Player].
   late media_kit_video.VideoController mediaPlayerController;
   late final GlobalKey<media_kit_video.VideoState> key = GlobalKey<media_kit_video.VideoState>();
-  void enableController() {
-    showControllerTimer?.cancel();
-    showControllerTimer = Timer(const Duration(seconds: 3), () {
-      showController.value = false;
-    });
-    showController.value = true;
-  }
 
   void initVideoController() async {
     FlutterVolumeController.updateShowSystemUI(false);
@@ -106,21 +99,16 @@ class VideoController with ChangeNotifier {
     player.open(Media(videoInfoData.url, httpHeaders: headers));
   }
 
-  String zeroFill(int i) {
-    return i >= 10 ? "$i" : "0$i";
-  }
-
-  String second2HMS(int sec, {bool isEasy = true}) {
-    String hms = "00:00:00";
-    if (!isEasy) hms = "00时00分00秒";
-    if (sec > 0) {
-      int h = sec ~/ 3600;
-      int m = (sec % 3600) ~/ 60;
-      int s = sec % 60;
-      hms = "${zeroFill(h)}:${zeroFill(m)}:${zeroFill(s)}";
-      if (!isEasy) hms = "${zeroFill(h)}时${zeroFill(m)}分${zeroFill(s)}秒";
+  void toggleFullScreen() async {
+    if (GlobalPlayerState.to.isFullscreen.value) {
+      livePlayController.setNormalScreen();
+      WindowService().doExitWindowFullScreen();
+      GlobalPlayerState.to.isFullscreen.value = false;
+    } else {
+      livePlayController.setFullScreen();
+      WindowService().doEnterWindowFullScreen();
+      GlobalPlayerState.to.isFullscreen.value = true;
     }
-    return hms;
   }
 
   Future<void> toggleMute() async {
@@ -137,9 +125,18 @@ class VideoController with ChangeNotifier {
   }
 
   Future<void> destory() async {
-    if (key.currentState?.isFullscreen() ?? false) {
-      key.currentState?.exitFullscreen();
+    if (Platform.isAndroid || Platform.isIOS) {
+      if (key.currentState?.isFullscreen() ?? false) {
+        key.currentState?.exitFullscreen();
+      }
+    } else {
+      if (GlobalPlayerState.to.isFullscreen.value) {
+        WindowService().doExitWindowFullScreen();
+        GlobalPlayerState.to.isFullscreen.value = false;
+        livePlayController.setNormalScreen();
+      }
     }
+
     player.dispose();
     isPlaying.value = false;
     hasDestory.value = true;

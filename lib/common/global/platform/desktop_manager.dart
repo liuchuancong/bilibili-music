@@ -1,11 +1,13 @@
 import 'dart:io';
 import 'dart:ui';
 import 'dart:async';
+import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:bilibilimusic/plugins/utils.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:bilibilimusic/play/player_state.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:bilibilimusic/common/global/platform_utils.dart';
@@ -21,8 +23,8 @@ class DesktopManager {
       await Window.initialize();
 
       const WindowOptions windowOptions = WindowOptions(
-        size: Size(1080, 720),
-        minimumSize: Size(400, 300),
+        size: Size(420, 820),
+        minimumSize: Size(300, 620),
         center: true,
         backgroundColor: Colors.transparent,
         skipTaskbar: false,
@@ -57,8 +59,8 @@ class DesktopManager {
       if (PlatformUtils.isWindows) {
         doWhenWindowReady(() {
           final win = appWindow;
-          win.size = const Size(1080, 720);
-          win.minSize = const Size(400, 300);
+          win.size = const Size(420, 820);
+          win.minSize = const Size(300, 620);
           win.alignment = Alignment.center;
           win.show();
           if (Platform.isWindows) {
@@ -99,15 +101,18 @@ class DesktopManager {
   }
 
   static Widget buildWithTitleBar(Widget? child) {
-    if (!PlatformUtils.isWindows) {
-      return child ?? const SizedBox.shrink();
-    }
-    return Column(
-      children: [
-        const CustomTitleBar(),
-        if (child != null) Expanded(child: child),
-      ],
-    );
+    return Obx(() {
+      bool fullscreen = GlobalPlayerState.to.isFullscreen.value;
+      if (!PlatformUtils.isWindows) {
+        return child ?? const SizedBox.shrink();
+      }
+      return Column(
+        children: [
+          if (!fullscreen) const CustomTitleBar(),
+          if (child != null) Expanded(child: child),
+        ],
+      );
+    });
   }
 
   static Future<void> _initTray() async {
@@ -315,11 +320,7 @@ class _MaximizeButton extends StatelessWidget {
 mixin DesktopWindowMixin<T extends StatefulWidget> on State<T> implements WindowListener, TrayListener {
   @override
   void onWindowClose() {
-    // 临时仅在 macOS 上处理系统标题栏关闭按钮事件，避免其他桌面端窗口管理行为差异。
     if (!Platform.isMacOS) return;
-
-    // 桌面端默认拦截关闭事件（preventClose=true），这里统一走退出/最小化逻辑，
-    // 避免 macOS 点击关闭按钮无响应。
     unawaited(
       DesktopManager.handleWindowClose().catchError((e, _) {
         debugPrint('处理关闭窗口失败: $e');

@@ -6,6 +6,7 @@ import 'package:bilibilimusic/common/index.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:bilibilimusic/plugins/global.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:bilibilimusic/play/player_state.dart';
 import 'package:bilibilimusic/utils/hive_pref_util.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:bilibilimusic/services/audio_service.dart';
@@ -111,9 +112,10 @@ class AppInitializer {
   }
 
   void initService() {
-    Get.put(AppSettingsService());
-    Get.put(BiliBiliAccountService());
-    Get.put(AudioController());
+    Get.put(AppSettingsService(), permanent: true);
+    Get.put(BiliBiliAccountService(), permanent: true);
+    Get.put(AudioController(), permanent: true);
+    Get.put(GlobalPlayerState(), permanent: true);
   }
 
   bool get isInitialized => _isInitialized;
