@@ -8,8 +8,8 @@ class BackgroundService {
     // 配置通知栏样式
     FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
-        channelId: 'pure_live_service',
-        channelName: 'Pure Live Background Service',
+        channelId: 'bilibili_music_background_service',
+        channelName: 'Bilibili Music Background Service',
         channelDescription: 'This notification appears when the foreground service is running.',
         showWhen: true,
         priority: NotificationPriority.LOW,

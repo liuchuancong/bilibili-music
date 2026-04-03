@@ -166,13 +166,13 @@ jobs:
           # Find and rename .exe
           $EXE_FILE = Get-ChildItem $DIST_DIR -Recurse -Filter "*.exe" | Select-Object -First 1
           if ($EXE_FILE) {
-            Copy-Item $EXE_FILE.FullName "PureLive-$VERSION-windows-x64-setup.exe"
+            Copy-Item $EXE_FILE.FullName "BilibiliMusic-$VERSION-windows-x64-setup.exe"
           }
 
           # Find and rename .msix
           $MSIX_FILE = Get-ChildItem $DIST_DIR -Recurse -Filter "*.msix" | Select-Object -First 1
           if ($MSIX_FILE) {
-            Copy-Item $MSIX_FILE.FullName "PureLive-$VERSION-windows-x64.msix"
+            Copy-Item $MSIX_FILE.FullName "BilibiliMusic-$VERSION-windows-x64.msix"
           }
 
       - name: 上传Windows安装包（exe + msix）
@@ -180,8 +180,8 @@ jobs:
         with:
           name: windows-installer
           path: |
-            PureLive-${{ steps.get_version.outputs.version }}-windows-x64-setup.exe
-            PureLive-${{ steps.get_version.outputs.version }}-windows-x64.msix
+            BilibiliMusic-${{ steps.get_version.outputs.version }}-windows-x64-setup.exe
+            BilibiliMusic-${{ steps.get_version.outputs.version }}-windows-x64.msix
           retention-days: 1
 
   publish-release:
@@ -217,24 +217,8 @@ jobs:
 
           |版本|下载地址|
           |---|---|
-          |TV版|[pure_live_TV](https://github.com/liuchuancong/pure_live_TV/releases/latest)|
-          |Windows/macOS/Android版|[pure_live](https://github.com/liuchuancong/pure_live/releases/latest)|
-
-          ### 🖥️ Windows 版
-          - **EXE 安装包**：适合所有用户，自动创建快捷方式
-          - **MSIX 包**：现代应用格式，支持干净卸载（需 Windows 10/11）
-          - 适配：Win10/11 (x64)，自动创建桌面快捷方式
-          - 功能：多直播源、WebDAV、弹幕显示
-          - 快捷键：空格(播放/暂停) \| ESC(全屏切换) \| 上下键(音量) \| R(刷新)
-
-          ### 🍎 macOS 版
-          感谢 RebornQ 开发 | 适配：macOS 10.15+ (x64) | 同 Windows 核心功能
-
-          ### 📱 Android 版
-          适配：Android 6.0+ | 功能：WebDAV、多播放器切换、弹幕、应用内更新
-
-          ### 📺 TV 版
-          适配：Android TV 6.0+ | 功能：直播源同步、多播放器、弹幕、应用内更新
+          |Android|[bilibili-music](https://github.com/liuchuancong/bilibili-music/releases/latest)|
+          |Windows/macOS/Android版|[bilibili-music](https://github.com/liuchuancong/bilibili-music/releases/latest)|
 
           ### 📝 本次更新
           ${{ fromJson(steps.version.outputs.content).version_desc }}
@@ -254,8 +238,6 @@ jobs:
             artifacts/android-apks/app-x86_64-release.apk
             artifacts/windows-installer/*.exe
             artifacts/windows-installer/*.msix
-            artifacts/macos-dmg/*.dmg
-
       - name: 输出状态
         if: always()
         run: 'echo "✅ Release published with status: ${{ job.status }}"'

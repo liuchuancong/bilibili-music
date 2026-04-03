@@ -1,8 +1,8 @@
 display_name: BilibiliMusic
-msix_version: 1.2.0.14
+msix_version: 1.1.0.8
 publisher: "O=puretech.com, S=Some-State, C=CN"
-identity_name: com.mystyle.purelive
-logo_path: assets/icons/icon.png
+identity_name: com.mystyle.bilibili.music
+logo_path: assets/icons/app_icon.png
 capabilities: internetClient
 languages: zh-cn
 install_certificate: "false"
