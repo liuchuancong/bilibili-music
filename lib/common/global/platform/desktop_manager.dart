@@ -23,7 +23,7 @@ class DesktopManager {
       await Window.initialize();
 
       const WindowOptions windowOptions = WindowOptions(
-        size: Size(420, 820),
+        size: Size(420, 720),
         minimumSize: Size(300, 620),
         center: true,
         backgroundColor: Colors.transparent,
@@ -59,7 +59,7 @@ class DesktopManager {
       if (PlatformUtils.isWindows) {
         doWhenWindowReady(() {
           final win = appWindow;
-          win.size = const Size(420, 820);
+          win.size = const Size(420, 720);
           win.minSize = const Size(300, 620);
           win.alignment = Alignment.center;
           win.show();

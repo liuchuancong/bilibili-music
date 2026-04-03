@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:bilibilimusic/style/theme.dart';
 import 'package:bilibilimusic/common/index.dart';
-import 'package:window_manager/window_manager.dart';
 import 'package:bilibilimusic/routes/app_pages.dart';
 import 'package:bilibilimusic/routes/route_path.dart';
 import 'package:bilibilimusic/common/global/initialized.dart';
