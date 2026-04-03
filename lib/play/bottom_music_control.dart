@@ -75,9 +75,7 @@ class BottomMusicControl extends GetWidget<AudioController> {
                     children: [
                       Row(
                         children: [
-                          Flexible(
-                            flex: 1,
-                            fit: FlexFit.tight,
+                          Expanded(
                             child: ListTile(
                               splashColor: Colors.transparent,
                               tileColor: Colors.transparent,
@@ -171,79 +169,76 @@ class BottomMusicControl extends GetWidget<AudioController> {
                               },
                             ),
                           ),
-                          Flexible(
-                            fit: FlexFit.loose,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                icon: const Icon(
+                                  Icons.skip_previous_rounded,
+                                  size: 26,
+                                  color: Colors.white,
+                                ),
+                                onPressed: controller.previous,
+                              ),
+                              const SizedBox(width: 2),
+                              Obx(
+                                () => Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.white,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFFFF3A3A).withValues(alpha: 0.3),
+                                        blurRadius: 10,
+                                        spreadRadius: 1,
+                                      )
+                                    ],
+                                  ),
+                                  child: GestureDetector(
+                                    onTap: () => controller.isPlaying.value ? controller.pause() : controller.play(),
+                                    child: Icon(
+                                      controller.isPlaying.value
+                                          ? Icons.pause_circle_filled_rounded
+                                          : Icons.play_circle_fill_rounded,
+                                      size: 36,
+                                      color: const Color(0xFFFF3A3A),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 2),
+                              IconButton(
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                icon: const Icon(
+                                  Icons.skip_next_rounded,
+                                  size: 26,
+                                  color: Colors.white,
+                                ),
+                                onPressed: controller.next,
+                              ),
+                              const SizedBox(width: 2),
+                              Obx(
+                                () => IconButton(
                                   padding: EdgeInsets.zero,
                                   constraints: const BoxConstraints(),
-                                  icon: const Icon(
-                                    Icons.skip_previous_rounded,
-                                    size: 26,
-                                    color: Colors.white,
+                                  icon: Icon(
+                                    controller.isFavorite.value
+                                        ? Icons.favorite_rounded
+                                        : Icons.favorite_border_rounded,
+                                    size: 24,
+                                    color: controller.isFavorite.value ? Color(0xFFFF3A3A) : Colors.white70,
                                   ),
-                                  onPressed: controller.previous,
+                                  onPressed: () {
+                                    controller.toggleFavorite();
+                                  },
                                 ),
-                                const SizedBox(width: 2),
-                                Obx(
-                                  () => Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: const Color(0xFFFF3A3A).withValues(alpha: 0.3),
-                                          blurRadius: 10,
-                                          spreadRadius: 1,
-                                        )
-                                      ],
-                                    ),
-                                    child: GestureDetector(
-                                      onTap: () => controller.isPlaying.value ? controller.pause() : controller.play(),
-                                      child: Icon(
-                                        controller.isPlaying.value
-                                            ? Icons.pause_circle_filled_rounded
-                                            : Icons.play_circle_fill_rounded,
-                                        size: 36,
-                                        color: const Color(0xFFFF3A3A),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 2),
-                                IconButton(
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                  icon: const Icon(
-                                    Icons.skip_next_rounded,
-                                    size: 26,
-                                    color: Colors.white,
-                                  ),
-                                  onPressed: controller.next,
-                                ),
-                                const SizedBox(width: 2),
-                                Obx(
-                                  () => IconButton(
-                                    padding: EdgeInsets.zero,
-                                    constraints: const BoxConstraints(),
-                                    icon: Icon(
-                                      controller.isFavorite.value
-                                          ? Icons.favorite_rounded
-                                          : Icons.favorite_border_rounded,
-                                      size: 24,
-                                      color: controller.isFavorite.value ? Color(0xFFFF3A3A) : Colors.white70,
-                                    ),
-                                    onPressed: () {
-                                      controller.toggleFavorite();
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
