@@ -81,6 +81,7 @@ dependencies:
   bitsdojo_window: ^0.1.6
   win32: ^5.15.0
   auto_orientation_v2: ^2.3.6
+  mini_music_visualizer: ^1.1.4
   screen_retriever:
     git:
       url: https://github.com/MSOB7YY/screen_retriever.git

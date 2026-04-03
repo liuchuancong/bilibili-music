@@ -2,10 +2,10 @@ import 'package:get/get.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/plugins/utils.dart';
 import 'package:bilibilimusic/routes/route_path.dart';
+import 'package:bilibilimusic/widgets/music_card.dart';
 import 'package:bilibilimusic/widgets/empty_view.dart';
 import 'package:bilibilimusic/widgets/menu_button.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
-import 'package:bilibilimusic/modules/search/search_page.dart';
 import 'package:bilibilimusic/modules/home/home_controller.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
@@ -82,7 +82,7 @@ class MuiscGridView extends GetView<HomeController> {
                 child: ListView.builder(
                   itemCount: controller.settingsService.musicPlaylists.length,
                   itemBuilder: (context, index) {
-                    return RoomCard(
+                    return MusicCard(
                       bilibiliVideo: controller.settingsService.musicPlaylists[index],
                       isVideo: false,
                       showTrailing: true,
