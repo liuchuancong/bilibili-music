@@ -150,9 +150,14 @@ bool Win32Window::Create(const std::wstring& title,
 }
 
 bool Win32Window::Show() {
-  return ShowWindow(window_handle_, SW_SHOWNORMAL);
+  // 1. 获取程序启动时的信息
+  STARTUPINFO si;
+  GetStartupInfo(&si);
+  int show_command = (si.dwFlags & STARTF_USESHOWWINDOW) 
+                     ? si.wShowWindow 
+                     : SW_SHOWNORMAL;
+  return ShowWindow(window_handle_, show_command);
 }
-
 // static
 LRESULT CALLBACK Win32Window::WndProc(HWND const window,
                                       UINT const message,

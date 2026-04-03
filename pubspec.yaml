@@ -126,9 +126,15 @@ dependency_overrides:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  change_app_package_name: any
+  json_serializable: ^6.7.1
+  build_runner: ^2.3.3
+  protoc_builder: ^0.4.1
+  flutter_launcher_icons: ^0.14.4
+  msix: ^3.16.12
+  intl_utils: ^2.8.11
   flutter_lints: ^6.0.0
-  flutter_launcher_icons: ^0.14.3  # 添加插件
-  msix: ^3.16.7
+  dmg: ^0.1.7
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: false
@@ -144,12 +150,3 @@ flutter:
     - assets/images/
     - assets/icons/
 
-msix_config:
-  display_name: Bilibili Music
-  # publisher_display_name: puretech.com
-  # identity_name: com.puretech.purelive
-  msix_version: 1.0.0.7
-  logo_path: assets/images/bilibili_2.png
-  # capabilities: internetClient
-  certificate_path: assets/keystore/CERTIFICATE.pfx
-  certificate_password: xxxx
