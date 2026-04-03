@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
@@ -361,7 +362,7 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
     _overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
         left: position.dx + (renderBox.size.width - 40) / 2,
-        top: position.dy - _barHeight - 38,
+        top: position.dy - _barHeight - (Platform.isAndroid ? 10 : 38),
         width: 40,
         height: _barHeight,
         child: _buildVolumeBar(),
