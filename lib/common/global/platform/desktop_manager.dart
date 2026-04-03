@@ -128,7 +128,7 @@ class DesktopManager {
   static Future<void> updateTray() async {
     if (!PlatformUtils.isDesktop) return;
 
-    await trayManager.setToolTip('纯粹直播');
+    await trayManager.setToolTip('BilibiliMusic');
     try {
       bool isWindowVisible = await windowManager.isVisible();
       Menu menu = Menu(

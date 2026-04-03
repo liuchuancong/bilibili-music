@@ -210,7 +210,7 @@ jobs:
         id: release_body
         run: |
           cat << 'EOF' > release_body.txt
-          # 纯粹直播 ${{ github.ref_name }}
+          # BilibiliMusic ${{ github.ref_name }}
 
           开源无广告、无病毒，杀毒软件误报可自行斟酌使用。
           ### 📥 快速下载

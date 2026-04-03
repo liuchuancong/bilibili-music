@@ -90,7 +90,7 @@ class _MyAppState extends State<MyApp> with DesktopWindowMixin {
           },
         ),
         initialRoute: RoutePath.kInitial,
-        defaultTransition: Transition.native,
+        defaultTransition: Transition.cupertino,
         getPages: AppPages.routes,
       );
     });
