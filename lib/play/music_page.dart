@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
-import 'package:ripple_wave/ripple_wave.dart';
 import 'package:marquee_list/marquee_list.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/core/bilibili_site.dart';
@@ -9,11 +8,11 @@ import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:bilibilimusic/routes/app_navigation.dart';
 import 'package:bilibilimusic/play/blur_back_ground.dart';
 import 'package:bilibilimusic/services/audio_service.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:bilibilimusic/play/lyric/lyrics_reader_model.dart';
 import 'package:bilibilimusic/play/lyric/lyric_ui/ui_netease.dart';
 import 'package:bilibilimusic/play/lyric/lyrics_model_builder.dart';
 import 'package:bilibilimusic/play/lyric/lyrics_reader_widget.dart';
+import 'package:bilibilimusic/play/animations/music_ripple_player.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 
 class MusicPage extends StatefulWidget {
@@ -458,37 +457,19 @@ class MusicPageWidgetState extends State<MusicPage> with TickerProviderStateMixi
   }
 
   Widget _buildImage() {
-    double expandedSize = Get.width;
-    return GestureDetector(
-      onTap: setLyricState,
-      child: SizedBox(
-        width: expandedSize * 0.8,
-        height: expandedSize * 0.8,
-        child: RippleWave(
-          childTween: Tween(begin: 1, end: 1.0),
-          color: Colors.white.withValues(alpha: 0.5),
-          repeat: true,
-          waveCount: 4,
-          animationController: waveController,
-          child: SizedBox(
-            width: 200,
-            height: 200,
-            child: Obx(() => ClipRRect(
-                  borderRadius: BorderRadius.circular(200),
-                  child: audioController.currentMusicInfo.value.artUri!.toString().isNotEmpty
-                      ? CachedNetworkImage(
-                          imageUrl: audioController.currentMusicInfo.value.artUri.toString(),
-                          fit: BoxFit.cover,
-                        )
-                      : CachedNetworkImage(
-                          imageUrl: audioController.currentMediaInfo.face,
-                          fit: BoxFit.cover,
-                        ),
-                )),
-          ),
-        ),
-      ),
-    );
+    return Obx(() {
+      final artUri = audioController.currentMusicInfo.value.artUri?.toString() ?? "";
+      final faceUrl = audioController.currentMediaInfo.face;
+      final finalUrl = artUri.isNotEmpty ? artUri : faceUrl;
+
+      // 2. 使用封装好的组件
+      return MusicRipplePlayer(
+        imageUrl: finalUrl,
+        onTap: setLyricState, // 点击切换歌词/封面的逻辑
+        size: Get.width * 0.4,
+        animationController: waveController, // 封面大小
+      );
+    });
   }
 
   IconData getVolumeIcon() {
