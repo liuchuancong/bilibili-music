@@ -50,7 +50,7 @@ class WinFullscreen {
     GetMonitorInfo(monitor, info);
 
     // 4. 强制设置到 Monitor 坐标，不留任何余量
-    double offset = 10;
+    double offset = 7.5;
 
     SetWindowPos(
       hWnd,
