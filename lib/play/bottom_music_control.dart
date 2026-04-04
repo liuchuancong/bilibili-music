@@ -175,67 +175,79 @@ class BottomMusicControl extends GetWidget<AudioController> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               // 上一曲
-                              GestureDetector(
-                                onTap: controller.previous,
-                                child: const Icon(
-                                  Icons.skip_previous_rounded,
-                                  size: 26,
-                                  color: Colors.white,
+                              IconButton(
+                                onPressed: controller.previous,
+                                iconSize: 26,
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(), // 消除默认约束
+                                visualDensity: VisualDensity.compact, // 紧凑模式
+                                style: IconButton.styleFrom(
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap, // 关键：消除 Android 的 48dp 最小热区限制
                                 ),
+                                icon: const Icon(Icons.skip_previous_rounded, color: Colors.white),
                               ),
-                              const SizedBox(width: 2),
 
-                              Obx(
-                                () => Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.white,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color(0xFFFF3A3A).withValues(alpha: 0.3),
-                                        blurRadius: 10,
-                                        spreadRadius: 1,
-                                      )
-                                    ],
-                                  ),
-                                  child: GestureDetector(
+                              const SizedBox(width: 10), // 精确控制间距
+
+                              // 播放/暂停（保持您的自定义设计）
+                              Obx(() => GestureDetector(
                                     onTap: () => controller.isPlaying.value ? controller.pause() : controller.play(),
-                                    child: Icon(
-                                      controller.isPlaying.value
-                                          ? Icons.pause_circle_filled_rounded
-                                          : Icons.play_circle_fill_rounded,
-                                      size: 36,
-                                      color: const Color(0xFFFF3A3A),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.white,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: const Color(0xFFFF3A3A).withOpacity(0.3),
+                                            blurRadius: 10,
+                                            spreadRadius: 1,
+                                          )
+                                        ],
+                                      ),
+                                      child: Icon(
+                                        controller.isPlaying.value
+                                            ? Icons.pause_circle_filled_rounded
+                                            : Icons.play_circle_fill_rounded,
+                                        size: 36, // 稍微缩小一点点以适应整体比例
+                                        color: const Color(0xFFFF3A3A),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 2),
+                                  )),
 
-                              GestureDetector(
-                                onTap: controller.next,
-                                child: const Icon(
-                                  Icons.skip_next_rounded,
-                                  size: 26,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(width: 2),
+                              const SizedBox(width: 10),
 
-                              Obx(
-                                () => GestureDetector(
-                                  onTap: () {
-                                    controller.toggleFavorite();
-                                  },
-                                  child: Icon(
-                                    controller.isFavorite.value
-                                        ? Icons.favorite_rounded
-                                        : Icons.favorite_border_rounded,
-                                    size: 24,
-                                    color: controller.isFavorite.value ? const Color(0xFFFF3A3A) : Colors.white70,
-                                  ),
+                              // 下一曲
+                              IconButton(
+                                onPressed: controller.next,
+                                iconSize: 26,
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                visualDensity: VisualDensity.compact,
+                                style: IconButton.styleFrom(
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 ),
+                                icon: const Icon(Icons.skip_next_rounded, color: Colors.white),
                               ),
+
+                              const SizedBox(width: 10),
+
+                              // 收藏
+                              Obx(() => IconButton(
+                                    onPressed: () => controller.toggleFavorite(),
+                                    iconSize: 24,
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    visualDensity: VisualDensity.compact,
+                                    style: IconButton.styleFrom(
+                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    icon: Icon(
+                                      controller.isFavorite.value
+                                          ? Icons.favorite_rounded
+                                          : Icons.favorite_border_rounded,
+                                      color: controller.isFavorite.value ? const Color(0xFFFF3A3A) : Colors.white70,
+                                    ),
+                                  )),
                             ],
                           ),
                         ],
