@@ -83,6 +83,7 @@ dependencies:
   win32: ^5.15.0
   markdown_widget: ^2.3.2+8
   auto_orientation_v2: ^2.3.6
+  google_fonts: ^6.3.3
   mini_music_visualizer: ^1.1.4
   screen_retriever:
     git:
@@ -152,4 +153,8 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+  fonts:
+    - family: PingFang
+      fonts:
+        - asset: assets/PingFangSC.ttf
 
