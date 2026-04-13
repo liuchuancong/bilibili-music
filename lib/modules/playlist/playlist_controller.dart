@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:bilibilimusic/common/index.dart';
-import 'package:bilibilimusic/utils/event_bus.dart';
 import 'package:bilibilimusic/core/bilibili_site.dart';
 import 'package:bilibilimusic/models/bili_up_info.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
