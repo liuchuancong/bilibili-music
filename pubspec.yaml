@@ -1,6 +1,6 @@
 name: bilibilimusic
 description: "使用B站API获取音乐数据，并播放音乐"
-version: 1.0.8+8
+version: 1.0.9+9
 publish_to: none
 environment:
   sdk: '>=3.4.0 <4.0.0'

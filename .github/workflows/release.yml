@@ -217,8 +217,7 @@ jobs:
 
           |版本|下载地址|
           |---|---|
-          |Android|[bilibili-music](https://github.com/liuchuancong/bilibili-music/releases/latest)|
-          |Windows/macOS/Android版|[bilibili-music](https://github.com/liuchuancong/bilibili-music/releases/latest)|
+          |Android/Windows|[bilibili-music](https://github.com/liuchuancong/bilibili-music/releases/latest)|
 
           ### 📝 本次更新
           ${{ fromJson(steps.version.outputs.content).version_desc }}

@@ -1,5 +1,5 @@
 display_name: BilibiliMusic
-msix_version: 1.1.0.8
+msix_version: 1.1.0.9
 publisher: "O=puretech.com, S=Some-State, C=CN"
 identity_name: com.mystyle.bilibili.music
 logo_path: assets/icons/app_icon.png
