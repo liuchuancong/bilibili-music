@@ -40,7 +40,7 @@ class SearchPage extends GetView<SearchMusicController> {
           padding: EdgeInsets.zero,
           tabAlignment: TabAlignment.center,
           tabs: controller.tabList.map((e) => Tab(text: e)).toList(),
-          isScrollable: false,
+          isScrollable: true,
           indicatorSize: TabBarIndicatorSize.label,
         ),
       ),

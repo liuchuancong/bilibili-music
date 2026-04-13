@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:bilibilimusic/plugins/utils.dart';
-import 'package:bilibilimusic/utils/event_bus.dart';
 import 'package:bilibilimusic/routes/route_path.dart';
 import 'package:bilibilimusic/models/bilibili_video.dart';
 import 'package:bilibilimusic/models/video_media_info.dart';
@@ -17,10 +16,11 @@ class AppNavigator {
     required BilibiliVideoItem bilibiliVideo,
     required VideoMediaType mediaType,
   }) async {
-    Get.toNamed(RoutePath.kPlayList, arguments: [bilibiliVideo, mediaType], preventDuplicates: false);
-    Future.delayed(Duration(milliseconds: 20), () {
-      EventBus.instance.emit('toLiveRoomDetailList', [bilibiliVideo, mediaType]);
-    });
+    int? id = bilibiliVideo.id;
+    int? aid = bilibiliVideo.aid;
+    String? bvid = bilibiliVideo.bvid;
+    String compositeId = [id, aid, bvid].where((e) => e != null).join('-');
+    Get.toNamed('${RoutePath.kPlayList}/$compositeId', arguments: [bilibiliVideo, mediaType], preventDuplicates: false);
   }
 
   static Future<void> toLiveRoomDetail({required VideoMediaInfo mediaInfo}) async {

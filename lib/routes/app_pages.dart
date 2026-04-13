@@ -67,10 +67,8 @@ class AppPages {
       bindings: [SearchBinding()],
     ),
     GetPage(
-      name: RoutePath.kPlayList,
-      page: () => PlayListPage(
-        key: UniqueKey(),
-      ),
+      name: '${RoutePath.kPlayList}/:id', // 动态 ID 占位
+      page: () => PlayListPage(key: UniqueKey()),
       bindings: [PlayListBinding()],
       preventDuplicates: false,
     ),

@@ -150,8 +150,9 @@ class BottomMusicControl extends GetWidget<AudioController> {
                                         controller.currentMusicInfo.value.artist!.isNotEmpty
                                             ? controller.currentMusicInfo.value.artist!
                                             : controller.currentMediaInfo.name,
+                                        maxLines: 2,
                                         style: const TextStyle(
-                                          fontSize: 12,
+                                          fontSize: 11,
                                           color: Colors.white60,
                                         ),
                                       ))
@@ -198,7 +199,7 @@ class BottomMusicControl extends GetWidget<AudioController> {
                                         color: Colors.white,
                                         boxShadow: [
                                           BoxShadow(
-                                            color: const Color(0xFFFF3A3A).withOpacity(0.3),
+                                            color: const Color(0xFFFF3A3A).withValues(alpha: 0.3),
                                             blurRadius: 10,
                                             spreadRadius: 1,
                                           )

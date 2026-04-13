@@ -13,6 +13,8 @@ import 'package:flutter_multi_select_items/flutter_multi_select_items.dart';
 
 class PlayListPage extends GetView<PlayListController> {
   const PlayListPage({super.key});
+  @override
+  String? get tag => Get.parameters['id'];
 
   Future<String?> showBottomSheet() async {
     var result = await Get.bottomSheet(

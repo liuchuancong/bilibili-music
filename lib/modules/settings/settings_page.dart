@@ -52,6 +52,16 @@ class SettingsPage extends GetView<AppSettingsService> {
           if (Platform.isWindows)
             Obx(
               () => SwitchListTile(
+                title: Text('开机启动'),
+                subtitle: Text('应用将在每次开机时自动启动'),
+                value: controller.enableLaunchAtStartup.value,
+                activeThumbColor: Theme.of(context).colorScheme.primary,
+                onChanged: (bool value) => controller.enableLaunchAtStartup.value = value,
+              ),
+            ),
+          if (Platform.isWindows)
+            Obx(
+              () => SwitchListTile(
                 title: Text('退出每次询问'),
                 subtitle: Text('应用将在每次退出时不再询问是否退出'),
                 value: controller.enableExitWithoutConfirm.value,

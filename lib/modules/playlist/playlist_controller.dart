@@ -75,18 +75,9 @@ class PlayListController extends BasePageController<VideoMediaInfo> {
   }
 
   @override
-  void onInit() {
-    subscription = EventBus.instance.listen('toLiveRoomDetailList', (data) async {
-      SmartDialog.showLoading(msg: '加载中...');
-      var bilibiliVideo = data[0] as BilibiliVideoItem;
-      var videoMediaTypes = data[1] as VideoMediaType;
-      currentbilibiliVideo = bilibiliVideo;
-      currentMediaType = videoMediaTypes;
-      list.clear();
-      await loadData();
-      await loadUserinfo();
-      SmartDialog.dismiss();
-    });
+  void onInit() async {
+    await loadData();
+    await loadUserinfo();
     super.onInit();
   }
 
