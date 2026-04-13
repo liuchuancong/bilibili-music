@@ -69,6 +69,15 @@ class SettingsPage extends GetView<AppSettingsService> {
                 onChanged: (bool value) => controller.enableExitWithoutConfirm.value = value,
               ),
             ),
+          Obx(
+            () => SwitchListTile(
+              title: Text('自动检查更新'),
+              subtitle: Text('当有新版本时，自动弹出更新提示'),
+              value: controller.enableAutoCheckUpdate.value,
+              activeThumbColor: Theme.of(context).colorScheme.primary,
+              onChanged: (bool value) => controller.enableAutoCheckUpdate.value = value,
+            ),
+          ),
           const SectionTitle(title: "播放器"),
           if (Platform.isAndroid)
             Obx(

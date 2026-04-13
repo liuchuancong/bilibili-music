@@ -43,7 +43,6 @@ class MenuButton extends GetView<AppSettingsService> {
     RoutePath.kSettingsAccount,
     RoutePath.kSettings,
     RoutePath.kAbout,
-    RoutePath.kHistory,
   ];
 
   @override
@@ -74,6 +73,14 @@ class MenuButton extends GetView<AppSettingsService> {
           child: MenuListTile(
             leading: Icon(Icons.settings_rounded),
             text: "设置",
+          ),
+        ),
+        PopupMenuItem(
+          value: 2,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: MenuListTile(
+            leading: const Icon(Icons.info_rounded),
+            text: "关于",
           ),
         ),
       ],

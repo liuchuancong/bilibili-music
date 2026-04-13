@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:bilibilimusic/common/index.dart';
 import 'package:bilibilimusic/services/index.dart';
+import 'package:bilibilimusic/utils/update_util.dart';
 import 'package:bilibilimusic/services/audio_service.dart';
 
 class HomeController extends GetxController with GetTickerProviderStateMixin {
@@ -16,6 +17,7 @@ class HomeController extends GetxController with GetTickerProviderStateMixin {
   @override
   void onInit() {
     setUI();
+    AppUpdateChecker.checkAndShowUpdate();
     super.onInit();
   }
 

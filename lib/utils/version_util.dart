@@ -2,16 +2,14 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class VersionUtil {
-  static const String version = '1.7.2';
-  static const String projectUrl = 'https://github.com/liuchuancong/pure_live';
-  static const String releaseUrl = 'https://api.github.com/repos/liuchuancong/pure_live/releases';
-  static const String issuesUrl = 'https://github.com/liuchuancong/pure_live/issues';
+  static const String version = '1.0.9';
+  static const String projectUrl = 'https://github.com/liuchuancong/bilibili-music';
+  static const String releaseUrl = 'https://api.github.com/repos/liuchuancong/bilibili-music/releases';
+  static const String issuesUrl = 'https://github.com/liuchuancong/bilibili-music/issues';
 
   static const String githubUrl = 'https://github.com/liuchuancong';
   static const String email = '17792321552@163.com';
-  static const String emailUrl = 'mailto:17792321552@163.com?subject=PureLive Feedback';
-  static const String telegramGroup = 't.me/pure_live_channel';
-  static const String telegramGroupUrl = 'https://t.me/pure_live_channel';
+  static const String emailUrl = 'mailto:17792321552@163.com?subject=BilibiliMusic Feedback';
 
   static String latestVersion = version;
   static String latestUpdateLog = '';

@@ -526,6 +526,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "9.2.2"
+  flutter_highlight:
+    dependency: transitive
+    description:
+      name: flutter_highlight
+      sha256: "7b96333867aa07e122e245c033b8ad622e4e3a42a1a2372cbb098a2541d8782c"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.7.0"
   flutter_inappwebview:
     dependency: "direct main"
     description:
@@ -752,6 +760,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.2.0"
+  highlight:
+    dependency: transitive
+    description:
+      name: highlight
+      sha256: "5353a83ffe3e3eca7df0abfb72dcf3fa66cc56b953728e7113ad4ad88497cf21"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.7.0"
   hive_ce:
     dependency: "direct main"
     description:
@@ -976,6 +992,22 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.9.1"
+  markdown:
+    dependency: transitive
+    description:
+      name: markdown
+      sha256: ee85086ad7698b42522c6ad42fe195f1b9898e4d974a1af4576c1a3a176cada9
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "7.3.1"
+  markdown_widget:
+    dependency: "direct main"
+    description:
+      name: markdown_widget
+      sha256: b52c13d3ee4d0e60c812e15b0593f142a3b8a2003cde1babb271d001a1dbdc1c
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.3.2+8"
   marquee_list:
     dependency: "direct main"
     description:
@@ -1169,6 +1201,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.0"
+  open_filex_plus:
+    dependency: "direct main"
+    description:
+      name: open_filex_plus
+      sha256: a7ea017d5b3878622f3ed0685beb56786b8947cb2788bcdcb633e70c87fb16e7
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "4.7.3"
   package_config:
     dependency: transitive
     description:
@@ -1514,6 +1554,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.2.0"
+  scroll_to_index:
+    dependency: transitive
+    description:
+      name: scroll_to_index
+      sha256: b707546e7500d9f070d63e5acf74fd437ec7eeeb68d3412ef7b0afada0b4f176
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.0.1"
   server_nano_nano:
     dependency: "direct main"
     description:
@@ -1903,6 +1951,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.2.0"
+  visibility_detector:
+    dependency: transitive
+    description:
+      name: visibility_detector
+      sha256: dd5cc11e13494f432d15939c3aa8ae76844c42b723398643ce9addb88a5ed420
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.4.0+2"
   vm_service:
     dependency: transitive
     description:

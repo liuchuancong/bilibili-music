@@ -6,15 +6,19 @@ import 'package:bilibilimusic/modules/home/home.dart';
 import 'package:bilibilimusic/modules/sync/sync_page.dart';
 import 'package:bilibilimusic/modules/home/home_bing.dart';
 import 'package:bilibilimusic/modules/profile/profile.dart';
+import 'package:bilibilimusic/modules/about/about_page.dart';
 import 'package:bilibilimusic/modules/sync/sync_binding.dart';
 import 'package:bilibilimusic/modules/playlist/playlist.dart';
 import 'package:bilibilimusic/modules/search/search_page.dart';
+import 'package:bilibilimusic/modules/version/version_page.dart';
 import 'package:bilibilimusic/modules/profile/profile_bing.dart';
 import 'package:bilibilimusic/modules/account/account_bing.dart';
 import 'package:bilibilimusic/modules/account/account_page.dart';
+import 'package:bilibilimusic/modules/about/version_history.dart';
 import 'package:bilibilimusic/modules/search/search_binding.dart';
 import 'package:bilibilimusic/modules/archives/archives_page.dart';
 import 'package:bilibilimusic/modules/settings/settings_page.dart';
+import 'package:bilibilimusic/modules/version/version_binding.dart';
 import 'package:bilibilimusic/modules/archives/archives_bings.dart';
 import 'package:bilibilimusic/modules/live_play/live_play_page.dart';
 import 'package:bilibilimusic/modules/settings/settings_binding.dart';
@@ -112,5 +116,8 @@ class AppPages {
       preventDuplicates: true,
       bindings: [ArchivesBinding()],
     ),
+    GetPage(name: RoutePath.kVersionPage, page: () => const VersionPage(), bindings: [VersionBinding()]),
+    GetPage(name: RoutePath.kAbout, page: AboutPage.new),
+    GetPage(name: RoutePath.kHistory, page: VersionHistoryPage.new),
   ];
 }

@@ -1,0 +1,101 @@
+import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:bilibilimusic/common/index.dart';
+import 'package:markdown_widget/config/configs.dart';
+import 'package:bilibilimusic/routes/route_path.dart';
+import 'package:bilibilimusic/utils/version_util.dart';
+import 'package:markdown_widget/widget/markdown_block.dart';
+
+class NoNewVersionDialog extends StatelessWidget {
+  const NoNewVersionDialog({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('检查更新'),
+      content: Text('当前已是最新版本'),
+      actions: <Widget>[
+        TextButton(
+          child: Text('确定'),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class NewVersionDialog extends StatelessWidget {
+  const NewVersionDialog({super.key, this.entry});
+
+  final OverlayEntry? entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final maxWidth = mediaQuery.size.width * 0.9;
+    final maxHeight = mediaQuery.size.height * 0.7;
+    final config = Get.isDarkMode ? MarkdownConfig.darkConfig : MarkdownConfig.defaultConfig;
+    return AlertDialog(
+      title: Text('检查更新'),
+      content: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextButton(
+                onPressed: () {
+                  if (entry != null) {
+                    entry!.remove();
+                  } else {
+                    Navigator.pop(context);
+                  }
+                  launchUrl(
+                    Uri.parse('https://github.com/liuchuancong/pure_live'),
+                    mode: LaunchMode.externalApplication,
+                  );
+                },
+                child: const Text('本软件开源免费', style: TextStyle(fontSize: 20)),
+              ),
+              MarkdownBlock(data: VersionUtil.latestUpdateLog, config: config),
+              const SizedBox(height: 10),
+            ],
+          ),
+        ),
+      ),
+      actionsAlignment: MainAxisAlignment.start,
+      actions: <Widget>[
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TextButton(
+              child: Text('稍后再说'),
+              onPressed: () {
+                if (entry != null) {
+                  entry!.remove();
+                } else {
+                  Navigator.pop(context);
+                }
+              },
+            ),
+            ElevatedButton(
+              child: Text('下载最新版本'),
+              onPressed: () {
+                if (entry != null) {
+                  entry!.remove();
+                } else {
+                  Navigator.pop(context);
+                }
+                Get.toNamed(RoutePath.kVersionPage);
+              },
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
