@@ -37,11 +37,6 @@ dependencies:
       url: https://github.com/Predidit/media-kit.git
       ref: main
       path: ./media_kit_video
-  media_kit_libs_video:
-    git:
-      url: https://github.com/Predidit/media-kit.git
-      ref: main
-      path: ./libs/universal/media_kit_libs_video
   flex_color_picker: ^3.3.0
   share_handler: ^0.0.19
   flutter_smart_dialog: ^5.1.0 #各种弹窗 Toast/Dialog/Popup
